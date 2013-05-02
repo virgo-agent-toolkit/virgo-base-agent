@@ -26,6 +26,7 @@ def git_describe_fields(version):
 
 
 def version(sep='-', cwd=None):
+    # import pdb; pdb.set_trace()
     version = git_describe(is_exact=False, split=True, cwd=cwd)
     zeroed = zero_release(version)
     fields = git_describe_fields(zeroed)
@@ -42,4 +43,4 @@ if __name__ == "__main__":
     parser.add_option("-d", "--directory", dest="directory", default=None, help="path to directory ")
     (options, args) = parser.parse_args()
 
-    print version(options.seperator, options.directory)
+    print (options.seperator, options.directory)

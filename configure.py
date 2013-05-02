@@ -17,7 +17,6 @@ from tools import pkgutils
 from tools import version
 
 root_dir = os.path.dirname(__file__)
-
 # parse our options
 parser = optparse.OptionParser()
 
@@ -45,11 +44,6 @@ parser.add_option("--host_arch",
     action="store",
     dest="host_arch",
     help="Select the architecture of the build host (defaults to autodetect)")
-
-parser.add_option("--bundle",
-    action="store",
-    dest="bundle",
-    help="The path to the directory on disk containing lua files to be bundled.")
 
 (options, args) = parser.parse_args()
 
@@ -99,12 +93,15 @@ def debian_changelog(changes, **kwargs):
 def configure_pkg(platform, pkg_vars):
     """slurps up variables from various sources and renders package files
     eg the debian changelog."""
+
+    root = os.path.join(root_dir, 'pkg')
+    out_dir = os.path.join(root, 'out')
+
     mapping = pkg_vars.copy()
     for k, v in platform['variables'].items():
         mapping[k] = v
     mapping['TARNAME'] = "%s-%s" % (mapping['PKG_NAME'], mapping['VERSION_FULL'])
 
-    out_dir = os.path.join('pkg', 'out')
     try:
         os.mkdir(out_dir)
     except OSError as e:
@@ -112,28 +109,29 @@ def configure_pkg(platform, pkg_vars):
             raise
 
     def render(_in, _out):
-        template = open(_in, 'rb').read()
+        in_path = os.path.join(root, _in)
+        out_path = os.path.join(out_dir, _out)
+        template = open(in_path, 'rb').read()
         rendered = string.Template(template).safe_substitute(mapping)
-        open(_out, 'wb').write(rendered)
+        open(out_path, 'wb').write(rendered)
 
     name = mapping['PKG_NAME']
 
     if mapping['PKG_TYPE'] == 'deb':
-        root = os.path.join('pkg', 'debian')
         for f in os.listdir(root):
-            render(os.path.join(root, f), os.path.join(out_dir, f))
+            render(os.path.join('debian', f), f)
         log = debian_changelog(mapping['CHANGELOG'], **mapping)
 
-        open(os.path.join(out_dir, 'changelog'), 'wb').\
-            write(log.encode('utf8'))
+        open(os.path.join(out_dir, 'changelog'), 'wb').write(log.encode('utf8'))
 
     elif mapping['PKG_TYPE'] == 'rpm':
-        render('pkg/rpm/spec.in', 'out/%s.spec' % name)
-        render('pkg/systemd/agent.service', 'out/%s.service' % name)
-        render('pkg/sysv-redhat/agent', 'out/sysv-%s' % name)
+
+        render('rpm/spec.in', '%s.spec' % name)
+        render('systemd/agent.service', '%s.service' % name)
+        render('sysv-redhat/agent', 'sysv-%s' % name)
     mapping['WARNING'] = '# autogened by gyp, do not edit by hand'
     if sys.platform != "win32":
-        render(os.path.join('pkg', 'include.mk.in'), os.path.join('include.mk'))
+        render('include.mk.in', 'include.mk')
 
 
 def pkg_config(pkg):
@@ -210,9 +208,11 @@ def configure_virgo_platform(bundle_dir, platform_vars):
 
     variables = {}
     variables['BUNDLE_DIR'] = bundle_dir
+    variables['VIRGO_BASE_DIR'] = root_dir
     variables['BUNDLE_NAME'] = os.path.basename(bundle_dir)
     variables['VIRGO_HEAD_SHA'] = pkgutils.git_head()
-    versions = version.version(sep=None)
+    # Hack here: we should look at the parent for the versioning of stuffs
+    versions = version.version(sep=None, cwd=bundle_dir)
     variables['PKG_TYPE'] = pkgutils.pkg_type() or ""
     variables['VERSION_FULL'] = versions['tag']
     variables['VERSION_MAJOR'] = versions['major']
@@ -305,8 +305,18 @@ def render_openssl_symlinks(src, dest):
             shutil.copy2(srcf, destf)
 
 
-def main():
+def submodule_update_init():
+    if not os.path.isdir(os.path.join('.', '.git')):
+        print "not updating submodules"
+        return
+    print "Updating git submodules...."
+    os.system(' '.join(['git', 'submodule', 'update', '--init', '--recursive']))
+
+
+def main(bundle_dir=None):
     print 'Creating GYP include files (.gypi)'
+    if not bundle_dir:
+        bundle_dir = os.getcwd()
     out_dir = os.path.join('out')
     try:
         os.mkdir(out_dir)
@@ -319,39 +329,35 @@ def main():
 
     # are we being built inside a package (ie, these options should be burned in)
     # TODO: what if a package calls make clean (ie, we won't regenerate out/include.mk because this file exists)
+    virgo_json_path = os.path.join(bundle_dir, 'virgo.json')
+    pkg_vars = ast.literal_eval(open(virgo_json_path, 'rb').read())
     if os.path.exists(os.path.join(root_dir, 'no_gen_platform_gypi')):
-        platform = ast.literal_eval(open('platform.gypi').read())
+        platform_path = os.path.join(root_dir, 'platform.gypi')
+        platform = ast.literal_eval(open(platform_path).read())
         bundle_dir = platform['variables']['BUNDLE_DIR']
-        virgo_json = os.path.join(bundle_dir, 'virgo.json')
-        pkg_vars = ast.literal_eval(open(virgo_json, 'rb').read())
     else:
-        if not options.bundle:
-            options.bundle = "example"
-            print('\nWarning: no bundle path was specified.  The example bundle will be used.\n')
-        bundle_dir = os.path.relpath(options.bundle, '.')
-        virgo_json = os.path.join(bundle_dir, 'virgo.json')
-        pkg_vars = ast.literal_eval(open(virgo_json, 'rb').read())
         platform = configure_virgo_platform(bundle_dir, pkg_vars)
         write_gypi(platform, 'platform.gypi')
     configure_pkg(platform, pkg_vars)
 
-    if os.path.isdir(os.path.join('.', '.git')):
-        print "Updating git submodules...."
-        os.system(' '.join(['git', 'submodule', 'update', '--init', '--recursive']))
-
     print "Generating build system with GYP..."
 
     rv = None
+    gyp_exe = os.path.join(root_dir, 'tools', 'gyp_virgo')
     if sys.platform == "win32":
         os.environ['GYP_MSVS_VERSION'] = '2010'
         render_openssl_symlinks('deps/luvit/deps/openssl/openssl/include/openssl',
             'deps/luvit/deps/openssl/openssl-configs/realized/openssl')
-        rv = os.system("python tools\gyp_virgo -f msvs -G msvs_version=2010")
+        rv = os.system("python %s -f msvs -G msvs_version=2010" % (gyp_exe))
     else:
-        cmd = "tools/gyp_virgo"
         if options.ninja_build:
-            cmd += " -f ninja"
-        rv = os.system(cmd)
+            gyp_exe += " -f ninja"
+        else:
+            # Tell gyp to write the Makefiles into output_dir
+            gyp_exe += ' --generator-output ../out '
+            # Tell make to write its output into the same dir
+        gyp_exe += ' -Goutput_dir=../out '
+        rv = os.system(gyp_exe)
 
     if rv != 0:
         sys.exit(rv)

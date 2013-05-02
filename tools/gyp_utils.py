@@ -85,12 +85,13 @@ def stupid_find(root):
     return file_list
 
 
-def bundle_list(root):
+def bundle_list(root, exclude_dir):
     """list files to bundle at root
     ...minus those that start in exclusions
     ...minus anything not a .lua unless in static
     ...and minus the paths in static that are in exclusions"""
     file_list = []
+    exclude_dir = os.path.normpath(exclude_dir) + os.path.sep
     # its easier to generate a list of stuff to ignore based on how os.walk works
     for base_path, _, files in os.walk(root):
         for f in files:
@@ -98,14 +99,18 @@ def bundle_list(root):
             #skip links
             if os.path.islink(f):
                 continue
-            split_path = _split_path(os.path.relpath(file_path, root))
+            rel_path = os.path.relpath(file_path, root)
+            split_path = _split_path(rel_path)
             # skip if not in static and not a .lua
             name, extension = os.path.splitext(f)
+            abs_path = os.path.abspath(file_path)
+            if abs_path.startswith(exclude_dir):
+                continue
             if split_path[0] != "static" and extension != ".lua":
                 continue
             if name in [".git", ".gitignore", ".gitmodules"]:
                 continue
-            file_list.append("'%s'" % file_path)
+            file_list.append("'%s'" % rel_path)
 
     return file_list
 

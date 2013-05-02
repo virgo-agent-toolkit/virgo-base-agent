@@ -1,7 +1,7 @@
 {
   'variables': {
     'luas': [
-      '<!@(python tools/gyp_utils.py bundle_list <(BUNDLE_DIR))',
+      '<!@(python tools/gyp_utils.py bundle_list <(BUNDLE_DIR) <(VIRGO_BASE_DIR))',
     ],
   },
   'targets':
