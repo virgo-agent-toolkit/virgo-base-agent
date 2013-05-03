@@ -12,7 +12,6 @@ endif
 
 %.zip.sig: $(zip_files)
 	cd ${VIRGO_BASE_DIR} && python tools/build.py sig-gen ${SIGNING_KEY} $(patsubst %.zip.sig, %.zip, $@) out/${BUILDTYPE}/$@
- 	#ln -fs out/${BUILDTYPE}/$@ $@
 
 all: out/Makefile
 	$(MAKE) -C out BUILDTYPE=$(BUILDTYPE) -j4
@@ -38,7 +37,7 @@ tests: all
 	$(MAKE) pep8
 
 crash: all
-	python tools/build.py crash
+	python ${VIRGO_BASE_DIR}/tools/build.py crash
 
 install: all
 	install -d ${BINDIR}
@@ -50,15 +49,15 @@ install: all
 
 dist:
 	# -ln -fs out/${BUILDTYPE}/${PKG_NAME} ${PKG_NAME}
-	./tools/git-archive-all/git-archive-all --prefix=${TARNAME}/ out/${TARNAME}.tar.gz
+	${VIRGO_BASE_DIR}/tools/git-archive-all/git-archive-all --prefix=${TARNAME}/ out/${TARNAME}.tar.gz
 	tar xzf out/${TARNAME}.tar.gz -C out
-	cp -f platform.gypi out/${TARNAME}/
+	cp -f ${VIRGO_BASE_DIR}/platform.gypi out/${TARNAME}/
 	touch out/${TARNAME}/no_gen_platform_gypi
-	#TODO really, the above statement should be enough (ie, this should be done by configure)
-	cp include.mk out/${TARNAME}
-	make -C deps/luvit dist_build
-	mv deps/luvit/luvit.gyp.dist out/${TARNAME}/deps/luvit/luvit.gyp
-	cp -f lib/virgo_exports.c out/${TARNAME}/lib/virgo_exports.c
+	# TODO really, the above statement should be enough (ie, this should be done by configure)
+	cp ${VIRGO_BASE_DIR}/pkg/out/include.mk out/${TARNAME}
+	make -C ${VIRGO_BASE_DIR}/deps/luvit dist_build
+	mv  ${VIRGO_BASE_DIR}/deps/luvit/luvit.gyp.dist out/${TARNAME}/base/deps/luvit/luvit.gyp
+	cp -f ${VIRGO_BASE_DIR}/lib/virgo_exports.c out/${TARNAME}/base/lib/virgo_exports.c
 	cd out && tar -cf ${TARNAME}.tar ${TARNAME}
 	gzip -f -9 out/${TARNAME}.tar > out/${TARNAME}.tar.gz
 
@@ -116,9 +115,9 @@ deb: all dist $(debbuild_dir)
 deb-sign:
 	@echo noop
 
-PKG_TYPE=$(shell python ./tools/pkgutils.py)
+PKG_TYPE=$(shell python ${VIRGO_BASE_DIR}/tools/pkgutils.py)
 pkg:
-	python ./tools/version.py > out/VERSION
+	python ${VIRGO_BASE_DIR}/tools/version.py > out/VERSION
 	[ "$(PKG_TYPE)" = "None" ] || $(MAKE) $(PKG_TYPE)
 
 pkg-sign:
