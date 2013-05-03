@@ -330,7 +330,7 @@ def main(bundle_dir=None):
     # TODO: what if a package calls make clean (ie, we won't regenerate out/include.mk because this file exists)
     virgo_json_path = os.path.join(bundle_dir, 'virgo.json')
     pkg_vars = ast.literal_eval(open(virgo_json_path, 'rb').read())
-    if os.path.exists(os.path.join(root_dir, 'no_gen_platform_gypi')):
+    if os.path.exists('no_gen_platform_gypi'):
         platform_path = os.path.join(root_dir, 'platform.gypi')
         platform = ast.literal_eval(open(platform_path).read())
         bundle_dir = platform['variables']['BUNDLE_DIR']

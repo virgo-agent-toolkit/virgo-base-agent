@@ -108,8 +108,10 @@ deb: all dist $(debbuild_dir)
 	rm -rf $(debbuild_dir)/${TARNAME} && mkdir $(debbuild_dir)/${TARNAME}
 	tar zxf out/${TARNAME}.tar.gz --strip-components=1 -C $(debbuild_dir)/${TARNAME}
 	mkdir $(debbuild_dir)/${TARNAME}/debian
-	cp -rf pkg/out/* $(debbuild_dir)/${TARNAME}/debian
-	cp -rf ${BUNDLE_DIR} $(debbuild_dir)
+	cp -rf ${VIRGO_BASE_DIR}/pkg/out/* $(debbuild_dir)/${TARNAME}/debian
+	mkdir $(debbuild_dir)/${TARNAME}/base/pkg/out/
+	cp ${VIRGO_BASE_DIR}/pkg/out/include.mk $(debbuild_dir)/${TARNAME}/base/pkg/out/
+	# cp -rf ${BUNDLE_DIR} $(debbuild_dir)
 	cd $(debbuild_dir)/${TARNAME} && dpkg-buildpackage
 
 deb-sign:
