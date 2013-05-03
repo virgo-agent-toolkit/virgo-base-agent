@@ -354,9 +354,9 @@ def main(bundle_dir=None):
             gyp_exe += " -f ninja"
         else:
             # Tell gyp to write the Makefiles into output_dir
-            gyp_exe += ' --generator-output ../out '
+            gyp_exe += ' --generator-output %s/out ' % bundle_dir
             # Tell make to write its output into the same dir
-        gyp_exe += ' -Goutput_dir=../out '
+            gyp_exe += ' -Goutput_dir=%s/out ' % bundle_dir
         rv = os.system(gyp_exe)
 
     if rv != 0:

@@ -38,7 +38,7 @@ if __name__ == '__main__':
         if os.path.exists(fp):
             args.extend(['-I', fp])
 
-    args.append('--depth=' + src_root)
+    args.append('--depth=.')
 
     if sys.platform == "darwin":
         args.extend(['-f', 'make'])

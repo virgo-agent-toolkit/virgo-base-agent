@@ -110,8 +110,8 @@ def bundle_list(root, exclude_dir):
                 continue
             if name in [".git", ".gitignore", ".gitmodules"]:
                 continue
-            file_list.append("'%s'" % rel_path)
-
+            file_list.append("'%s'" % os.path.relpath(rel_path, 'HACK_DIRECTORY'))
+    # raise Exception(file_list)
     return file_list
 
 
