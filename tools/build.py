@@ -17,9 +17,9 @@ def _build(prod=False):
     if prod:
         env_str = 'PRODUCTION=1'
     if sys.platform.find('freebsd') == 0:
-        cmd = '%s gmake -C %s' % (env_str, paths.root)
+        cmd = '%s gmake -C %s' % (env_str, paths.ROOT)
     elif sys.platform != "win32":
-        cmd = '%s make -C %s' % (env_str, paths.root)
+        cmd = '%s make -C %s' % (env_str, paths.ROOT)
     else:
         if prod:
             env_str = 'Production'
