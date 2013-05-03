@@ -13,7 +13,7 @@ def _abs_path(*args):
 
 _options = optloader.load_options('platform.gypi')['variables']
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = _options['BUNDLE_DIR']  # os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 BUNDLE_DIR = _abs_path(ROOT, _options['BUNDLE_DIR'])
 BUNDLE_NAME = _options['BUNDLE_NAME']
