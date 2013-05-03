@@ -133,7 +133,6 @@ def configure_pkg(platform, pkg_vars):
         render('include.mk.in', 'include.mk')
 
 
-
 def pkg_config(pkg):
     cmd = os.popen('pkg-config --libs %s' % pkg, 'r')
     libs = cmd.readline().strip()
