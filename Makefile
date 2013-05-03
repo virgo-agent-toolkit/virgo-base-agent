@@ -79,10 +79,10 @@ $(rpmbuild_dirs):
 rpm: all dist $(rpmbuild_dirs)
 #	cp out/${TARNAME}.tar.gz $(rpmbuild_dir)/SOURCES/
 #	mv out/${TARNAME} $(rpmbuild_dir)/BUILD/
-	cp -rf ${BUNDLE_DIR} $(rpmbuild_dir)/BUILD/
+	rsync -a --exclude='out' ${BUNDLE_DIR} $(rpmbuild_dir)/BUILD/
 	mv out/${TARNAME}.tar.gz $(rpmbuild_dir)/SOURCES/
-	cp pkg/out/${PKG_NAME}.spec $(rpmbuild_dir)/SPECS/
-	rpmbuild --define '_topdir $(PWD)/$(rpmbuild_dir)' -ba out/${PKG_NAME}.spec
+	cp ${VIRGO_BASE_DIR}/pkg/out/${PKG_NAME}.spec $(rpmbuild_dir)/SPECS/
+	rpmbuild --define '_topdir $(PWD)/$(rpmbuild_dir)' -ba $(rpmbuild_dir)/SPECS/${PKG_NAME}.spec
 
 rpm-sign:
 	-mv ~/.rpmmacros ~/.rpmmacros.bak
