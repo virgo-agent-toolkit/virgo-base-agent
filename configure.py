@@ -334,7 +334,6 @@ def main(bundle_dir=None):
     if os.path.exists(os.path.join(root_dir, 'no_gen_platform_gypi')):
         platform_data = open(os.path.join(root_dir, 'platform.gypi')).read()
         platform = ast.literal_eval(platform_data)
-        bundle_dir = platform['variables']['BUNDLE_DIR']
     else:
         platform = configure_virgo_platform(bundle_dir, pkg_vars)
         write_gypi(platform, 'platform.gypi')
