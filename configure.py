@@ -101,6 +101,7 @@ def configure_pkg(platform, pkg_vars):
     for k, v in platform['variables'].items():
         mapping[k] = v
     mapping['TARNAME'] = "%s-%s" % (mapping['PKG_NAME'], mapping['VERSION_FULL'])
+    mapping['WARNING'] = '# autogened by gyp, do not edit by hand'
 
     try:
         os.mkdir(out_dir)
@@ -118,20 +119,19 @@ def configure_pkg(platform, pkg_vars):
     name = mapping['PKG_NAME']
 
     if mapping['PKG_TYPE'] == 'deb':
+        root = os.path.join(root, 'debian')
         for f in os.listdir(root):
-            render(os.path.join('debian', f), f)
+            render(f, f)
         log = debian_changelog(mapping['CHANGELOG'], **mapping)
 
         open(os.path.join(out_dir, 'changelog'), 'wb').write(log.encode('utf8'))
-
+        render('../include.mk.in', 'include.mk')
     elif mapping['PKG_TYPE'] == 'rpm':
-
         render('rpm/spec.in', '%s.spec' % name)
         render('systemd/agent.service', '%s.service' % name)
         render('sysv-redhat/agent', 'sysv-%s' % name)
-    mapping['WARNING'] = '# autogened by gyp, do not edit by hand'
-    if sys.platform != "win32":
         render('include.mk.in', 'include.mk')
+
 
 
 def pkg_config(pkg):
