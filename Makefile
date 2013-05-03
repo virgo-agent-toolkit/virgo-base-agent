@@ -4,6 +4,7 @@ DESTDIR ?=
 # we do this because gyp sucks
 include base/pkg/out/include.mk
 
+VIRGO_BASE_DIR = base
 ifndef PRODUCTION
 SIGNING_KEY=${VIRGO_BASE_DIR}/tests/ca/server.key.insecure
 else
@@ -51,8 +52,8 @@ dist:
 	# -ln -fs out/${BUILDTYPE}/${PKG_NAME} ${PKG_NAME}
 	${VIRGO_BASE_DIR}/tools/git-archive-all/git-archive-all --prefix=${TARNAME}/ out/${TARNAME}.tar.gz
 	tar xzf out/${TARNAME}.tar.gz -C out
-	cp -f ${VIRGO_BASE_DIR}/platform.gypi out/${TARNAME}/
-	touch out/${TARNAME}/no_gen_platform_gypi
+	cp -f ${VIRGO_BASE_DIR}/platform.gypi out/${TARNAME}/${VIRGO_BASE_DIR}
+	touch out/${TARNAME}/${VIRGO_BASE_DIR}/no_gen_platform_gypi
 	# TODO really, the above statement should be enough (ie, this should be done by configure)
 	cp ${VIRGO_BASE_DIR}/pkg/out/include.mk out/${TARNAME}
 	make -C ${VIRGO_BASE_DIR}/deps/luvit dist_build
