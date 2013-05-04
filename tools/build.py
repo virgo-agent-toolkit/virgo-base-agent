@@ -9,6 +9,8 @@ import paths
 
 def _call(cmd, **kwargs):
     print(cmd)
+    if sys.platform == "win32":
+        os.chdir('base')
     sys.exit(subprocess.call(cmd, shell=True, **kwargs))
 
 
