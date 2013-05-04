@@ -145,7 +145,12 @@ def git_describe(is_exact=False, split=True, cwd=None):
 
 
 def git_head():
-    return subprocess.check_output('git rev-parse HEAD', shell=True).strip()
+    p = subprocess.Popen('git rev-parse HEAD',
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True)
+    version, errors = p.communicate()
+    return version.strip()
 
 
 def package_builder_dir():
