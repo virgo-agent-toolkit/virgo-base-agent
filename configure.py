@@ -367,7 +367,7 @@ def main(bundle_dir=None):
     print "Done!"
     print ""
     if sys.platform == "win32":
-        print "Now run `python tools/build.py build` to build!"
+        print "Now run `python base/tools/build.py build` to build!"
     else:
         print "Now run `make` to build!"
     print ""
