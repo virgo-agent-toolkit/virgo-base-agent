@@ -43,4 +43,4 @@ if __name__ == "__main__":
     parser.add_option("-d", "--directory", dest="directory", default=None, help="path to directory ")
     (options, args) = parser.parse_args()
 
-    print (options.seperator, options.directory)
+    print version(options.seperator, options.directory)
