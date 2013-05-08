@@ -43,4 +43,8 @@ if __name__ == "__main__":
     parser.add_option("-d", "--directory", dest="directory", default=None, help="path to directory ")
     (options, args) = parser.parse_args()
 
-    print version(options.seperator, options.directory)
+    v = version(options.seperator, options.directory)
+    if v['tag'] and v['release']:
+        print("%s-%s" % (v['tag'], v['release']))
+    else:
+        print("%s" % (v['hash']))
