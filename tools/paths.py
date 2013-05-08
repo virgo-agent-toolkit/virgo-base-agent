@@ -19,9 +19,13 @@ BUNDLE_DIR = _abs_path(ROOT, _options['BUNDLE_DIR'])
 BUNDLE_NAME = _options['BUNDLE_NAME']
 
 if sys.platform == "win32":
-    #TEMPORARY HACK - this is in options.gypi
-    BUILDTYPE = 'Release'  # 'Debug' if _options['variables']['virgo_debug'] == 'true' else 'Release'
-    BUILD_DIR = _abs_path(ROOT, BUILDTYPE)
+    _base_options = optloader.load_options('options.gypi')['variables']
+    if _base_options['virgo_debug'] == 'true':
+        BUILDTYPE = 'Debug'
+    else:
+        BUILDTYPE = 'Release'
+
+    BUILD_DIR = _abs_path(ROOT, 'base', BUILDTYPE)
     LUVIT = _abs_path(BUILD_DIR, 'luvit.exe')
     AGENT = _abs_path(BUILD_DIR, 'virgo.exe')
 else:
