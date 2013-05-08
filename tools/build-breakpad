@@ -23,7 +23,7 @@ def main():
     build_dir = pkgutils.package_builder_dir()
 
     command = os.path.join(build_dir, 'dump_syms')
-    arg = os.path.join(build_dir, 'monitoring-agent')
+    arg = os.path.join(build_dir, 'rackspace-monitoring-agent')
 
     print('running %s %s' % (command, arg))
 
@@ -36,7 +36,7 @@ def main():
         raise OSError('Failed to run dump_syms: %s' % p.stderr.read())
 
     head = stdout.split('\n', 1)[0]
-    groups = re.search(" ([A-Z0-9]+) monitoring-agent", head)
+    groups = re.search(" ([A-Z0-9]+) rackspace-monitoring-agent", head)
     if not groups:
         raise AttributeError('Failed to get digest from head of symbol file')
     digest = groups.groups()[0]

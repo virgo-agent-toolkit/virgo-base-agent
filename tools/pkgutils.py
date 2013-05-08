@@ -159,12 +159,10 @@ def package_builder_dir():
     interfere with generating symbols files."""
 
     pkgType = pkg_type()
-    basePath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    basePath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
     if pkgType == 'deb':
-        buildDirArgs = [basePath, 'out']
-        buildDirArgs += ('debbuild', 'rackspace-monitoring-agent')
-        buildDirArgs += ('out', 'Debug')
+        buildDirArgs = [basePath, 'out', 'Debug']
     elif pkgType == 'rpm':
         buildDirArgs = [basePath, 'out']
         buildDirArgs += ('rpmbuild', 'BUILD', "virgo-%s" % ("-".join(git_describe())))
