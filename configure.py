@@ -348,8 +348,8 @@ def main(bundle_dir=None):
     gyp_exe = os.path.join(root_dir, 'tools', 'gyp_virgo')
     if sys.platform == "win32":
         os.environ['GYP_MSVS_VERSION'] = '2010'
-        render_openssl_symlinks('base/base/deps/luvit/deps/openssl/openssl/include/openssl',
-            'base/base/deps/luvit/deps/openssl/openssl-configs/realized/openssl')
+        render_openssl_symlinks('base/deps/luvit/deps/openssl/openssl/include/openssl',
+            'base/deps/luvit/deps/openssl/openssl-configs/realized/openssl')
         rv = os.system("python %s -f msvs -G msvs_version=2010" % (gyp_exe))
     else:
         if options.ninja_build:
