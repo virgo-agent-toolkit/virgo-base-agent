@@ -164,8 +164,9 @@ def package_builder_dir():
     if pkgType == 'deb':
         buildDirArgs = [basePath, 'out', 'Debug']
     elif pkgType == 'rpm':
+        v = git_describe()
         buildDirArgs = [basePath, 'out']
-        buildDirArgs += ('rpmbuild', 'BUILD', "virgo-%s" % ("-".join(git_describe())))
+        buildDirArgs += ('rpmbuild', 'BUILD', "rackspace-monitoring-agent-%s" % v[0])
         buildDirArgs += ('out', 'Debug')
     elif pkgType == 'windows':
         buildDirArgs = [basePath, 'Release']
