@@ -36,6 +36,10 @@ def version(sep='-', cwd=None):
 
     return fields
 
+def full_version(sep='.', cwd=None):
+    v = version(sep, cwd)
+    return "%s-%s" % (v['tag'], v['version'])
+
 if __name__ == "__main__":
     usage = "usage: %prog [field] [--sep=.]"
     parser = OptionParser(usage=usage)

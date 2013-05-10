@@ -89,7 +89,7 @@ def package_binary():
     pkgType = pkg_type()
     if pkgType == 'windows':
         return 'rackspace-monitoring-agent.msi'
-    return 'monitoring-agent'
+    return 'rackspace-monitoring-agent'
 
 
 def system_info():
