@@ -46,7 +46,7 @@ def pkg():
         cmd = 'tools\win_pkg.bat %s' % paths.BUILDTYPE
 
     print cmd
-    sys.exit(subprocess.call(cmd, shell=True))
+    _call(cmd)
 
 
 def sig_gen(signingkey, filename, sigfilename):
@@ -54,7 +54,7 @@ def sig_gen(signingkey, filename, sigfilename):
     cmd = '%s dgst -sha256 -sign %s %s > %s' % (
         options['variables']['OPENSSL'], signingkey, filename, sigfilename)
     print cmd
-    sys.exit(subprocess.call(cmd, shell=True))
+    _call(cmd)
 
 
 def exe_sign():
