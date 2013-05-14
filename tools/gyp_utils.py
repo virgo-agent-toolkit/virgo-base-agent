@@ -139,6 +139,9 @@ class VirgoZip(zipfile.ZipFile):
         modules = ',\n'.join(['    "%s"' % x for x in self.lua_modules])
         statics = ',\n'.join(['    "%s"' % x for x in self.statics])
         init = LUA_MODULES_INIT % (THIS_FILE, bundle_version, modules, statics)
+        if sys.platform == 'win32':
+            # store the paths with forward slashes, so the lua path.posix will work
+            init = init.replace('\\', '/')
         self.writestr('lua_modules/init.lua', init)
 
 
