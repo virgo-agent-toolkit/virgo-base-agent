@@ -37,9 +37,8 @@ def version(sep='-', cwd=None):
     return fields
 
 
-def full_version(sep='.', cwd=None):
-    v = version(sep, cwd)
-    return "%s-%s" % (v['tag'], v['version'])
+def full_version(sep='-', cwd=None):
+    return version(sep, cwd)
 
 
 if __name__ == "__main__":
