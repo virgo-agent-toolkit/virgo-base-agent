@@ -88,7 +88,7 @@ def mkdir_p(path):
 def package_binary():
     pkgType = pkg_type()
     if pkgType == 'windows':
-        return 'rackspace-monitoring-agent.msi'
+        return 'virgo.msi'
     return 'rackspace-monitoring-agent'
 
 
@@ -169,7 +169,7 @@ def package_builder_dir():
         buildDirArgs += ('rpmbuild', 'BUILD', "rackspace-monitoring-agent-%s" % v[0])
         buildDirArgs += ('out', 'Debug')
     elif pkgType == 'windows':
-        buildDirArgs = [basePath, 'Release']
+        buildDirArgs = [basePath, 'base\\Release']
     else:
         raise AttributeError('Unsupported pkg type, %s' % (pkgType))
 
