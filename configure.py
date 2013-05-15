@@ -270,7 +270,7 @@ def configure_virgo():
         if (os.path.exists(windows_key_loc)):
             variables['RACKSPACE_CODESIGNING_KEYFILE'] = windows_key_loc
         else:
-            variables['RACKSPACE_CODESIGNING_KEYFILE'] = "pkg\\monitoring\\windows\\testss.pfx"
+            variables['RACKSPACE_CODESIGNING_KEYFILE'] = "pkg\\windows\\testss.pfx"
         supported_openssl_toolsets = [
             {
                 'OPENSSL': "C:\\Program Files (x86)\\Git\\bin\\openssl.exe",

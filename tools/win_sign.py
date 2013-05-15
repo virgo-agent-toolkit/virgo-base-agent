@@ -30,11 +30,11 @@ files_to_sign = []
 
 if sys.argv[1] == 'exe':
     files_to_sign = [
-        "monitoring-agent.exe",
+        "virgo.exe",
     ]
 if sys.argv[1] == 'pkg':
     files_to_sign = [
-        "rackspace-monitoring-agent.msi",
+        "virgo.msi",
     ]
 
 if os.path.exists(pfx):
