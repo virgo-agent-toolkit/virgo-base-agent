@@ -40,6 +40,8 @@ def pkg_dir():
         if dist[0] == 'debian':
             if dist[1][0] == '6':
                 dist = [dist[0], 'squeeze']
+            elif dist[1][0] == '7':
+                dist = [dist[0], 'wheezy']
             else:
                 dist = [dist[0], 'undefined']
         # Lower case everyting (looking at you Ubuntu)
