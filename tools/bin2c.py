@@ -1,6 +1,7 @@
 import os
 import sys
 import array
+import re
 
 from argparse import ArgumentParser
 
@@ -15,7 +16,8 @@ def output(stream, data):
     stream.write(data)
 
 def perform_conversion(input_filename, output_filename):
-    filename, ext = os.path.splitext(args.input)
+    filename, ext = os.path.splitext(os.path.basename(args.input))
+    filename = re.sub(r"[-/]", '_', filename)
 
     if output_filename == '-':
         stream = sys.stdout
