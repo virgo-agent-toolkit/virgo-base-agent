@@ -1,7 +1,8 @@
+import io
 import os
+import re
 import sys
 import array
-import re
 
 from argparse import ArgumentParser
 
@@ -22,7 +23,7 @@ def perform_conversion(input_filename, output_filename):
     if not output_filename or output_filename == '-':
         stream = sys.stdout
     else:
-        pass
+        stream = io.open(output_filename, 'wb')
 
     bytes = array.array('B', open(input_filename, "rb").read())
 
@@ -47,6 +48,7 @@ def perform_conversion(input_filename, output_filename):
 
     output(stream, tmpl_entry_footer)
     output(stream, tmpl_footer)
+    stream.close()
 
 if __name__ == '__main__':
     parser = ArgumentParser()
