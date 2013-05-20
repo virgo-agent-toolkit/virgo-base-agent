@@ -19,7 +19,7 @@ def perform_conversion(input_filename, output_filename):
     filename, ext = os.path.splitext(os.path.basename(args.input))
     filename = re.sub(r"[-/]", '_', filename)
 
-    if output_filename == '-':
+    if not output_filename or output_filename == '-':
         stream = sys.stdout
     else:
         pass
@@ -51,7 +51,7 @@ def perform_conversion(input_filename, output_filename):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-i', '--input', required=True, help='input file')
-    parser.add_argument('-o', '--output', required=True, help='output file')
+    parser.add_argument('-o', '--output', help='output file [default: stdout]')
     args = parser.parse_args()
 
     perform_conversion(args.input, args.output)
