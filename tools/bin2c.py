@@ -54,6 +54,7 @@ def perform_conversion(input_filename, output_filename):
     output(stream, tmpl_entry_footer)
     output(stream, tmpl_entry_size % (filename, size))
     output(stream, tmpl_footer)
+    output(stream, '\n')
     stream.close()
 
 
