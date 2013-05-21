@@ -11,9 +11,9 @@ tmpl_header = '''
 
 #include <stdlib.h>
 '''
-tmpl_entry_header = "const unsigned char %s[] = {\n"
+tmpl_entry_header = "const char bundle[] = {\n"
 tmpl_entry_footer = "};\n"
-tmpl_entry_size = "size_t %s_size = %s;\n"
+tmpl_entry_size = "size_t bundle_size = %s;\n"
 tmpl_footer = ''' '''
 
 
@@ -34,7 +34,7 @@ def perform_conversion(input_filename, output_filename):
     size = len(bytes)
 
     output(stream, tmpl_header)
-    output(stream, tmpl_entry_header % filename)
+    output(stream, tmpl_entry_header)
 
     i = 0
     for byte in bytes:
@@ -52,7 +52,7 @@ def perform_conversion(input_filename, output_filename):
         i += 1
 
     output(stream, tmpl_entry_footer)
-    output(stream, tmpl_entry_size % (filename, size))
+    output(stream, tmpl_entry_size % (size))
     output(stream, tmpl_footer)
     output(stream, '\n')
     stream.close()
