@@ -131,6 +131,8 @@ def configure_pkg(platform, pkg_vars):
         render('systemd/agent.service', '%s.service' % name)
         render('sysv-redhat/agent', 'sysv-%s' % name)
         render('include.mk.in', 'include.mk')
+    else:
+        render('include.mk.in', 'include.mk')
 
 
 def pkg_config(pkg):
