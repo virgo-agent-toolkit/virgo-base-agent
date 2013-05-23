@@ -45,7 +45,7 @@ install: all
 	install -d ${ETCDIR}
 	install -d ${SHAREDIR}
 	install out/${BUILDTYPE}/${PKG_NAME} ${BINDIR}/${PKG_NAME}
-	install out/${BUILDTYPE}/${BUNDLE_NAME}-bundle.zip ${SHAREDIR}/${BUNDLE_NAME}-${BUNDLE_VERSION}.zip
+	install out/${BUILDTYPE}/${BUNDLE_NAME}-bundle.zip ${SHAREDIR}/
 #	install out/${BUILDTYPE}/bundle-test.zip ${SHAREDIR}
 
 dist:
