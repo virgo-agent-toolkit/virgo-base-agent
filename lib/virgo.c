@@ -204,6 +204,11 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  if (1 == virgo_argv_has_help(v)) {
+    show_help();
+    return 0;
+  }
+
   /* Set Service Name */
   err = virgo_conf_service_name(v, "Rackspace Monitoring Agent");
   if (err) {
