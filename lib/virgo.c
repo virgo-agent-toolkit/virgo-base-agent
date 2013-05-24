@@ -36,10 +36,12 @@ handle_error(virgo_t *v, const char *msg, virgo_error_t *err)
   char buf[256];
 
   snprintf(buf, sizeof(buf), "%s: %s", msg, "[%s:%d] (%d) %s");
-  if (v) {
-    virgo_log_errorf(v, buf, err->file, err->line, err->err, err->msg);
+  if (err) {
+    if (v) {
+      virgo_log_errorf(v, buf, err->file, err->line, err->err, err->msg);
+    }
+    fprintf(stderr, buf, err->file, err->line, err->err, err->msg);
   }
-  fprintf(stderr, buf, err->file, err->line, err->err, err->msg);
   fputs("\n", stderr);
   fflush(stderr);
 }
