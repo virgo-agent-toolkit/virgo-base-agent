@@ -10,7 +10,7 @@ from pkgutils import pkg_type, pkg_dir
 from optparse import OptionParser
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-out = os.path.join(root, 'out')
+out = os.path.join(root, '..', 'out')
 
 def create_rpm(src, dest):
     if os.path.isdir(dest):
