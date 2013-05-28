@@ -86,7 +86,7 @@ rpm: all dist $(rpmbuild_dirs)
 
 rpm-sign:
 	-mv ~/.rpmmacros ~/.rpmmacros.bak
-	ln -s $(PWD)/pkg/rpm/rpm_macros_gpg ~/.rpmmacros
+	ln -s $(PWD)/base/pkg/rpm/rpm_macros_gpg ~/.rpmmacros
 	find $(rpmbuild_dir)/ -type f -name *.rpm -exec base/pkg/rpm/rpm-sign.exp {} \;
 	rm ~/.rpmmacros
 	-mv ~/.rpmmacros.bak ~/.rpmmacros
