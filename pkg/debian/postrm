@@ -1,3 +1,4 @@
 #!/bin/sh
 
 update-rc.d -f $PKG_NAME remove
+killall -9 $PKG_NAME
