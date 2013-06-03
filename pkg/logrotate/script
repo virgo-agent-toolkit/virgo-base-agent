@@ -1,0 +1,9 @@
+/var/log/*-agent*.log {
+    missingok
+    rotate 52
+    size 10M
+    compress
+    delaycompress
+    notifempty
+    create 640 root adm
+}
