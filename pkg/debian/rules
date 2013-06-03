@@ -33,7 +33,7 @@ install: build
 	install -d $(INITDDIR)
 	install -o root -g root -m 755 debian/package.init $(INITDDIR)/$(NAME)
 	install -d $(LOGROTATEDDIR)
-	install -o root -g root -m 644 ../logrotate/script $(LOGROTATEDDIR)/$(NAME)
+	install -o root -g root -m 644 $(CURDIR)/base/pkg/logrotate/script $(LOGROTATEDDIR)/$(NAME)
 
 binary-arch: build install
 	dh_testdir
