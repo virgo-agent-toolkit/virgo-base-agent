@@ -77,6 +77,7 @@ fi
 %{_bindir}/$PKG_NAME
 %{_datadir}/$PKG_NAME/*
 %{_sysconfdir}/systemd/system/$PKG_NAME.service
+%{_sysconfdir}/logrotate.d/$PKG_NAME
 %{_initrddir}/$PKG_NAME
 %config(noreplace) %{_sysconfdir}/$PKG_NAME.cfg
 
