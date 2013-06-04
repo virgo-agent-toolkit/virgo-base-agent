@@ -126,13 +126,16 @@ def configure_pkg(platform, pkg_vars):
 
         open(os.path.join(out_dir, 'changelog'), 'wb').write(log.encode('utf8'))
         render('../include.mk.in', 'include.mk')
+        render('../logrotate/script.in', 'script')
     elif mapping['PKG_TYPE'] == 'rpm':
         render('rpm/spec.in', '%s.spec' % name)
+        render('logrotate/script.in', 'script')
         render('systemd/agent.service', '%s.service' % name)
         render('sysv-redhat/agent', 'sysv-%s' % name)
         render('include.mk.in', 'include.mk')
     else:
         render('include.mk.in', 'include.mk')
+        render('logrotate/script.in', 'script')
 
 
 def pkg_config(pkg):
