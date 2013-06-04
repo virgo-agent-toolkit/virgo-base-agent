@@ -7,6 +7,6 @@
     notifempty
     create 640 root adm
     postrotate
-      /usr/bin/killall -HUP 'cat /var/run/$PKG_NAME.pid'
+      /usr/bin/killall -USR1 'cat /var/run/$PKG_NAME.pid'
     endscript
 }
