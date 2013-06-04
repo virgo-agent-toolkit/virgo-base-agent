@@ -6,4 +6,7 @@
     delaycompress
     notifempty
     create 640 root adm
+    postrotate
+      /usr/bin/killall -HUP 'cat /var/run/$PKG_NAME.pid'
+    endscript
 }
