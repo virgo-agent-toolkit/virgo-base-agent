@@ -1,6 +1,6 @@
-/var/log/*-agent*.log {
+/var/log/$PKG_NAME.log {
     missingok
-    rotate 52
+    rotate 12
     size 10M
     compress
     delaycompress
