@@ -39,7 +39,7 @@ install -m 644 ${VIRGO_BASE_DIR}/pkg/out/${PKG_NAME}.service $RPM_BUILD_ROOT/%{_
 install -d $RPM_BUILD_ROOT/%{_initrddir}
 install -m 755 ${VIRGO_BASE_DIR}/pkg/out/sysv-${PKG_NAME} $RPM_BUILD_ROOT/%{_initrddir}/${PKG_NAME}
 install -d $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d
-install -m 655 ${VIRGO_BASE_DIR}/pkg/logrotate/script $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/${PKG_NAME}
+install -m 655 ${VIRGO_BASE_DIR}/pkg/out/script $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/${PKG_NAME}
 # With the first RPM packages we accidently installed the configuration file as
 # an RPM owned "%file" but didn't mark it as a "%config" file. Now we can't
 # really go back on that. So, install an empty config file which will cause the
