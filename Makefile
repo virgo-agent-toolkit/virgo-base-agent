@@ -93,7 +93,7 @@ rpm-sign:
 
 #######################
 ### Debian
-export NAME := ${SHORT_DESCRIPTION} Package Repo ${DOCUMENTATION_LINK}
+export NAME := ${SHORT_DESCRIPTION} Package Repo (${DOCUMENTATION_LINK})
 export EMAIL := ${EMAIL}
 echo:
 	echo "$(NAME)"
