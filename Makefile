@@ -113,6 +113,7 @@ deb: all dist $(debbuild_dir)
 	mkdir $(debbuild_dir)/${TARNAME}/base/pkg/out/
 	cp ${VIRGO_BASE_DIR}/pkg/out/include.mk $(debbuild_dir)/${TARNAME}/base/pkg/out/
 	# cp -rf ${BUNDLE_DIR} $(debbuild_dir)
+	cd $(debbuild_dir)/${TARNAME} && dch -v ${PKG_FULL_VERSION} 'Release of ${VERSION}'
 	cd $(debbuild_dir)/${TARNAME} && dpkg-buildpackage
 
 deb-sign:
