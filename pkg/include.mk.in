@@ -14,7 +14,7 @@ BINDIR = ${DESTDIR}/usr/bin
 SHAREDIR = ${DESTDIR}/usr/share/${PKG_NAME}
 ETCDIR = ${DESTDIR}/etc
 VIRGO_BASE_DIR=${VIRGO_BASE_DIR}
-PKG_FULL_VERSION = $(shell python tools/version.py)
+PKG_FULL_VERSION = $(shell python base/tools/version.py)
 
 # PKG_VERSION = $(shell python tools/version.py tag)
 # PKG_RELEASE = $(shell python tools/version.py release)
