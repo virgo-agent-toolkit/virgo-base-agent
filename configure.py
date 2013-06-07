@@ -222,7 +222,7 @@ def configure_virgo_platform(bundle_dir, platform_vars):
     variables['VERSION_MINOR'] = versions['minor']
     variables['VERSION_RELEASE'] = versions['release']
     variables['VERSION_PATCH'] = versions['patch']
-    variables['VERSION_FULL'] = "%s-%s" % (versions['tag'], versions['release'])
+    variables['VERSION_FULL'] = versions['tag']
     variables['BUNDLE_VERSION'] = version.version(cwd=bundle_dir)
 
     for k, v in platform_vars.items():

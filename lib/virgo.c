@@ -93,7 +93,7 @@ service_maintenance(virgo_t *v)
 static void
 show_version(virgo_t *v)
 {
-  printf("%s\n", VERSION_FULL);
+  printf("%s-%s", VERSION_FULL, VERSION_RELEASE);
   fflush(stdout);
 }
 
