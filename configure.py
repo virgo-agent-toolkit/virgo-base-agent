@@ -218,11 +218,11 @@ def configure_virgo_platform(bundle_dir, platform_vars):
     # Hack here: we should look at the parent for the versioning of stuffs
     versions = version.version(sep=None, cwd=bundle_dir)
     variables['PKG_TYPE'] = pkgutils.pkg_type() or ""
-    variables['VERSION_FULL'] = versions['tag']
     variables['VERSION_MAJOR'] = versions['major']
     variables['VERSION_MINOR'] = versions['minor']
     variables['VERSION_RELEASE'] = versions['release']
     variables['VERSION_PATCH'] = versions['patch']
+    variables['VERSION_FULL'] = "%s-%s" % (versions['tag'], versions['release'])
     variables['BUNDLE_VERSION'] = version.version(cwd=bundle_dir)
 
     for k, v in platform_vars.items():
