@@ -53,7 +53,7 @@ show_help()
   printf("Usage: rackspace-monitoring-agent [options] [--setup] \n"
          "\n"
          "Options:\n"
-         "  -v, --version         Print monitoring-agent's version.\n"
+         "  -v, --version         Print version.\n"
          "  -c, --config val      Set configuration file path. Default: /etc/rackspace-monitoring-agent.cfg\n"
          "  -b, --bundle-dir val  Force the bundle directory.\n"
          "  -e val                Enter at module specified.\n"
