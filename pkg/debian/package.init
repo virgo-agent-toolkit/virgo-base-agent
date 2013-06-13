@@ -14,6 +14,7 @@ DAEMON=/usr/bin/$PKG_NAME
 PIDFILE=/var/run/$PKG_NAME.pid
 LOG=/var/log/$PKG_NAME.log
 
+[ -r /etc/default/$PKG_NAME ] && . /etc/default/$PKG_NAME
 test -f $DAEMON || exit 0
 
 # If upstart is installed, use it instead
