@@ -23,6 +23,7 @@
 #include "virgo__util.h"
 #include "uv.h"
 #include "luv.h"
+#include "luvit_init.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -67,32 +68,10 @@ void virgo__force_dump()
 
 static void
 virgo__global_init(virgo_t **p_v) {
-#if !defined(OPENSSL_NO_COMP)
-  STACK_OF(SSL_COMP)* comp_methods;
-#endif
-
   if (global_virgo_init++) {
     return;
   }
-
-  SSL_library_init();
-  OpenSSL_add_all_algorithms();
-  OpenSSL_add_all_digests();
-  SSL_load_error_strings();
-  ERR_load_crypto_strings();
-
-  /* Turn off compression. Saves memory - do it in userland. */
-#if !defined(OPENSSL_NO_COMP)
-#if OPENSSL_VERSION_NUMBER < 0x00908000L
-  comp_methods = SSL_COMP_get_compression_method()
-#else
-  comp_methods = SSL_COMP_get_compression_methods();
-#endif
-  sk_SSL_COMP_zero(comp_methods);
-  assert(sk_SSL_COMP_num(comp_methods) == 0);
-#endif
-
-  /* TODO: other platform init */
+  luvit_init_ssl();
 }
 
 static void
