@@ -213,7 +213,8 @@ def configure_virgo_platform(bundle_dir, platform_vars):
     variables = {}
     variables['BUNDLE_DIR'] = bundle_dir
     variables['VIRGO_BASE_DIR'] = root_dir
-    variables['BUNDLE_NAME'] = os.path.basename(bundle_dir)
+    variables['PKG_NAME'] = platform_vars['PKG_NAME']
+    variables['BUNDLE_NAME'] = platform_vars['PKG_NAME']
     variables['VIRGO_HEAD_SHA'] = pkgutils.git_head()
     # Hack here: we should look at the parent for the versioning of stuffs
     versions = version.version(sep=None, cwd=bundle_dir)
