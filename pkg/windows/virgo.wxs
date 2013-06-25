@@ -30,7 +30,7 @@
                         <File Id="zip"
                                 Name="$(var.BundleName)-bundle.zip"
                                 DiskId="1"
-                                Source='$(var.ProductDir)\bundle.zip' KeyPath="yes">
+                                Source='$(var.ProductDir)\$(var.BundleName)-bundle.zip' KeyPath="yes">
                         </File>
                     </Component>
                     <Component Id="MainExecutable" Guid="F044290F-E32E-438D-8E1A-C628E0353BD4">
