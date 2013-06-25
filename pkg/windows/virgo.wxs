@@ -9,6 +9,7 @@
     <?define ProductDir = $(var.PRODUCTDIR) ?>
     <?define RepoDir = $(var.REPODIR) ?>
     <?define BundleName = $(var.BUNDLE_NAME) ?>
+    <?define PkgName = $(var.PKG_NAME) ?>
 <!--    <?define ProductDir = $(var.PRODUCTDIR) ?> -->
 <!--    <?define ProductDir='C:\data\virgo\Debug' ?> -->
     <?define SourceDir = $(var.RepoDir) ?>
@@ -27,15 +28,15 @@
                 <Directory Id="RAXMONAGENT" Name="$(var.ProductShortName)">
                     <Component Id="ZipBundle" Guid="F40E81F0-1044-4BF7-A4E6-0F3B0995E074">
                         <File Id="zip"
-                                Name="$(var.BundleName)"
+                                Name="$(var.BundleName)-bundle.zip"
                                 DiskId="1"
-                                Source='$(var.ProductDir)\$(var.BundleName)-bundle.zip' KeyPath="yes">
+                                Source='$(var.ProductDir)\bundle.zip' KeyPath="yes">
                         </File>
                     </Component>
                     <Component Id="MainExecutable" Guid="F044290F-E32E-438D-8E1A-C628E0353BD4">
                         <!--TODO: build the exe with the correct name or link it or something -->
                         <File Id="agent_exe"
-                                Name="virgo.exe"
+                                Name="$(var.PkgName).exe"
                                 DiskId="1"
                                 Source='$(var.ProductDir)\virgo.exe' KeyPath="yes">
                         </File>
