@@ -141,6 +141,7 @@
               '-dPRODUCTDESCRIPTION=<(SHORT_DESCRIPTION)',
               '-dLONG_DESCRIPTION=<(LONG_DESCRIPTION)',
               '-dBUNDLE_NAME=<(BUNDLE_NAME)',
+              '-dPKG_NAME=<(PKG_NAME)',
               '-dBUNDLE_DIR=<(BUNDLE_DIR)',
               '-dWIN_PRODUCT_DESCRIPTION=<(WIN_PRODUCT_DESCRIPTION)',
               '-dAUTHOR=<(AUTHOR)',
