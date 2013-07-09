@@ -91,9 +91,7 @@ def bundle_list(root, *exclude_dirs):
     ...minus anything not a .lua unless in static
     ...and minus the paths in static that are in exclusions"""
     file_list = []
-    exclude_dir_list = []
-    for d in exclude_dirs:
-        exclude_dir_list.append(os.path.normpath(d) + os.path.sep)
+    exclude_dir_list = [ os.path.normpath(d) + os.path.sep for d in exclude_dirs ]
     # its easier to generate a list of stuff to ignore based on how os.walk works
     for base_path, _, files in os.walk(root):
 
