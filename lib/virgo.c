@@ -36,10 +36,12 @@ handle_error(virgo_t *v, const char *msg, virgo_error_t *err)
   char buf[256];
 
   snprintf(buf, sizeof(buf), "%s: %s", msg, "[%s:%d] (%d) %s");
-  if (v) {
-    virgo_log_errorf(v, buf, err->file, err->line, err->err, err->msg);
+  if (err) {
+    if (v) {
+      virgo_log_errorf(v, buf, err->file, err->line, err->err, err->msg);
+    }
+    fprintf(stderr, buf, err->file, err->line, err->err, err->msg);
   }
-  fprintf(stderr, buf, err->file, err->line, err->err, err->msg);
   fputs("\n", stderr);
   fflush(stderr);
 }
@@ -51,7 +53,7 @@ show_help()
   printf("Usage: rackspace-monitoring-agent [options] [--setup] \n"
          "\n"
          "Options:\n"
-         "  -v, --version         Print monitoring-agent's version.\n"
+         "  -v, --version         Print version.\n"
          "  -c, --config val      Set configuration file path. Default: /etc/rackspace-monitoring-agent.cfg\n"
          "  -b, --bundle-dir val  Force the bundle directory.\n"
          "  -e val                Enter at module specified.\n"
@@ -91,7 +93,7 @@ service_maintenance(virgo_t *v)
 static void
 show_version(virgo_t *v)
 {
-  printf("%s\n", VERSION_FULL);
+  printf("%s-%s", VERSION_FULL, VERSION_RELEASE);
   fflush(stdout);
 }
 
@@ -202,6 +204,11 @@ int main(int argc, char* argv[])
   if (err) {
     handle_error(v, "Error in startup", err);
     return EXIT_FAILURE;
+  }
+
+  if (1 == virgo_argv_has_help(v)) {
+    show_help();
+    return 0;
   }
 
   /* Set Service Name */

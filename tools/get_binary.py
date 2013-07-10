@@ -25,8 +25,12 @@ def main():
     binary_name = pkgutils.package_binary()
     binary = os.path.join(build_dir, binary_name)
 
-    dest = os.path.join(dest, '%s-monitoring-agent-%s' % (pkgutils.pkg_dir(),
-      full_version))
+    print(build_dir)
+    print(binary_name)
+    print(binary)
+
+    dest = os.path.join(dest, '%s-rackspace-monitoring-agent-%s' % (pkgutils.pkg_dir(),
+      full_version()))
     if pkgutils.pkg_type() == 'windows':
         dest += '.msi'
         hard_file = os.path.join(orig_dest, 'rackspace-monitoring-agent.msi')

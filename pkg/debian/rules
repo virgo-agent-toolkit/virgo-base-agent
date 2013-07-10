@@ -7,6 +7,7 @@ BINDIR=$(DESTDIR)/usr/bin
 SHAREDIR=$(DESTDIR)/usr/share/$(NAME)
 INITDIR=$(DESTDIR)/etc/init
 INITDDIR=$(DESTDIR)/etc/init.d
+LOGROTATEDDIR=$(DESTDIR)/etc/logrotate.d
 
 clean:
 	dh_testdir
@@ -31,6 +32,8 @@ install: build
 	install -o root -g root -m 644 debian/package.upstart $(INITDIR)/$(NAME).conf
 	install -d $(INITDDIR)
 	install -o root -g root -m 755 debian/package.init $(INITDDIR)/$(NAME)
+	install -d $(LOGROTATEDDIR)
+	install -o root -g root -m 644 $(CURDIR)/base/pkg/out/script $(LOGROTATEDDIR)/$(NAME)
 
 binary-arch: build install
 	dh_testdir

@@ -45,7 +45,7 @@ install: all
 	install -d ${ETCDIR}
 	install -d ${SHAREDIR}
 	install out/${BUILDTYPE}/${PKG_NAME} ${BINDIR}/${PKG_NAME}
-	install out/${BUILDTYPE}/${BUNDLE_NAME}-bundle.zip ${SHAREDIR}/${BUNDLE_NAME}-${BUNDLE_VERSION}.zip
+	install out/${BUILDTYPE}/${BUNDLE_NAME}-bundle.zip ${SHAREDIR}/
 #	install out/${BUILDTYPE}/bundle-test.zip ${SHAREDIR}
 
 dist:
@@ -86,14 +86,14 @@ rpm: all dist $(rpmbuild_dirs)
 
 rpm-sign:
 	-mv ~/.rpmmacros ~/.rpmmacros.bak
-	ln -s $(PWD)/pkg/rpm/rpm_macros_gpg ~/.rpmmacros
-	find $(rpmbuild_dir)/ -type f -name *.rpm -exec pkg/rpm/rpm-sign.exp {} \;
+	ln -s $(PWD)/base/pkg/rpm/rpm_macros_gpg ~/.rpmmacros
+	find $(rpmbuild_dir)/ -type f -name *.rpm -exec base/pkg/rpm/rpm-sign.exp {} \;
 	rm ~/.rpmmacros
 	-mv ~/.rpmmacros.bak ~/.rpmmacros
 
 #######################
 ### Debian
-export NAME := ${SHORT_DESCRIPTION} Package Repo ${DOCUMENTATION_LINK}
+export NAME := ${SHORT_DESCRIPTION} Package Repo (${DOCUMENTATION_LINK})
 export EMAIL := ${EMAIL}
 echo:
 	echo "$(NAME)"
@@ -113,6 +113,7 @@ deb: all dist $(debbuild_dir)
 	mkdir $(debbuild_dir)/${TARNAME}/base/pkg/out/
 	cp ${VIRGO_BASE_DIR}/pkg/out/include.mk $(debbuild_dir)/${TARNAME}/base/pkg/out/
 	# cp -rf ${BUNDLE_DIR} $(debbuild_dir)
+	cd $(debbuild_dir)/${TARNAME} && dch -v ${PKG_FULL_VERSION} 'Release of ${VERSION}'
 	cd $(debbuild_dir)/${TARNAME} && dpkg-buildpackage
 
 deb-sign:

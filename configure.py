@@ -126,11 +126,16 @@ def configure_pkg(platform, pkg_vars):
 
         open(os.path.join(out_dir, 'changelog'), 'wb').write(log.encode('utf8'))
         render('../include.mk.in', 'include.mk')
+        render('../logrotate/script.in', 'script')
     elif mapping['PKG_TYPE'] == 'rpm':
         render('rpm/spec.in', '%s.spec' % name)
+        render('logrotate/script.in', 'script')
         render('systemd/agent.service', '%s.service' % name)
         render('sysv-redhat/agent', 'sysv-%s' % name)
         render('include.mk.in', 'include.mk')
+    else:
+        render('include.mk.in', 'include.mk')
+        render('logrotate/script.in', 'script')
 
 
 def pkg_config(pkg):
@@ -208,16 +213,17 @@ def configure_virgo_platform(bundle_dir, platform_vars):
     variables = {}
     variables['BUNDLE_DIR'] = bundle_dir
     variables['VIRGO_BASE_DIR'] = root_dir
-    variables['BUNDLE_NAME'] = os.path.basename(bundle_dir)
+    variables['PKG_NAME'] = platform_vars['PKG_NAME']
+    variables['BUNDLE_NAME'] = platform_vars['PKG_NAME']
     variables['VIRGO_HEAD_SHA'] = pkgutils.git_head()
     # Hack here: we should look at the parent for the versioning of stuffs
     versions = version.version(sep=None, cwd=bundle_dir)
     variables['PKG_TYPE'] = pkgutils.pkg_type() or ""
-    variables['VERSION_FULL'] = versions['tag']
-    variables['VERSION_MAJOR'] = versions['major']
-    variables['VERSION_MINOR'] = versions['minor']
-    variables['VERSION_RELEASE'] = versions['release']
-    variables['VERSION_PATCH'] = versions['patch']
+    variables['VERSION_MAJOR'] = versions.get('major', 0)
+    variables['VERSION_MINOR'] = versions.get('minor', 0)
+    variables['VERSION_RELEASE'] = versions.get('release', 0)
+    variables['VERSION_PATCH'] = versions.get('patch', 0)
+    variables['VERSION_FULL'] = versions.get('tag', 0)
     variables['BUNDLE_VERSION'] = version.version(cwd=bundle_dir)
 
     for k, v in platform_vars.items():
@@ -270,7 +276,7 @@ def configure_virgo():
         if (os.path.exists(windows_key_loc)):
             variables['RACKSPACE_CODESIGNING_KEYFILE'] = windows_key_loc
         else:
-            variables['RACKSPACE_CODESIGNING_KEYFILE'] = "pkg\\monitoring\\windows\\testss.pfx"
+            variables['RACKSPACE_CODESIGNING_KEYFILE'] = "pkg\\windows\\testss.pfx"
         supported_openssl_toolsets = [
             {
                 'OPENSSL': "C:\\Program Files (x86)\\Git\\bin\\openssl.exe",

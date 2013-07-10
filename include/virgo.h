@@ -48,6 +48,11 @@ typedef struct virgo_t virgo_t;
 /** Opaque context of a Virgo Config Instance. */
 typedef struct virgo_conf_t virgo_conf_t;
 
+/*
+ * Checks if --help is passed.
+ */
+VIRGO_API(int) virgo_argv_has_help(virgo_t *v);
+
 /**
  * Creates a Virgo context.
  */

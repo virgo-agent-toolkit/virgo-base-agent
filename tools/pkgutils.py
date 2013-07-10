@@ -40,6 +40,8 @@ def pkg_dir():
         if dist[0] == 'debian':
             if dist[1][0] == '6':
                 dist = [dist[0], 'squeeze']
+            elif dist[1][0] == '7':
+                dist = [dist[0], 'wheezy']
             else:
                 dist = [dist[0], 'undefined']
         # Lower case everyting (looking at you Ubuntu)
@@ -88,8 +90,8 @@ def mkdir_p(path):
 def package_binary():
     pkgType = pkg_type()
     if pkgType == 'windows':
-        return 'rackspace-monitoring-agent.msi'
-    return 'monitoring-agent'
+        return 'virgo.msi'
+    return 'rackspace-monitoring-agent'
 
 
 def system_info():
@@ -129,13 +131,22 @@ def _git_describe(is_exact, git_dir, cwd):
 # git_describe() returns {'release': '143', 'tag': '0.1', 'hash': 'ga554734'}
 def git_describe(is_exact=False, split=True, cwd=None):
 
-    try:
-        version = _git_describe(is_exact, cwd, cwd)
-    except ValueError:
-        version = ""
+    git_dir = cwd
+    for depth in range(8):
+        try:
+            version = _git_describe(is_exact, cwd, cwd)
+        except ValueError:
+            version = ""
 
-    if not version:
-        version = _git_describe(is_exact, "..", cwd)
+        if version:
+            break
+
+        if not os.path.split(os.path.abspath(git_dir))[1]:
+            # reached "/" or "C:\"; no .git found
+            if not version:
+                raise Exception(".git dir not found or it's too far deep")
+
+        git_dir = os.path.join(cwd, "..")
 
     version = version.strip()
     if split:
@@ -164,11 +175,12 @@ def package_builder_dir():
     if pkgType == 'deb':
         buildDirArgs = [basePath, 'out', 'Debug']
     elif pkgType == 'rpm':
+        v = git_describe()
         buildDirArgs = [basePath, 'out']
-        buildDirArgs += ('rpmbuild', 'BUILD', "virgo-%s" % ("-".join(git_describe())))
+        buildDirArgs += ('rpmbuild', 'BUILD', "rackspace-monitoring-agent-%s" % v[0])
         buildDirArgs += ('out', 'Debug')
     elif pkgType == 'windows':
-        buildDirArgs = [basePath, 'Release']
+        buildDirArgs = [basePath, 'base\\Release']
     else:
         raise AttributeError('Unsupported pkg type, %s' % (pkgType))
 

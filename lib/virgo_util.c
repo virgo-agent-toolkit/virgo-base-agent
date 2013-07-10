@@ -67,3 +67,8 @@ virgo__argv_has_flag(virgo_t *v, const char *short_opt, const char *long_opt)
 
   return 0;
 }
+
+int
+virgo_argv_has_help(virgo_t *v) {
+  return virgo__argv_has_flag(v, "-h", "--help");
+}

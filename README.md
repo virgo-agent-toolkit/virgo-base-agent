@@ -131,6 +131,25 @@ If you wish to compile from the command line, run:
 
 See also: http://www.chromium.org/developers/how-tos/build-instructions-windows
 
+Building on FreeBSD
+===================
+
+    # pkg_add -r git
+    # pkg_add -r gcc46
+    # git clone https://github.com/racker/virgo
+    # cd virgo
+    # git submodule update --init --recursive
+    # ./configure
+    # setenv CC gcc46
+    # gmake -C out
+    # gmake install
+    # cp base/pkg/freebsd/rackspace-monitoring-agent.init /etc/rc.d/rackspace-monitoring-agent
+    # chmod 755 /etc/rc.d/rackspace-monitoring-agent
+
+Edit /etc/rc.conf and append:
+
+    rackspace-monitoring-agent_enable="YES"
+
 Distro Packages
 ===============
 
