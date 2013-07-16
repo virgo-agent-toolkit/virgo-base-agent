@@ -414,7 +414,7 @@ function require(filepath, dirname)
     if type(loader) == "function" then
       return loader()
     else
-      error("Failed to find module '" .. filepath .."'")
+      error("Failed to find module '" .. filepath .."' ('" .. dirname .. " | " .. absolute_path .. "')")
     end
   end
 

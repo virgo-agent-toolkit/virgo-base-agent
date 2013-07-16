@@ -1,7 +1,7 @@
 {
   'variables': {
     'luas': [
-      '<!@(python tools/gyp_utils.py bundle_list <(BUNDLE_DIR) <(VIRGO_BASE_DIR) <(BUNDLE_DIR)/out)',
+      '<!@(python tools/gyp_utils.py bundle_list <(BUNDLE_DIR)/out <(BUNDLE_DIR)/bundle )',
     ],
   },
   'targets':
@@ -15,7 +15,7 @@
           'outputs': ["<(PRODUCT_DIR)/<(BUNDLE_NAME)-bundle.zip"],
           'action': [
             'python', 'tools/gyp_utils.py', 'make_bundle',
-            '<(BUNDLE_DIR)', '<(BUNDLE_VERSION)', '<@(_outputs)', '<@(luas)'
+            '<(BUNDLE_DIR)/bundle', '<(BUNDLE_VERSION)', '<@(_outputs)', '<@(luas)'
           ]
         },
       ],
