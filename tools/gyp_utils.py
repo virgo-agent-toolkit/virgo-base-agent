@@ -84,6 +84,14 @@ def stupid_find(root):
         file_list += ["%s/%s" % (base_path, f) for f in files]
     return file_list
 
+def bundle_list_from_list_file(bundle_list_file):
+    file_list = []
+    with open(bundle_list_file) as f:
+        lines = f.readlines()
+        for line in lines:
+            if os.path.isfile(line):
+                file_list.append(os.path.relpath(line, "HACK_DIRECTORY"))
+    return file_list
 
 def bundle_list(root, *exclude_dirs):
     """list files to bundle at root
