@@ -89,8 +89,9 @@ def bundle_list_from_list_file(bundle_list_file):
     with open(bundle_list_file) as f:
         lines = f.readlines()
         for line in lines:
-            if os.path.isfile(line):
-                file_list.append(os.path.relpath(line, "HACK_DIRECTORY"))
+            filepath = os.path.abspath(os.path.relpath(line.strip(' \t\r\n'), "HACK_DIRECTORY"))
+            if os.path.isfile(filepath):
+                file_list.append(filepath)
     return file_list
 
 def bundle_list(root, *exclude_dirs):
