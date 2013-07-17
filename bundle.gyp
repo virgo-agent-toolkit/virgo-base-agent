@@ -1,7 +1,7 @@
 {
   'variables': {
     'luas': [
-      '<!@(python tools/gyp_utils.py bundle_list <(BUNDLE_DIR) <(VIRGO_BASE_DIR) <(BUNDLE_DIR)/out)',
+      '<!@(cat <(BUNDLE_LIST_FILE) | sed -e "s/^/..\//" )',
     ],
   },
   'targets':
