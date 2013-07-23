@@ -37,12 +37,11 @@ return {
 """
 
 
-def bytecompile_lua(product_dir, lua, dot_c_file):
+def bytecompile_lua(luajit, lua, dot_c_file):
     """bytecompile lua to a c file.
     this function is necessary because luajit looks for the jit files in stupid places
     (including its cwd)"""
-    os.chdir(product_dir)
-    luajit = os.path.join(product_dir, 'luajit')
+    os.chdir(os.path.dirname(luajit))
 
     ret = subprocess.check_call([luajit, '-bg', lua, dot_c_file])
     if ret != 0:
@@ -82,6 +81,17 @@ def stupid_find(root):
     file_list = []
     for base_path, _, files in os.walk(root):
         file_list += ["%s/%s" % (base_path, f) for f in files]
+    return file_list
+
+
+def bundle_list_from_list_file(bundle_list_file):
+    file_list = []
+    with open(bundle_list_file) as f:
+        lines = f.readlines()
+        for line in lines:
+            filepath = os.path.abspath(os.path.relpath(line.strip(' \t\r\n'), "HACK_DIRECTORY"))
+            if os.path.isfile(filepath):
+                file_list.append(filepath)
     return file_list
 
 
