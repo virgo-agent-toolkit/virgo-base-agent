@@ -146,7 +146,7 @@
               '-dWIN_PRODUCT_DESCRIPTION=<(WIN_PRODUCT_DESCRIPTION)',
               '-dAUTHOR=<(AUTHOR)',
               '-dVERSIONFULL=<(VERSION_FULL)',
-              '-dPRODUCTDIR=<(PRODUCT_DIR)',
+              '-dPRODUCTDIR=<(PRODUCT_DIR)/.',
               '-dREPODIR=<(RULE_INPUT_DIRNAME)',
             ],
             'process_outputs_as_sources': 1,
