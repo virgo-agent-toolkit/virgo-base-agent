@@ -333,7 +333,6 @@ def main(bundle_dir=None, bundle_list_file=None):
     options_gypi = configure_virgo()
     write_gypi(options_gypi, 'options.gypi')
 
-
     # are we being built inside a package (ie, these options should be burned in)
     # TODO: what if a package calls make clean (ie, we won't regenerate out/include.mk because this file exists)
     virgo_json_path = os.path.join(bundle_dir, 'virgo.json')
