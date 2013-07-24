@@ -97,7 +97,7 @@
            '<(SHARED_INTERMEDIATE_DIR)/generated/<(RULE_INPUT_ROOT)_jit.c'
           ],
           'action': [
-            'python', '../tools/gyp_utils.py', 'bytecompile_lua', '<(PRODUCT_DIR)', '<(RULE_INPUT_PATH)', '<@(_outputs)',
+            'python', '../tools/gyp_utils.py', 'bytecompile_lua', '<(PRODUCT_DIR)/luajit', '<(RULE_INPUT_PATH)', '<@(_outputs)',
           ],
           'process_outputs_as_sources': 1,
           'message': 'luajit <(RULE_INPUT_PATH)'

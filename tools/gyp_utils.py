@@ -37,12 +37,11 @@ return {
 """
 
 
-def bytecompile_lua(product_dir, lua, dot_c_file):
+def bytecompile_lua(luajit, lua, dot_c_file):
     """bytecompile lua to a c file.
     this function is necessary because luajit looks for the jit files in stupid places
     (including its cwd)"""
-    os.chdir(product_dir)
-    luajit = os.path.join(product_dir, 'luajit')
+    os.chdir(os.path.dirname(luajit))
 
     ret = subprocess.check_call([luajit, '-bg', lua, dot_c_file])
     if ret != 0:
