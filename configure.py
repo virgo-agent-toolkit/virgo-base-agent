@@ -323,6 +323,9 @@ def main(bundle_dir=None, bundle_list_file=None):
     if not bundle_dir:
         bundle_dir = os.getcwd()
 
+    if not bundle_list_file:
+        raise Exception("bundle_list_file is not provided")
+
     out_dir = os.path.join('out')
     try:
         os.mkdir(out_dir)
