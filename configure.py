@@ -318,7 +318,7 @@ def submodule_update_init():
     os.system(' '.join(['git', 'submodule', 'update', '--init', '--recursive']))
 
 
-def main(bundle_dir=None):
+def main(bundle_dir=None, bundle_list_file=None):
     print 'Creating GYP include files (.gypi)'
     if not bundle_dir:
         bundle_dir = os.getcwd()
@@ -342,9 +342,11 @@ def main(bundle_dir=None):
         platform = ast.literal_eval(platform_data)
         platform['variables']['BUNDLE_DIR'] = bundle_dir
         platform['variables']['VIRGO_BASE_DIR'] = root_dir
+        platform['variables']['BUNDLE_LIST_FILE'] = os.path.abspath(bundle_list_file)
         write_gypi(platform, 'platform.gypi')
     else:
         platform = configure_virgo_platform(bundle_dir, pkg_vars)
+        platform['variables']['BUNDLE_LIST_FILE'] = os.path.abspath(bundle_list_file)
         write_gypi(platform, 'platform.gypi')
     configure_pkg(platform, pkg_vars)
 

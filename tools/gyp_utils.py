@@ -84,6 +84,17 @@ def stupid_find(root):
     return file_list
 
 
+def bundle_list_from_list_file(bundle_list_file):
+    file_list = []
+    with open(bundle_list_file) as f:
+        lines = f.readlines()
+        for line in lines:
+            filepath = os.path.abspath(os.path.relpath(line.strip(' \t\r\n'), "HACK_DIRECTORY"))
+            if os.path.isfile(filepath):
+                file_list.append(filepath)
+    return file_list
+
+
 def bundle_list(root, *exclude_dirs):
     """list files to bundle at root
     ...minus those that start in exclusions
