@@ -133,6 +133,11 @@
             'ldflags': [ '-lm' ],
           }],
         ],
+       'target_conditions': [
+          ['_type=="static_library"', {
+            'standalone_static_library': 1, # disable thin archive which needs binutils >= 2.19
+          }],
+       ],
       }],
       ['OS=="mac"', {
         'ldflags': [ '-pthread', '-Wl,-E' ],
