@@ -318,12 +318,12 @@ def submodule_update_init():
     os.system(' '.join(['git', 'submodule', 'update', '--init', '--recursive']))
 
 
-def main(bundle_dir=None, bundle_list_file=None):
+def main(bundle_list_file, bundle_dir=None):
     print 'Creating GYP include files (.gypi)'
     if not bundle_dir:
         bundle_dir = os.getcwd()
 
-    if not bundle_list_file:
+    if not os.path.isfile(bundle_list_file):
         raise Exception("bundle_list_file is not provided")
 
     out_dir = os.path.join('out')
