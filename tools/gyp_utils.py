@@ -91,43 +91,10 @@ def bundle_list_from_list_file(bundle_list_file):
         for line in lines:
             filepath = os.path.abspath(os.path.relpath(line.strip(' \t\r\n'), "HACK_DIRECTORY"))
             if os.path.isfile(filepath):
+                if sys.platform == 'win32':
+                    # fix for weird gyp path excaping problem
+                    filepath = filepath.replace('\\', '\\\\')
                 file_list.append(filepath)
-    return file_list
-
-
-def bundle_list(root, *exclude_dirs):
-    """list files to bundle at root
-    ...minus those that start in exclusions
-    ...minus anything not a .lua unless in static
-    ...and minus the paths in static that are in exclusions"""
-    file_list = []
-    exclude_dir_list = [os.path.normpath(d) + os.path.sep for d in exclude_dirs]
-    # its easier to generate a list of stuff to ignore based on how os.walk works
-    for base_path, _, files in os.walk(root):
-
-        is_excluded = False
-        for ed in exclude_dir_list:
-            if base_path.startswith(ed):
-                is_excluded = True
-        if is_excluded:
-            continue
-
-        for f in files:
-            file_path = os.path.join(base_path, f)
-            #skip links
-            if os.path.islink(f):
-                continue
-            rel_path = os.path.relpath(file_path, root)
-            split_path = _split_path(rel_path)
-            # skip if not in static and not a .lua
-            name, extension = os.path.splitext(f)
-            abs_path = os.path.abspath(file_path)
-            if split_path[0] != "static" and extension != ".lua":
-                continue
-            if name in [".git", ".gitignore", ".gitmodules"]:
-                continue
-            file_list.append("'%s'" % os.path.relpath(rel_path, 'HACK_DIRECTORY'))
-    # raise Exception(file_list)
     return file_list
 
 
