@@ -128,16 +128,17 @@ class VirgoZip(zipfile.ZipFile):
         self.writestr('lua_modules/init.lua', init)
 
 
-def make_bundle(root, bundle_version, out, *files):
+def make_bundle(root, bundle_version, out, bundle_list_file):
     z = VirgoZip(root, out)
 
-    for lua in files:
+    file_list = bundle_list_from_list_file(bundle_list_file)
+    for lua in file_list:
         z.add(lua)
 
     z.insert_lua_modules_init(bundle_version)
     z.close()
 
-    print('Wrote %d files to %s' % (len(files), out))
+    print('Wrote %d files to %s' % (len(file_list), out))
 
 
 def hash(*args):
