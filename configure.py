@@ -318,10 +318,13 @@ def submodule_update_init():
     os.system(' '.join(['git', 'submodule', 'update', '--init', '--recursive']))
 
 
-def main(bundle_dir=None):
+def main(bundle_list_file, bundle_dir=None):
     print 'Creating GYP include files (.gypi)'
     if not bundle_dir:
         bundle_dir = os.getcwd()
+
+    if not os.path.isfile(bundle_list_file):
+        raise Exception("bundle_list_file is not provided")
 
     out_dir = os.path.join('out')
     try:
@@ -337,15 +340,23 @@ def main(bundle_dir=None):
     # TODO: what if a package calls make clean (ie, we won't regenerate out/include.mk because this file exists)
     virgo_json_path = os.path.join(bundle_dir, 'virgo.json')
     pkg_vars = ast.literal_eval(open(virgo_json_path, 'rb').read())
+
+    platform = None
+
     if os.path.exists(os.path.join(root_dir, 'no_gen_platform_gypi')):
         platform_data = open(os.path.join(root_dir, 'platform.gypi')).read()
         platform = ast.literal_eval(platform_data)
         platform['variables']['BUNDLE_DIR'] = bundle_dir
         platform['variables']['VIRGO_BASE_DIR'] = root_dir
-        write_gypi(platform, 'platform.gypi')
     else:
         platform = configure_virgo_platform(bundle_dir, pkg_vars)
-        write_gypi(platform, 'platform.gypi')
+
+    platform['variables']['BUNDLE_LIST_FILE'] = os.path.abspath(bundle_list_file)
+    if sys.platform == 'win32':
+        # workaround to fix gyp issue on Windows
+        platform['variables']['BUNDLE_LIST_FILE'] = platform['variables']['BUNDLE_LIST_FILE'].replace('\\', '\\\\')
+
+    write_gypi(platform, 'platform.gypi')
     configure_pkg(platform, pkg_vars)
 
     print "Generating build system with GYP..."
