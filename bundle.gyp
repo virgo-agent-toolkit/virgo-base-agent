@@ -6,7 +6,7 @@
         'type': 'none',
         'actions': [{
           'action_name': 'bundle',
-          'inputs': ['tools/gyp_utils.py', '<@(BUNDLE_LIST_FILE)'],
+          'inputs': ['tools/gyp_utils.py', '<@(BUNDLE_LIST_FILE)', '<@(BUNDLE_FILES)'],
           'outputs': ["<(PRODUCT_DIR)/<(BUNDLE_NAME)-bundle.zip"],
           'action': [
             'python', 'tools/gyp_utils.py', 'make_bundle',
