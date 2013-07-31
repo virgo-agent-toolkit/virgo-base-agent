@@ -356,6 +356,15 @@ def main(bundle_list_file, bundle_dir=None):
         # workaround to fix gyp issue on Windows
         platform['variables']['BUNDLE_LIST_FILE'] = platform['variables']['BUNDLE_LIST_FILE'].replace('\\', '\\\\')
 
+    f = open(platform['variables']['BUNDLE_LIST_FILE'], 'r')
+    files = f.read().split()
+    f.close()
+
+    bundle_files = []
+    for f in files:
+        bundle_files.append(os.path.abspath(f))
+    platform['variables']['BUNDLE_FILES'] = bundle_files
+
     write_gypi(platform, 'platform.gypi')
     configure_pkg(platform, pkg_vars)
 
