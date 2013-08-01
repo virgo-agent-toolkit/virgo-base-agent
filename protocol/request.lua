@@ -19,7 +19,7 @@ local https = require('https')
 local fs = require('fs')
 
 local logging = require('logging')
-local errors = require('../../errors')
+local errors = require('../errors')
 local Error = require('core').Error
 local misc = require('/base/util/misc')
 
