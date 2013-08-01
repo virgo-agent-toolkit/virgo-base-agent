@@ -27,7 +27,6 @@ local misc = require('/base/util/misc')
 local loggingUtil = require ('/base/util/logging')
 local ProtocolConnection = require('/base/protocol/connection')
 local table = require('table')
-local caCerts = require('../../certs').caCerts
 local vutils = require('virgo_utils')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
@@ -67,7 +66,8 @@ function AgentClient:initialize(options, connectionStream, types)
 
   self._tls_options = options.tls or {
     rejectUnauthorized = true,
-    ca = caCerts
+    -- removed caCerts; so that as a default OS level authorities should be
+    -- used unless a caCerts was passed in in options.tls
   }
 
   self._heartbeat_interval = nil
