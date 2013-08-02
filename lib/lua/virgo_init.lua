@@ -120,9 +120,9 @@ _G.UV_VERSION = nil
 _G.HTTP_VERSION = nil
 
 function preload_lua_modules()
-  local lua_modules = require('/lua_modules')
+  local lua_modules = require('/base/lua_modules')
   for _,v in ipairs(lua_modules.lua_modules) do
-    package.loaded[v] = require('/lua_modules/'..v)
+    package.loaded[v] = require('/base/lua_modules/'..v)
   end
   virgo.bundle_version = lua_modules.version
   virgo.virgo_version = virgo.agent_config.version

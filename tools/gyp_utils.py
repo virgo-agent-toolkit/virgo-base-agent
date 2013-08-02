@@ -111,8 +111,9 @@ class VirgoZip(zipfile.ZipFile):
         split = _split_path(relPath)
 
         #record lua modules we find
-        if split[0] == "lua_modules":
-            module = os.path.splitext(split[1])[0]
+        # this is so weird; we really need to refactor it
+        if split[0] == "base" and split[1] == "lua_modules":
+            module = os.path.splitext(split[2])[0]
             self.lua_modules.add(module)
         elif split[0] == "static":
             self.statics.append(relPath)
@@ -125,7 +126,7 @@ class VirgoZip(zipfile.ZipFile):
         if sys.platform == 'win32':
             # store the paths with forward slashes, so the lua path.posix will work
             init = init.replace('\\', '/')
-        self.writestr('lua_modules/init.lua', init)
+        self.writestr('base/lua_modules/init.lua', init)
 
 
 def make_bundle(root, bundle_version, out, bundle_list_file):
