@@ -5,6 +5,7 @@
 ./base/client/connection_stream.lua
 ./base/client/init.lua
 ./base/client/upgrade.lua
+./base/crashreport.lua
 ./base/endpoint.lua
 ./base/errors.lua
 ./base/protocol/connection.lua

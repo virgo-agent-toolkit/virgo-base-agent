@@ -36,7 +36,7 @@ local UUID = require('/base/util/uuid')
 local logging = require('logging')
 local Endpoint = require('/base/endpoint').Endpoint
 local ConnectionStream = require('/base/client/connection_stream').ConnectionStream
-local CrashReporter = require('/crashreport').CrashReporter
+local CrashReporter = require('/base/crashreport').CrashReporter
 local Agent = Emitter:extend()
 
 function Agent:initialize(options, types)
