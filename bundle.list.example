@@ -48,3 +48,4 @@
 ./base/lua_modules/traceroute/lib/utils.lua
 ./base/lua_modules/traceroute/package.lua
 ./base/lua_modules/traceroute/tests/test-traceroute.lua
+./base/sigar.lua

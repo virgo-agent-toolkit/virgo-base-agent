@@ -27,7 +27,7 @@ local fmt = require('string').format
 local Emitter = require('core').Emitter
 
 local async = require('async')
-local sigarCtx = require('/sigar').ctx
+local sigarCtx = require('/base/sigar').ctx
 
 local constants = require('/base/util/constants')
 local misc = require('/base/util/misc')
