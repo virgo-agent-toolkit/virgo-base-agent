@@ -22,13 +22,6 @@ local fsutil = require('/base/util/fs')
 local errors = require('../errors')
 local request = require('/base/protocol/request')
 
-local code_cert
-if _G.TESTING_CERTS then
-  code_cert = _G.TESTING_CERTS
-else
-  code_cert = require('../../code_cert.prod.lua')
-end
-
 
 -- Connection Messages
 local ConnectionMessages = Emitter:extend()
@@ -161,7 +154,7 @@ function ConnectionMessages:getUpgrade(version, client, callback)
         return callback(err)
       end
 
-      self:verify(filename, filename_sig, code_cert.codeCert, function(err)
+      self:verify(filename, filename_sig, self._connectionStream._options.codeCert, function(err)
         if err then
           return callback(err)
         end
