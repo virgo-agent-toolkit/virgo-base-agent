@@ -25,6 +25,10 @@ local function gmtNow()
   return math.floor(virgo.gmtnow() + delta)
 end
 
+local function trim(s)
+  return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
+end
+
 local function gmtRaw()
   return math.floor(virgo.gmtnow())
 end
@@ -64,13 +68,28 @@ local function timesync(T1, T2, T3, T4)
   return
 end
 
-local exports = {
-  setDelta = setDelta,
-  getDelta = getDelta,
-  gmtNow = gmtNow,
-  gmtRaw = gmtRaw,
-  timesync = timesync,
-  crash = virgo.force_crash,
-}
+function tableGetBoolean(tt, key, default)
+  local value = tt[key] or default
+  if type(value) == 'string' then
+    if value:lower() == 'false' then
+      return false
+    end
+  end
+  if type(value) == 'number' then
+    if value == 0 then
+      return false
+    end
+  end
+  return value
+end
 
+local exports = {}
+exports.setDelta = setDelta
+exports.getDelta = getDelta
+exports.gmtNow = gmtNow
+exports.gmtRaw = gmtRaw
+exports.timesync = timesync
+exports.crash = virgo.force_crash
+exports.trim = trim
+exports.tableGetBoolean = tableGetBoolean
 return exports
