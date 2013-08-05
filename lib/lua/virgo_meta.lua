@@ -59,7 +59,7 @@ function MetaInfo:get(callback)
   local results = {}
   local rv
 
-  rv = utils.tableGetBoolean(self._config, 'autodetectMachineId', false)
+  rv = utils.tableGetBoolean(self._config, 'autodetect_machine_id', false)
   if rv == false then
     return callback()
   end
