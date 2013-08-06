@@ -21,7 +21,7 @@ local childprocess = require('childprocess')
 local os = require('os')
 local utils = require('virgo_utils')
 
-local MetaInfo = Object:extend()
+local MachineIdentity = Object:extend()
 
 local function xenAdapter(callback)
   local exePath
@@ -51,11 +51,11 @@ local function xenAdapter(callback)
   end)
 end
 
-function MetaInfo:initialize(config)
+function MachineIdentity:initialize(config)
   self._config = config
 end
 
-function MetaInfo:get(callback)
+function MachineIdentity:get(callback)
   local results = {}
   local rv
 
@@ -80,5 +80,5 @@ function MetaInfo:get(callback)
 end
 
 local exports = {}
-exports.MetaInfo = MetaInfo
+exports.MachineIdentity = MachineIdentity
 return exports
