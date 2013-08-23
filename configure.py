@@ -225,6 +225,7 @@ def configure_virgo_platform(bundle_dir, platform_vars):
     variables['VERSION_PATCH'] = versions.get('patch', 0)
     variables['VERSION_FULL'] = versions.get('tag', 0)
     variables['BUNDLE_VERSION'] = version.version(cwd=bundle_dir)
+    variables['PREFIX'] = options.prefix if options.prefix else ''
 
     for k, v in platform_vars.items():
         if k != "CHANGELOG":
