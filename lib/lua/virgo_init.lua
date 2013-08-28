@@ -178,6 +178,7 @@ if OS_BINDING.type() ~= "win32" then
   native.activateSignalHandler(constants.SIGINT)
   native.activateSignalHandler(constants.SIGTERM)
   native.activateSignalHandler(constants.SIGUSR1)
+  native.activateSignalHandler(constants.SIGUSR2)
 end
 
 
@@ -462,12 +463,31 @@ function onUSR1()
   gc()
 end
 
+local original_log_level
+
+function onUSR2()
+  if original_log_level then
+    -- Log this before we change loglevel to ensure it gets printed.
+    logging.log_info("Received SIGUSR2. Restoring original logging level.")
+    logging.set_level(original_log_level)
+    original_log_level = nil
+  else
+    original_log_level = logging.get_level()
+    logging.set_level(logging.EVERYTHING)
+    -- Log this after we change loglevel to ensure it gets printed.
+    logging.log_info("Received SIGUSR2. Setting loglevel to EVERYTHING")
+  end
+end
+
 function onHUP()
   logging.rotate()
 end
 
 -- Setup GC on USR1
 process:on('SIGUSR1', onUSR1)
+
+-- Log EVERYTHING on USR2
+process:on('SIGUSR2', onUSR2)
 
 -- Setup HUP
 process:on('SIGHUP', onHUP)
