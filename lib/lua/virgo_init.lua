@@ -171,17 +171,6 @@ package.loaded.os_binding = nil
 OS_BINDING.date = OLD_OS.date
 OS_BINDING.time = OLD_OS.time
 
--- Ignore sigpipe and exit cleanly on SIGINT and SIGTERM
--- These shouldn't hold open the event loop
-if OS_BINDING.type() ~= "win32" then
-  native.activateSignalHandler(constants.SIGPIPE)
-  native.activateSignalHandler(constants.SIGINT)
-  native.activateSignalHandler(constants.SIGTERM)
-  native.activateSignalHandler(constants.SIGUSR1)
-  native.activateSignalHandler(constants.SIGUSR2)
-end
-
-
 -- Hide some stuff behind a metatable
 local hidden = {}
 setmetatable(_G, {__index=hidden})
@@ -460,6 +449,7 @@ function gc()
 end
 
 function onUSR1()
+  logging.info('Received SIGUSR1. Performing GC.')
   gc()
 end
 
@@ -480,6 +470,7 @@ function onUSR2()
 end
 
 function onHUP()
+  logging.info('Received SIGHUP. Rotating logs.')
   logging.rotate()
 end
 
