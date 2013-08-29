@@ -171,16 +171,6 @@ package.loaded.os_binding = nil
 OS_BINDING.date = OLD_OS.date
 OS_BINDING.time = OLD_OS.time
 
--- Ignore sigpipe and exit cleanly on SIGINT and SIGTERM
--- These shouldn't hold open the event loop
-if OS_BINDING.type() ~= "win32" then
-  native.activateSignalHandler(constants.SIGPIPE)
-  native.activateSignalHandler(constants.SIGINT)
-  native.activateSignalHandler(constants.SIGTERM)
-  native.activateSignalHandler(constants.SIGUSR1)
-end
-
-
 -- Hide some stuff behind a metatable
 local hidden = {}
 setmetatable(_G, {__index=hidden})
@@ -459,15 +449,36 @@ function gc()
 end
 
 function onUSR1()
+  logging.info('Received SIGUSR1. Performing GC.')
   gc()
 end
 
+local original_log_level
+
+function onUSR2()
+  if original_log_level then
+    -- Log this before we change loglevel to ensure it gets printed.
+    logging.info('Received SIGUSR2. Restoring original logging level.')
+    logging.set_level(original_log_level)
+    original_log_level = nil
+  else
+    original_log_level = logging.get_level()
+    logging.set_level(logging.EVERYTHING)
+    -- Log this after we change loglevel to ensure it gets printed.
+    logging.info('Received SIGUSR2. Setting loglevel to EVERYTHING')
+  end
+end
+
 function onHUP()
+  logging.info('Received SIGHUP. Rotating logs.')
   logging.rotate()
 end
 
 -- Setup GC on USR1
 process:on('SIGUSR1', onUSR1)
+
+-- Log EVERYTHING on USR2
+process:on('SIGUSR2', onUSR2)
 
 -- Setup HUP
 process:on('SIGHUP', onHUP)
