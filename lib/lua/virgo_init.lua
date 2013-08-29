@@ -468,14 +468,14 @@ local original_log_level
 function onUSR2()
   if original_log_level then
     -- Log this before we change loglevel to ensure it gets printed.
-    logging.log_info("Received SIGUSR2. Restoring original logging level.")
+    logging.info('Received SIGUSR2. Restoring original logging level.')
     logging.set_level(original_log_level)
     original_log_level = nil
   else
     original_log_level = logging.get_level()
     logging.set_level(logging.EVERYTHING)
     -- Log this after we change loglevel to ensure it gets printed.
-    logging.log_info("Received SIGUSR2. Setting loglevel to EVERYTHING")
+    logging.info('Received SIGUSR2. Setting loglevel to EVERYTHING')
   end
 end
 
