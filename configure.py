@@ -170,12 +170,7 @@ def host_arch():
     if sys.platform == "darwin":
         return 'ia32'
 
-    arch = uname('-p')
-
-    if arch == 'unknown':
-        arch = uname('-m')
-
-    return {
+    arches = {
         'arm': 'arm',
         'x86': 'ia32',
         'i386': 'ia32',
@@ -184,7 +179,15 @@ def host_arch():
         'i686': 'ia32',
         'x86_64': 'x64',
         'amd64': 'x64',
-    }.get(arch, arch)
+    }
+
+    arch = uname('-p')
+
+    if arches.has_key(arch):
+        return arches.get(arch, arch)
+    else:
+        arch = uname('-m')
+        return arches.get(arch, arch)
 
 
 def target_arch():
