@@ -5,6 +5,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import version
 
 from pkgutils import pkg_type, pkg_dir
 from optparse import OptionParser
@@ -36,10 +37,13 @@ def create_deb(src, dest, dist):
     distributions = """Codename: cloudmonitoring
 Components: main
 Architectures: i386 amd64 source
+Suite: Rackspace
 Origin: Rackspace
+Label: Rackspace
+Version: %s
 Description: Rackspace Cloud Monitoring Agent for %s %s
 SignWith: D05AB914
-""" % (dist[0], dist[1])
+""" % (version.full_version(), dist[0], dist[1])
 
     if not os.path.isdir(dest):
         os.mkdir(dest)
