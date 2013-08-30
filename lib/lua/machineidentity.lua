@@ -59,7 +59,7 @@ function MachineIdentity:get(callback)
   local results = {}
   local rv
 
-  rv = utils.tableGetBoolean(self._config, 'autodetect_machine_id', false)
+  rv = utils.tableGetBoolean(self._config, 'autodetect_machine_id', true)
   if rv == false then
     return callback()
   end
