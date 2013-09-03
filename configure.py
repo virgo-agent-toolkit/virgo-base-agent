@@ -183,7 +183,7 @@ def host_arch():
 
     arch = uname('-p')
 
-    if arches.has_key(arch):
+    if arch in arches:
         return arches.get(arch, arch)
     else:
         arch = uname('-m')
