@@ -3,10 +3,10 @@ platform.gypi
 options.gypi
 build/*
 out/*
-+Debug/
-+Release/
-+ipch/
-+*.suo
+Debug/
+Release/
+ipch/
+*.suo
 .scons*
 *.o
 *.pyc
