@@ -59,7 +59,14 @@
             'defines': [
               'FD_SETSIZE=1024'
             ],
-            'libraries': [ '-lpsapi.lib', '-lversion.lib', '-lnetapi32.lib', '-lShlwapi.lib'],
+            'libraries': [
+                '-lpsapi.lib',
+                '-lversion.lib',
+                '-lnetapi32.lib',
+                '-lShlwapi.lib',
+                '-lGdi32.lib',
+                '-lUser32.lib'
+            ],
             'sources': [
                 'lib/virgo.rc',
             ],

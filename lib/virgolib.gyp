@@ -36,6 +36,9 @@
           ],
         }],
         ['OS=="win"', {
+          'defines': [
+            '_WIN32_WINNT=0x0600',
+          ],
           'sources': [
             'virgo_win32_service.c',
           ],

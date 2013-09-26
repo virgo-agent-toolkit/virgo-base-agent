@@ -18,6 +18,11 @@
       'Debug': {
         'defines': [ 'DEBUG', '_DEBUG', '_GNU_SOURCE' ],
         'cflags': [ '-g', '-O0' ],
+        'conditions': [
+          ['target_arch=="x64"', {
+            'msvs_configuration_platform': 'x64',
+          }],
+        ],
         'msvs_settings': {
           'VCCLCompilerTool': {
             'target_conditions': [
@@ -42,6 +47,11 @@
         'cflags': [ '-g', '-Os', '-fdata-sections', '-ffunction-sections', ],
         'defines': [ '_GNU_SOURCE' ],
         'ldflags': [ '-Wl,--gc-section', ],
+        'conditions': [
+          ['target_arch=="x64"', {
+            'msvs_configuration_platform': 'x64',
+          }],
+        ],
         'msvs_settings': {
           'VCCLCompilerTool': {
             'target_conditions': [
