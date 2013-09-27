@@ -161,11 +161,26 @@ def uname(switch):
     return s
 
 
+def host_arch_win():
+    """Host architecture check using environ vars (better way to do this?)"""
+
+    arch = os.environ.get('PROCESSOR_ARCHITECTURE', 'x86')
+
+    matchup = {
+        'AMD64': 'x64',
+        'x86': 'ia32',
+        'arm': 'arm',
+        'mips': 'mips',
+    }
+
+    return matchup.get(arch, 'ia32')
+
+
 def host_arch():
     """Host architecture. One of arm, ia32 or x64."""
 
     if sys.platform == "win32":
-        return 'ia32'
+        return host_arch_win()
 
     if sys.platform == "darwin":
         return 'ia32'
@@ -355,19 +370,19 @@ def main(bundle_list_file, bundle_dir=None):
     else:
         platform = configure_virgo_platform(bundle_dir, pkg_vars)
 
-    platform['variables']['BUNDLE_LIST_FILE'] = os.path.abspath(bundle_list_file)
-    if sys.platform == 'win32':
-        # workaround to fix gyp issue on Windows
-        platform['variables']['BUNDLE_LIST_FILE'] = platform['variables']['BUNDLE_LIST_FILE'].replace('\\', '\\\\')
-
-    f = open(platform['variables']['BUNDLE_LIST_FILE'], 'r')
+    f = open(bundle_list_file, 'r')
     files = f.read().split()
     f.close()
 
     bundle_files = []
     for f in files:
-        bundle_files.append(os.path.abspath(f))
+        bundle_files.append(os.path.relpath(f, root_dir))
     platform['variables']['BUNDLE_FILES'] = bundle_files
+
+    platform['variables']['BUNDLE_LIST_FILE'] = os.path.relpath(bundle_list_file, root_dir)
+    if sys.platform == 'win32':
+        # workaround to fix gyp issue on Windows
+        platform['variables']['BUNDLE_LIST_FILE'] = platform['variables']['BUNDLE_LIST_FILE'].replace('\\', '\\\\')
 
     write_gypi(platform, 'platform.gypi')
     configure_pkg(platform, pkg_vars)
@@ -380,7 +395,7 @@ def main(bundle_list_file, bundle_dir=None):
         os.environ['GYP_MSVS_VERSION'] = '2010'
         render_openssl_symlinks('base/deps/luvit/deps/openssl/openssl/include/openssl',
             'base/deps/luvit/deps/openssl/openssl-configs/realized/openssl')
-        rv = os.system("python %s -f msvs -G msvs_version=2010" % (gyp_exe))
+        rv = os.system("python %s -f msvs -G msvs_version=auto" % (gyp_exe))
     else:
         if options.ninja_build:
             gyp_exe += " -f ninja"
