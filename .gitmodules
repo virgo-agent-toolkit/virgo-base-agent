@@ -9,3 +9,6 @@
 [submodule "tools/gyp"]
 	path = tools/gyp
 	url = https://chromium.googlesource.com/external/gyp
+[submodule "deps/libarchive"]
+	path = deps/libarchive
+	url = https://github.com/libarchive/libarchive.git
