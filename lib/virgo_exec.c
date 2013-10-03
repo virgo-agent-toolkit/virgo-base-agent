@@ -32,23 +32,17 @@
 #include <string.h>
 
 static char**
-copy_args(virgo_t *v, const char *bundle_path) {
+copy_args(virgo_t *v) {
   int i, index = 1;
   char **args;
 
   args = malloc((v->argc + 10) * sizeof(char*));
 
   for(i=1; i<v->argc; i++) {
-    if (strcmp(v->argv[i], "-z") == 0) {
-      i++;
-      continue;
-    }
     args[index++] = strdup(v->argv[i]);
   }
 
-  args[index++] = strdup("-z");
 #ifndef _WIN32
-  args[index++] = strdup(bundle_path);
   args[index++] = strdup("-o");
 #else
   {
@@ -70,8 +64,8 @@ copy_args(virgo_t *v, const char *bundle_path) {
 extern char **environ;
 
 static virgo_error_t*
-virgo__exec(virgo_t *v, char *exe_path, const char *bundle_path) {
-  char **args = copy_args(v, bundle_path);
+virgo__exec(virgo_t *v, char *exe_path) {
+  char **args = copy_args(v);
   int rc;
   int win_sc_started = 0;
   const char* name = "execve";
@@ -128,19 +122,8 @@ virgo_error_t*
 virgo__exec_upgrade(virgo_t *v, int *perform_upgrade, virgo__exec_upgrade_cb status) {
   virgo_error_t *err;
   char latest_in_exe_path[VIRGO_PATH_MAX] = { '\0' };
-  char bundle_path[VIRGO_PATH_MAX];
 
   *perform_upgrade = FALSE;
-
-  /* get the bundle, latest or default */
-  err = virgo__paths_get(v, VIRGO_PATH_BUNDLE, bundle_path, sizeof(bundle_path));
-  if (err) {
-    if (err->err == VIRGO_ENOFILE) {
-      virgo_error_clear(err);
-      err = VIRGO_SUCCESS;
-    }
-    return err;
-  }
 
   /* get the latest exe from the upgrade path */
   virgo__paths_get(v, VIRGO_PATH_EXE_DIR_LATEST, latest_in_exe_path, sizeof(latest_in_exe_path));
@@ -171,18 +154,18 @@ virgo__exec_upgrade(virgo_t *v, int *perform_upgrade, virgo__exec_upgrade_cb sta
     }
 
     /* we run a child of the new exe to shut this service down and upgrade this exe file */
-    err = virgo__exec(v, latest_in_exe_path, bundle_path);
+    err = virgo__exec(v, latest_in_exe_path);
     if (!err) {
       /* wait for the child to shut me down*/
       Sleep(INFINITE);
     }
   } else {
     /* we're not a service, behave like unix and execve the new exe */
-    err = virgo__exec(v, latest_in_exe_path, bundle_path);
+    err = virgo__exec(v, latest_in_exe_path);
   }
 #else
   /* execve the new exe */
-  err = virgo__exec(v, latest_in_exe_path, bundle_path);
+  err = virgo__exec(v, latest_in_exe_path);
 #endif
   return err;
 }

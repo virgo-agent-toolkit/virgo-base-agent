@@ -30,7 +30,7 @@ typedef void(*virgo__exec_upgrade_cb)(virgo_t *v, const char *fmt, ...);
  * Note: does not return on success.
  */
 VIRGO_API(virgo_error_t*) virgo__exec_upgrade(virgo_t *v,
-											  int *perform_upgrade,
+                                              int *perform_upgrade,
                                               virgo__exec_upgrade_cb status);
 
 /* Check that the exe_path is newer than the current internal exe version */

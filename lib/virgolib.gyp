@@ -131,7 +131,7 @@
       # ],
       'include_dirs': [
         '../include/private',
-        '../include',
+        '../include'
       ],
       'direct_dependent_settings': {
         'include_dirs': [

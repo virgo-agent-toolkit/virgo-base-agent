@@ -24,9 +24,9 @@
 #include "lualib.h"
 #include "luaconf.h"
 
-#include <archive.h>
+#include "bundle.h"
 
-#include "unzip.h"
+#include <archive.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -90,7 +90,7 @@ vfs_read(lua_State *L) {
     name++;
   }
 
-  rv = archive_read_open_filename(a, v->lua_load_path, 10240);
+  rv = archive_read_open_memory(a, bundle, sizeof(bundle));
   if (rv != ARCHIVE_OK) {
     lua_pushnil(L);
     lua_pushfstring(L, "could not open file '%s'", name);
@@ -142,11 +142,11 @@ vfs_exists(lua_State *L) {
   name = luaL_checkstring(L, 2);
   a = archive_read_new();
   archive_read_support_format_zip(a);
-  
-  if (name[0] == '/')
-    name++; 
 
-  rv = archive_read_open_filename(a, v->lua_load_path, 10240);
+  if (name[0] == '/')
+    name++;
+
+  rv = archive_read_open_memory(a, bundle, sizeof(bundle));
   if (rv != ARCHIVE_OK) {
     lua_pushnil(L);
     return 1;

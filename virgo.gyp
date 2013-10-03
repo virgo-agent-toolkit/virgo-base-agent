@@ -77,7 +77,7 @@
         ],
         [ 'OS=="mac"',
           {
-            'libraries': [ 'Carbon.framework', 'IOKit.framework' ]
+            'libraries': [ 'Carbon.framework', 'IOKit.framework', '-lz' ]
           }
         ],
         [ 'OS=="linux"',
