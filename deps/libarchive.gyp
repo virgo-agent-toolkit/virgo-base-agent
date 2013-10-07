@@ -64,6 +64,7 @@
       ],
       'include_dirs': [
         'libarchive/libarchive',
+        '<(VIRGO_BASE_DIR)/deps/luvit/deps/zlib'
       ],
       'direct_dependent_settings': {
         'include_dirs': [

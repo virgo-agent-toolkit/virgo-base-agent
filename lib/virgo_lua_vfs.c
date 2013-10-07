@@ -27,6 +27,7 @@
 #include "bundle.h"
 
 #include <archive.h>
+#include <archive_entry.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -42,15 +43,6 @@ newunzFile(lua_State *L)
   archive_t **a = (archive_t**)lua_newuserdata(L, sizeof(archive_t**));
   luaL_getmetatable(L, ZIPFILEHANDLE);
   lua_setmetatable(L, -2);
-  return *a;
-}
-
-static archive_t*
-zip_context(lua_State *L, int findex) {
-  archive_t **a = (archive_t**)luaL_checkudata(L, findex, ZIPFILEHANDLE);
-  if (a == NULL) {
-    luaL_argerror(L, findex, "bad vfs context");
-  }
   return *a;
 }
 
@@ -79,7 +71,6 @@ vfs_read(lua_State *L) {
   int rv;
   char *buf = NULL;
   size_t len;
-  virgo_t *v = virgo__lua_context(L);
 
   a = archive_read_new();
   archive_read_support_format_zip(a);
@@ -90,7 +81,7 @@ vfs_read(lua_State *L) {
     name++;
   }
 
-  rv = archive_read_open_memory(a, bundle, sizeof(bundle));
+  rv = archive_read_open_memory(a, (void*) bundle, sizeof(bundle));
   if (rv != ARCHIVE_OK) {
     lua_pushnil(L);
     lua_pushfstring(L, "could not open file '%s'", name);
@@ -136,7 +127,6 @@ vfs_exists(lua_State *L) {
   archive_t *a;
   const char *name;
   entry_t *entry;
-  virgo_t *v = virgo__lua_context(L);
   int found = 0;
 
   name = luaL_checkstring(L, 2);
@@ -146,7 +136,7 @@ vfs_exists(lua_State *L) {
   if (name[0] == '/')
     name++;
 
-  rv = archive_read_open_memory(a, bundle, sizeof(bundle));
+  rv = archive_read_open_memory(a, (void*) bundle, sizeof(bundle));
   if (rv != ARCHIVE_OK) {
     lua_pushnil(L);
     return 1;
