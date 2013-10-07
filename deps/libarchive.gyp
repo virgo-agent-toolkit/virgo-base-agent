@@ -9,7 +9,7 @@
       'target_name': 'libarchive',
       'type': 'static_library',
       'defines': [
-         'PLATFORM_CONFIG_H=\"config.h\"'
+         'PLATFORM_CONFIG_H=\"<(VIRGO_BASE_DIR)/deps/libarchive-configs/<(OS)-config.h\"'
        ],
       'sources': [
         'libarchive/libarchive/archive_acl.c',
