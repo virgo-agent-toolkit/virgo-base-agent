@@ -37,7 +37,7 @@ virgo__service_install(virgo_t *v)
   SC_HANDLE schService;
   LPTSTR szDesc = TEXT("Provides Rackspace Monitoring Agent. The agent can record disk, bandwidth, CPU usage, and more. Data collected from the agent goes into Rackspace Cloud Monitoring's systems.");
   SERVICE_DESCRIPTION sd;
-  SC_ACTION sa[1];
+  SC_ACTION sa[3];
   SERVICE_FAILURE_ACTIONS sfa;
 
   if (!GetModuleFileNameA(NULL, exePath, MAX_PATH)) {
@@ -94,11 +94,14 @@ virgo__service_install(virgo_t *v)
   sfa.dwResetPeriod = 0;
   sfa.lpRebootMsg = NULL;
   sfa.lpCommand = NULL;
-  sfa.cActions = 1;
+  sfa.cActions = 3;
   sa[0].Type = SC_ACTION_RESTART;
-  sa[0].Delay = 0;
+  sa[0].Delay = 10000;
+  sa[1].Type = SC_ACTION_RESTART;
+  sa[1].Delay = 10000;
+  sa[2].Type = SC_ACTION_RESTART;
+  sa[2].Delay = 10000;
   sfa.lpsaActions = sa;
-  sfa.dwResetPeriod = 0;
 
   rv = ChangeServiceConfig2(schService, SERVICE_CONFIG_FAILURE_ACTIONS, &sfa);
 
