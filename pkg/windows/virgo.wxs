@@ -10,7 +10,8 @@
     <?define RepoDir = $(var.REPODIR) ?>
     <?define BundleName = $(var.BUNDLE_NAME) ?>
     <?define PkgName = $(var.PKG_NAME) ?>
-<!--    <?define ProductDir = $(var.PRODUCTDIR) ?> -->
+    <?define PFilesDir = $(var.PFILESDIR) ?>
+  <!--    <?define ProductDir = $(var.PRODUCTDIR) ?> -->
 <!--    <?define ProductDir='C:\data\virgo\Debug' ?> -->
     <?define SourceDir = $(var.RepoDir) ?>
     <Product Name="$(var.ProductName)" Id="*" UpgradeCode="826873C9-1A63-4A05-98F4-95D8D8EF3507" Language="1033" Codepage="1252" Version="$(var.ProductVersion)" Manufacturer="$(var.ProductAuthor)">
@@ -24,7 +25,7 @@
         <Media Id="1" Cabinet="$(var.ProductName)Installer.cab" EmbedCab="yes" />
 
         <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="ProgramFilesFolder" Name="PFiles">
+            <Directory Id="$(var.PFilesDir)" Name="PFiles">
                 <Directory Id="RAXMONAGENT" Name="$(var.ProductShortName)">
                     <Component Id="ZipBundle" Guid="F40E81F0-1044-4BF7-A4E6-0F3B0995E074">
                         <File Id="zip"
