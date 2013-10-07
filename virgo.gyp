@@ -1,8 +1,4 @@
 {
-  'variables': {
-    'target_arch': 'ia32',
-  },
-
   'targets': [
     {
       'target_name': 'virgo',
@@ -115,6 +111,20 @@
 
   'conditions': [
     [ 'OS=="win"', {
+      'conditions': [
+        [ 'target_arch=="x64"', {
+          'variables': {
+            'PFILESDIR': 'ProgramFiles64Folder',
+            'CANDLE_ARCH': 'x64',
+          },
+        }],
+        [ 'target_arch=="ia32"', {
+          'variables': {
+            'PFILESDIR': 'ProgramFilesFolder',
+            'CANDLE_ARCH': 'x86',
+          },
+        }],
+      ],
       'targets': [
         {
           'target_name': 'virgo.msi',
@@ -143,7 +153,9 @@
               '-out',
               '<@(_outputs)',
               'pkg/windows/virgo.wxs',
+              '-arch', '<(CANDLE_ARCH)',
               '-dSHORT_DESCRIPTION=<(SHORT_DESCRIPTION)',
+              '-dPFILESDIR=<(PFILESDIR)',
               '-dSHORT_NAME=<(SHORT_NAME)',
               '-dPRODUCTDESCRIPTION=<(SHORT_DESCRIPTION)',
               '-dLONG_DESCRIPTION=<(LONG_DESCRIPTION)',
