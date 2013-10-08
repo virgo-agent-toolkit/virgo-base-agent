@@ -27,7 +27,6 @@
 #include "luaconf.h"
 static int
 is_new_exe(lua_State *L) {
-  virgo_t *v = virgo__lua_context(L);
   const char *path = luaL_checkstring(L, 1);
   const char *version = luaL_checkstring(L, 2);
   lua_pushboolean(L, virgo__is_new_exe(path, version));

@@ -83,7 +83,7 @@ static void
 service_maintenance(virgo_t *v)
 {
   const char *msg = "Service Maintenance Complete";
-  virgo_log_debugf(v, msg);
+  virgo_log_debugf(v, "%s", msg);
   printf("%s\n", msg);
   fflush(stdout);
 }

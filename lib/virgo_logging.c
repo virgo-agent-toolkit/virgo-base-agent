@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #define MAX_LOG_LINE_LENGTH 4000
 
