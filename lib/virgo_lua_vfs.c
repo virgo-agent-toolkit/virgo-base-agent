@@ -67,10 +67,11 @@ static int
 vfs_read(lua_State *L) {
   archive_t *a;
   entry_t *entry;
+  char *buf = NULL;
   const char *name;
   int rv;
-  char *buf = NULL;
   size_t len;
+  ssize_t size;
 
   a = archive_read_new();
   archive_read_support_format_zip(a);
@@ -112,7 +113,7 @@ vfs_read(lua_State *L) {
 
   len = archive_entry_size(entry);
   buf = malloc(len);
-  ssize_t size = archive_read_data(a, buf, len);
+  size = archive_read_data(a, buf, len);
   lua_pushlstring(L, buf, size);
 
   free(buf);
@@ -127,7 +128,7 @@ vfs_exists(lua_State *L) {
   archive_t *a;
   const char *name;
   entry_t *entry;
-  int found = 0;
+  int found = FALSE;
 
   name = luaL_checkstring(L, 2);
   a = archive_read_new();
@@ -151,7 +152,7 @@ vfs_exists(lua_State *L) {
       break;
     }
     if (strcmp(name, archive_entry_pathname(entry)) == 0) {
-      found = 1;
+      found = TRUE;
       break;
     }
   }
