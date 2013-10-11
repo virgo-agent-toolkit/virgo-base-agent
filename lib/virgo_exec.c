@@ -45,11 +45,6 @@ copy_args(virgo_t *v) {
 #ifndef _WIN32
   args[index++] = strdup("-o");
 #else
-  {
-    char quoted_bundle[MAX_PATH];
-    snprintf(quoted_bundle, MAX_PATH, "\"%s\"", bundle_path);
-    args[index++] = strdup(quoted_bundle);
-  }
   if (v->service_status.dwCurrentState == SERVICE_RUNNING) {
     args[index++] = strdup("--service-upgrade");
   } else {

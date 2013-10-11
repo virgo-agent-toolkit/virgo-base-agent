@@ -48,6 +48,7 @@
         'libarchive/libarchive/archive_string_sprintf.c',
         'libarchive/libarchive/archive_util.c',
         'libarchive/libarchive/archive_virtual.c',
+        'libarchive/libarchive/archive_windows.c',
         'libarchive/libarchive/archive_write.c',
         'libarchive/libarchive/archive_write_add_filter.c',
         'libarchive/libarchive/archive_write_disk_acl.c',
