@@ -8,9 +8,18 @@
     {
       'target_name': 'libarchive',
       'type': 'static_library',
-      'defines': [
-         'PLATFORM_CONFIG_H=\"<(VIRGO_BASE_DIR)/deps/libarchive-configs/<(OS)-config.h\"'
-       ],
+      'conditions': [
+         [ 'OS=="win"', {
+	  'defines': [
+            'PLATFORM_CONFIG_H=\"<(VIRGO_BASE_DIR)/deps/libarchive-configs/<(OS)-<(target_arch)-config.h\"'
+	  ]
+         },
+         { 
+	   'defines': [
+             'PLATFORM_CONFIG_H=\"<(VIRGO_BASE_DIR)/deps/libarchive-configs/<(OS)-config.h\"'
+            ]
+	 }]
+      ],
       'sources': [
         'libarchive/libarchive/archive_acl.c',
         'libarchive/libarchive/archive_check_magic.c',
