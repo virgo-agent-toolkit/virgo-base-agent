@@ -1016,7 +1016,7 @@ typedef uint64_t uintmax_t;
 /* #undef HAVE_WORKING_EXT2_IOC_GETFLAGS */
 
 /* Define to 1 if you have the <zlib.h> header file. */
-/* #undef HAVE_ZLIB_H */
+#define HAVE_ZLIB_H 1
 
 /* Define to 1 if you have the `_ctime64_s' function. */
 #define HAVE__CTIME64_S 1
