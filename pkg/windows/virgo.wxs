@@ -86,15 +86,19 @@
         </Feature>
     <Icon Id="agent_icon" SourceFile="$(var.BUNDLE_DIR)\agent.ico" />
     <Property Id="ARPPRODUCTICON" Value="agent_icon" />
-<!--
+        <UIRef Id="WixUI_Minimal" />
+        <UIRef Id="WixUI_ErrorProgressText" />
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.BUNDLE_DIR)\base\LICENSE.rtf" />
+        <!--
         <UI>
             <Dialog Id="GetRackspaceCreds" Width="370" Height="270">
                 <Control Type="Edit" Id="username" Width="255" Height="15" X="40" Y="90" />
                 <Control Type="Edit" Id="apikey" Width="255" Height="15" X="40" Y="150" />
             </Dialog>
             <UIText Id="Username">Username:</UIText>
-        </UI> -->
+        </UI>
         <Property Id="rackspace_username" />
         <Property Id="rackspace_apikey" />
+        -->
     </Product>
 </Wix>
