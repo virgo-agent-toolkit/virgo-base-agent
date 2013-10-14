@@ -135,6 +135,7 @@
 
           'sources': [
             'pkg/windows/virgo.wxs',
+            'LICENSE.rtf',
           ],
 
           'actions': [ {
