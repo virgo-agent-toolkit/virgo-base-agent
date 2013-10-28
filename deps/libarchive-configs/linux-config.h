@@ -470,7 +470,7 @@
 #define HAVE_LINUX_FS_H 1
 
 /* Define to 1 if you have the <linux/magic.h> header file. */
-#define HAVE_LINUX_MAGIC_H 1
+/* undef HAVE_LINUX_MAGIC_H */
 
 /* Define to 1 if you have the <linux/types.h> header file. */
 #define HAVE_LINUX_TYPES_H 1
