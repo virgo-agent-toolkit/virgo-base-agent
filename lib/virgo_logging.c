@@ -21,6 +21,9 @@
 #include <errno.h>
 #include <string.h>
 #include <time.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #define MAX_LOG_LINE_LENGTH 4000
 

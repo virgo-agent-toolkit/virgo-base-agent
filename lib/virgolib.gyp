@@ -51,13 +51,15 @@
         '../deps/luvit/deps/zlib/zlib.gyp:zlib',
         '../deps/luvit/luvit.gyp:luvit',
         '../deps/luvit/luvit.gyp:libluvit',
+        '../deps/libarchive.gyp:libarchive',
         '../deps/sigar.gyp:sigar',
         '../deps/sigar.gyp:lua_sigar',
         './copy_luajiters.gyp:*',
         '../bundle.gyp:*',
       ],
       'export_dependent_settings': [
-        '../deps/luvit/luvit.gyp:libluvit',
+        '../deps/libarchive.gyp:libarchive',
+        '../deps/luvit/luvit.gyp:libluvit'
       ],
       'defines': [
         'VIRGO_OS="<(OS)"',
@@ -129,7 +131,7 @@
       # ],
       'include_dirs': [
         '../include/private',
-        '../include',
+        '../include'
       ],
       'direct_dependent_settings': {
         'include_dirs': [

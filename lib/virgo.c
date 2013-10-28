@@ -55,14 +55,12 @@ show_help()
          "Options:\n"
          "  -v, --version         Print version.\n"
          "  -c, --config val      Set configuration file path. Default: /etc/rackspace-monitoring-agent.cfg\n"
-         "  -b, --bundle-dir val  Force the bundle directory.\n"
          "  -e val                Enter at module specified.\n"
          "  -o                    Do not attempt upgrade.\n"
          "  -l, --logfile val     Log to specified file path.\n"
 #ifndef _WIN32
          "  -p, --pidfile val     Path and filename to pidfile.\n"
 #endif
-         "  -z, --zip val         Path to Zip Bundle.\n"
          "  --setup               Initial setup wizard.\n"
          "    --username          Rackspace Cloud username for setup.\n"
          "    --apikey            Rackspace Cloud API Key or Password for setup.\n"
@@ -85,7 +83,7 @@ static void
 service_maintenance(virgo_t *v)
 {
   const char *msg = "Service Maintenance Complete";
-  virgo_log_debugf(v, msg);
+  virgo_log_debugf(v, "%s", msg);
   printf("%s\n", msg);
   fflush(stdout);
 }
@@ -113,18 +111,12 @@ virgo_error_t *main_wrapper(virgo_t *v)
 
   virgo__paths_get(v, VIRGO_PATH_DEFAULT_EXE, path, VIRGO_PATH_MAX);
   virgo_log_debugf(v, "Default EXE Path: %s", path);
-  virgo__paths_get(v, VIRGO_PATH_DEFAULT_BUNDLE, path, VIRGO_PATH_MAX);
-  virgo_log_debugf(v, "Default Bundle Path: %s", path);
 
   virgo__paths_get(v, VIRGO_PATH_EXE, path, VIRGO_PATH_MAX);
   virgo_log_debugf(v, "EXE Path: %s", path);
-  virgo__paths_get(v, VIRGO_PATH_BUNDLE, path, VIRGO_PATH_MAX);
-  virgo_log_debugf(v, "Bundle Path: %s", path);
 
   virgo__paths_get(v, VIRGO_PATH_EXE_DIR, path, VIRGO_PATH_MAX);
   virgo_log_debugf(v, "Latest EXE Path: %s", path);
-  virgo__paths_get(v, VIRGO_PATH_BUNDLE_DIR, path, VIRGO_PATH_MAX);
-  virgo_log_debugf(v, "Latest Bundle Path: %s", path);
 
   /* See if we are upgrading */
   if (virgo_try_upgrade(v)) {
@@ -142,15 +134,6 @@ virgo_error_t *main_wrapper(virgo_t *v)
   }
 
   // virgo_log_debugf(v, "Process Executable: %s", path);
-
-  /* Check to see if bundle is valid */
-  err = virgo__bundle_is_valid(v);
-  if (err) {
-    handle_error(v, "Virgo Bundle is invalid", err);
-    return err;
-  }
-
-  // virgo_log_debugf(v, "Bundle: %s", virgo_get_load_path(v));
 
   /* Setup Lua Contexts for Luvit and Libuv runloop */
   err = virgo_init(v);

@@ -205,7 +205,6 @@ virgo__lua_win32_get_associated_exe(lua_State *L) {
 
 static int
 virgo__lua_is_stdio_available(lua_State *L) {
-  virgo_t* v = virgo__lua_context(L);
   int ret = 1;
 
 #ifdef _WIN32

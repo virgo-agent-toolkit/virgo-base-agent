@@ -16,7 +16,7 @@
     'default_configuration': 'Debug',
     'configurations': {
       'Debug': {
-        'defines': [ 'DEBUG', '_DEBUG', '_GNU_SOURCE' ],
+        'defines': [ 'DEBUG', '_DEBUG', '_GNU_SOURCE', 'LIBARCHIVE_STATIC' ],
         'cflags': [ '-g', '-O0' ],
         'conditions': [
           ['target_arch=="x64"', {
@@ -45,7 +45,7 @@
       },
       'Release': {
         'cflags': [ '-g', '-Os', '-fdata-sections', '-ffunction-sections', ],
-        'defines': [ '_GNU_SOURCE' ],
+        'defines': [ '_GNU_SOURCE', 'LIBARCHIVE_STATIC' ],
         'ldflags': [ '-Wl,--gc-section', ],
         'conditions': [
           ['target_arch=="x64"', {
@@ -120,13 +120,14 @@
           # POSIX names
           '_CRT_NONSTDC_NO_DEPRECATE',
           'BUILDING_UV_SHARED=1',
+	  'LIBARCHIVE_STATIC'
         ],
       }],
       [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris"', {
         'cflags': [ '-Wall', '-pthread', '-fno-strict-aliasing'],
         'cflags_cc': [ '-fno-rtti', '-fno-exceptions' ],
         'ldflags': [ '-pthread', '-Wl,-E', ],
-        'defines': ['_LARGEFILE_SOURCE', '_FILE_OFFSET_BITS=64'],
+        'defines': ['_LARGEFILE_SOURCE', '_FILE_OFFSET_BITS=64', 'LIBARCHIVE_STATIC'],
         'conditions': [
           [ 'target_arch=="x64"', {
             'cflags': [ '-fPIC' ],

@@ -24,47 +24,37 @@
 #include "lualib.h"
 #include "luaconf.h"
 
-#include "unzip.h"
+#include "bundle.h"
+
+#include <archive.h>
+#include <archive_entry.h>
 
 #include <stdlib.h>
 #include <string.h>
 
 #define ZIPFILEHANDLE "lminizip"
 
-static unzFile*
+typedef struct archive archive_t;
+typedef struct archive_entry entry_t;
+
+static archive_t*
 newunzFile(lua_State *L)
 {
-  unzFile* zip = (unzFile*)lua_newuserdata(L, sizeof(unzFile*));
-  *zip = NULL;
+  archive_t **a = (archive_t**)lua_newuserdata(L, sizeof(archive_t**));
   luaL_getmetatable(L, ZIPFILEHANDLE);
   lua_setmetatable(L, -2);
-  return zip;
-}
-
-static unzFile*
-zip_context(lua_State *L, int findex) {
-  unzFile* f = (unzFile*)luaL_checkudata(L, findex, ZIPFILEHANDLE);
-  if (f == NULL) {
-    luaL_argerror(L, findex, "bad vfs context");
-  }
-  return f;
+  return *a;
 }
 
 static int
 vfs_open(lua_State *L) {
-  virgo_t *v = virgo__lua_context(L);
-  unzFile *zip = newunzFile(L);
-  *zip = unzOpen(v->lua_load_path);
+  (void) newunzFile(L);
   return 1;
 }
 
 static int
 vfs_close(lua_State *L) {
-  unzFile *zip = luaL_checkudata(L, 1, ZIPFILEHANDLE);
-  if (*zip) {
-    unzCloseCurrentFile(*zip);
-    unzClose(*zip);
-  }
+  luaL_checkudata(L, 1, ZIPFILEHANDLE);
   return 0;
 }
 
@@ -75,75 +65,106 @@ vfs_gc(lua_State *L) {
 
 static int
 vfs_read(lua_State *L) {
-  struct unz_file_info_s finfo;
-  unzFile *zip;
+  archive_t *a;
+  entry_t *entry;
+  char *buf = NULL;
   const char *name;
   int rv;
-  char *buf;
   size_t len;
+  ssize_t size;
 
-  zip = zip_context(L, 1);
+  a = archive_read_new();
+  archive_read_support_format_zip(a);
+
   name = luaL_checkstring(L, 2);
 
   if (name[0] == '/') {
     name++;
   }
 
-  rv = unzLocateFile(*zip, name, 1);
-  if (rv != UNZ_OK) {
+  rv = archive_read_open_memory(a, (void*) bundle, sizeof(bundle));
+  if (rv != ARCHIVE_OK) {
     lua_pushnil(L);
     lua_pushfstring(L, "could not open file '%s'", name);
     return 2;
   }
 
-  rv = unzGetCurrentFileInfo(*zip, &finfo, NULL, 0, NULL, 0, NULL, 0);
-  if (rv != UNZ_OK) {
-    lua_pushnil(L);
-    lua_pushfstring(L, "could not get current file info '%s'", name);
-    return 2;
+  for (;;) {
+    rv = archive_read_next_header(a, &entry);
+    if (rv == ARCHIVE_EOF) {
+      lua_pushnil(L);
+      lua_pushfstring(L, "could not open file '%s'", name);
+      archive_read_close(a);
+      archive_read_free(a);
+      return 2;
+    }
+    if (rv != ARCHIVE_OK) {
+      lua_pushnil(L);
+      lua_pushfstring(L, "error: %s", archive_error_string(a));
+      archive_read_close(a);
+      archive_read_free(a);
+      return 2;
+    }
+
+    if (strcmp(name, archive_entry_pathname(entry)) == 0) {
+      break;
+    }
   }
 
-  rv = unzOpenCurrentFile(*zip);
-  if (rv != UNZ_OK) {
-    lua_pushnil(L);
-    lua_pushfstring(L, "could not open current file '%s'", name);
-    return 2;
-  }
+  len = archive_entry_size(entry);
+  buf = malloc(len);
+  size = archive_read_data(a, buf, len);
+  lua_pushlstring(L, buf, size);
 
-  buf = malloc(finfo.uncompressed_size);
-  len = finfo.uncompressed_size;
-
-  rv = unzReadCurrentFile(*zip, buf, len);
-  if (rv != (int)len) {
-    free(buf);
-    lua_pushnil(L);
-    lua_pushfstring(L, "could not read current file '%s'", name);
-    return 2;
-  }
-
-  lua_pushlstring(L, buf, len);
   free(buf);
+  archive_read_close(a);
+  archive_read_free(a);
   return 1;
 }
 
 static int
 vfs_exists(lua_State *L) {
   int rv;
-  unzFile *zip;
+  archive_t *a;
   const char *name;
+  entry_t *entry;
+  int found = FALSE;
 
-  zip = zip_context(L, 1);
   name = luaL_checkstring(L, 2);
-  if (name[0] == '/') {
+  a = archive_read_new();
+  archive_read_support_format_zip(a);
+
+  if (name[0] == '/')
     name++;
+
+  rv = archive_read_open_memory(a, (void*) bundle, sizeof(bundle));
+  if (rv != ARCHIVE_OK) {
+    lua_pushnil(L);
+    return 1;
   }
 
-  rv = unzLocateFile(*zip, name, 1);
-  if (rv == UNZ_OK) {
+  for (;;) {
+    rv = archive_read_next_header(a, &entry);
+    if (rv == ARCHIVE_EOF) {
+      break;
+    }
+    if (rv != ARCHIVE_OK) {
+      break;
+    }
+    if (strcmp(name, archive_entry_pathname(entry)) == 0) {
+      found = TRUE;
+      break;
+    }
+  }
+
+  if (found) {
     lua_pushboolean(L, 1);
   } else {
     lua_pushnil(L);
   }
+
+  archive_read_close(a);
+  archive_read_free(a);
   return 1;
 }
 
