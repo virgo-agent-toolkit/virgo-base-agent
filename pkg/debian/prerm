@@ -4,6 +4,12 @@ case "$1" in
         # Stop the agent if we are removing
         service $PKG_NAME stop || :
         ;;
+    upgrade)
+        :
+        ;;
+    purge)
+        :
+        ;;
     *)
         echo "Unrecognized prerm argument '$1'"
         ;;
