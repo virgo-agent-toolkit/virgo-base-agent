@@ -11,9 +11,8 @@
   <?define BundleName = $(var.BUNDLE_NAME) ?>
   <?define PkgName = $(var.PKG_NAME) ?>
   <?define PFilesDir = $(var.PFILESDIR) ?>
-  <!--    <?define ProductDir = $(var.PRODUCTDIR) ?> -->
-  <!--    <?define ProductDir='C:\data\virgo\Debug' ?> -->
   <?define SourceDir = $(var.RepoDir) ?>
+
   <Product Name="$(var.ProductName)" Id="*" UpgradeCode="826873C9-1A63-4A05-98F4-95D8D8EF3507" Language="1033" Codepage="1252" Version="$(var.ProductVersion)" Manufacturer="$(var.ProductAuthor)">
     <Package Id="*" Keywords="Installer" Description="$(var.ProductName) Installer" Comments="$(var.ProductDescription)" Manufacturer="$(var.ProductAuthor)" InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
     <Upgrade Id="826873C9-1A63-4A05-98F4-95D8D8EF3507">
@@ -78,19 +77,49 @@
     </Feature>
     <Icon Id="agent_icon" SourceFile="$(var.BUNDLE_DIR)\agent.ico" />
     <Property Id="ARPPRODUCTICON" Value="agent_icon" />
-    <UIRef Id="WixUI_Minimal" />
-    <UIRef Id="WixUI_ErrorProgressText" />
+
+
     <WixVariable Id="WixUILicenseRtf" Value="$(var.BUNDLE_DIR)\base\LICENSE.rtf" />
-    <!--
-        <UI>
-            <Dialog Id="GetRackspaceCreds" Width="370" Height="270">
-                <Control Type="Edit" Id="username" Width="255" Height="15" X="40" Y="90" />
-                <Control Type="Edit" Id="apikey" Width="255" Height="15" X="40" Y="150" />
-            </Dialog>
-            <UIText Id="Username">Username:</UIText>
-        </UI>
-        <Property Id="rackspace_username" />
-        <Property Id="rackspace_apikey" />
-        -->
+
+    <UI Id="Virgo_Installer_UI">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <!-- Hook the new welcome dialog to the next one in the stack-->
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+
+      <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
+      <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="PrepareDlg">1</Publish>
+
+      <Publish Dialog="GetRackspaceCreds" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+
+      <Dialog Id="GetRackspaceCreds" Width="370" Height="270" Title="!(loc.RackspaceDlgTitle)">
+        <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="!(loc.PrepareDlgBitmap)" />
+        <Control Id="Title" Type="Text" X="130" Y="6" Width="225" Height="30" Transparent="yes" NoPrefix="yes" Text="!(loc.RackspaceDlgHeading)" />
+        <Control Id="BannerLine" Type="Line" X="125" Y="44" Width="370" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Description" Type="Text" X="135" Y="50" Width="220" Height="20" Transparent="yes" NoPrefix="yes" Text="!(loc.RackspaceDlgDescription)" />
+
+        <Control Id="Username_Text" Type="Text" X="135" Y="80" Width="220" Height="15" Transparent="yes" NoPrefix="yes" Default="yes" Text="!(loc.Username):" />
+        <Control Id="Username" Type="Edit" X="135" Y="95" Width="220" Height="18" Property="USERNAME" />
+        <Control Id="Password_Text" Type="Text" X="135" Y="120" Width="220" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.Password):" />
+        <Control Id="Password" Type="Edit" X="135" Y="135" Width="220" Height="18" Property="PASSWORD" />
+
+        <Control Id="Test" Type="PushButton" X="236" Y="165" Width="56" Height="17" Text="!(loc.Test)">
+          <Publish Event="CustomTest" Value="PerformTest">1</Publish>
+        </Control>
+
+        <Control Id="Finish" Type="PushButton" X="236" Y="243" Width="56" Height="17" Disabled="yes" Text="!(loc.WixUIFinish)" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+      </Dialog>
+
+    </UI>
+
+    <UIRef Id="WixUI_Common" />
   </Product>
 </Wix>

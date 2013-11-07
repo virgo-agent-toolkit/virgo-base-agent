@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <!-- _locID@Culture="en-US" _locComment="American English" -->
+  <!-- _locID@Codepage="1252" _locComment="Windows-1252" -->
+
+  <String Id="RackspaceDlgTitle" Overridable="yes">[ProductName] Credentials</String>
+  <String Id="RackspaceDlgHeading" Overridable="yes">{\WixUI_Font_Title}[ProductName] Credentials</String>
+  <String Id="Username" Overridable="yes">Username</String>
+  <String Id="Password" Overridable="yes">Password/ApiKey</String>
+  <String Id="Test" Overridable="yes">Test</String>
+  <String Id="RackspaceDlgDescription" Overridable="yes">Please provide your Rackspace Credentials for monitoring.</String>
+
+</WixLocalization>

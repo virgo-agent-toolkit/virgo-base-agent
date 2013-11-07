@@ -135,17 +135,17 @@
 
           'sources': [
             'pkg/windows/virgo.wxs',
+            'pkg/windows/virgo_loc_en_us.wxl',
             'LICENSE.rtf',
           ],
 
-          'actions': [ {
+          'actions': [
+          {
             'action_name': 'candle',
             'inputs': [
               'pkg/windows/virgo.wxs',
-              '<(INTERMEDIATE_DIR)/version.wxi',
             ],
             'outputs': [
-              #'<(INTERMEDIATE_DIR)/virgo.wixobj',
               '<(INTERMEDIATE_DIR)/virgo.wixobj',
             ],
             'action': [
@@ -153,7 +153,6 @@
               '-ext', 'WixUtilExtension',
               '-out',
               '<@(_outputs)',
-              'pkg/windows/virgo.wxs',
               '-arch', '<(CANDLE_ARCH)',
               '-dSHORT_DESCRIPTION=<(SHORT_DESCRIPTION)',
               '-dPFILESDIR=<(PFILESDIR)',
@@ -168,6 +167,7 @@
               '-dVERSIONFULL=<(VERSION_FULL)',
               '-dPRODUCTDIR=<(PRODUCT_DIR)/.',
               '-dREPODIR=<(RULE_INPUT_DIRNAME)',
+              '<@(_inputs)',
             ],
             'process_outputs_as_sources': 1,
           },
@@ -176,7 +176,7 @@
             'extension': 'wxs',
             'inputs': [
               '<(INTERMEDIATE_DIR)/virgo.wixobj',
-              '<(PRODUCT_DIR)/virgo.exe',
+              'pkg/windows/virgo_loc_en_us.wxl',
             ],
             'outputs': [
               '<(PRODUCT_DIR)/virgo.msi',
@@ -187,6 +187,7 @@
               '-ext', 'WixUIExtension',
               '-ext', 'WixUtilExtension',
               '-out', '<@(_outputs)',
+              '-cultures:en-us', '-loc', 'pkg/windows/virgo_loc_en_us.wxl',
               '-sval',
             ],
             'process_outputs_as_sources': 1,
