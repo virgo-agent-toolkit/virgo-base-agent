@@ -12,13 +12,18 @@
   <?define PkgName = $(var.PKG_NAME) ?>
   <?define PFilesDir = $(var.PFILESDIR) ?>
   <?define SourceDir = $(var.RepoDir) ?>
+  <?define UpgradeCode = "{826873C9-1A63-4A05-98F4-95D8D8EF3507}" ?>
 
-  <Product Name="$(var.ProductName)" Id="*" UpgradeCode="826873C9-1A63-4A05-98F4-95D8D8EF3507" Language="1033" Codepage="1252" Version="$(var.ProductVersion)" Manufacturer="$(var.ProductAuthor)">
+  <Product Name="$(var.ProductName)" Id="*" UpgradeCode="$(var.UpgradeCode)" Language="1033" Codepage="1252" Version="$(var.ProductVersion)" Manufacturer="$(var.ProductAuthor)">
     <Package Id="*" Keywords="Installer" Description="$(var.ProductName) Installer" Comments="$(var.ProductDescription)" Manufacturer="$(var.ProductAuthor)" InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
-    <Upgrade Id="826873C9-1A63-4A05-98F4-95D8D8EF3507">
-      <UpgradeVersion OnlyDetect="no" Property="PREVIOUSFOUND" Minimum="1.0.0.0" IncludeMinimum="yes" Maximum="99.0.0.0" IncludeMaximum="no" />
+    <Upgrade Id="$(var.UpgradeCode)">
+      <!-- Detect older product versions -->
+      <UpgradeVersion OnlyDetect="no" IncludeMinimum="yes" IncludeMaximum="yes" Minimum="0.0.1" Maximum="$(var.ProductVersion)" Property="PREVIOUSVERSIONSINSTALLED"/>
+      <!-- Detect newer product versions -->
+      <UpgradeVersion OnlyDetect="yes" IncludeMinimum="no" Minimum="$(var.ProductVersion)" Property="NEWERVERSIONDETECTED"/>
     </Upgrade>
-    <InstallExecuteSequence>
+    <!-- Exits successfully in the case newer version are already installed -->
+    <CustomActionRef Id="WixExitEarlyWithSuccess"/>    <InstallExecuteSequence>
       <RemoveExistingProducts Before="InstallInitialize" />
     </InstallExecuteSequence>
     <Media Id="1" Cabinet="$(var.ProductName)Installer.cab" EmbedCab="yes" />
