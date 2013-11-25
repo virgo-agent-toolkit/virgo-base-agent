@@ -186,7 +186,6 @@ def host_arch():
         return 'ia32'
 
     arches = {
-        'arm': 'arm',
         'x86': 'ia32',
         'i386': 'ia32',
         'i486': 'ia32',
@@ -198,11 +197,14 @@ def host_arch():
 
     arch = uname('-p')
 
-    if arch in arches:
-        return arches.get(arch, arch)
-    else:
+    if arch == 'unknown':
         arch = uname('-m')
-        return arches.get(arch, arch)
+
+    if arch.startswith('arm'):
+        # Handle arm, armv6l, armv7l, etc.
+        return 'arm'
+
+    return arches.get(arch, arch)
 
 
 def target_arch():
