@@ -24,7 +24,7 @@
           'cflags': ['--std=c89'],
           'defines': ['_GNU_SOURCE']
         }],
-        ['OS=="linux"', {
+        ['OS=="linux" and target_arch!="arm"', {
           'dependencies': [
             '../deps/breakpad/breakpad.gyp:*'
           ],
@@ -34,6 +34,11 @@
           'include_dirs': [
             '../deps/breakpad/src',
           ],
+        }],
+        ['OS=="linux" and target_arch=="arm"', {
+          'sources': [
+            'virgo_crash_reporter_noop.cc',
+          ]
         }],
         ['OS=="win"', {
           'defines': [
