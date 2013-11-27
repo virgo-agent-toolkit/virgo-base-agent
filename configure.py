@@ -293,8 +293,8 @@ def configure_virgo():
         find_toolset(supported_wix_toolsets, "WiX", variables)
 
         # Specifiy the location of the codesigning cert as a signtool.exe param
-        windows_key_loc = "windows_key_location\\rackspace.pfx"
-        if (os.path.exists(windows_key_loc)):
+        windows_key_loc = os.getenv('RACKSPACE_CODESIGNING_KEYFILE')
+        if (windows_key_loc and os.path.exists(windows_key_loc)):
             variables['RACKSPACE_CODESIGNING_KEYFILE'] = windows_key_loc
         else:
             variables['RACKSPACE_CODESIGNING_KEYFILE'] = "pkg\\windows\\testss.pfx"

@@ -5,7 +5,7 @@ import sys
 import subprocess
 from optloader import load_options
 
-# Command set to create and sign with a test software certificate created from a test CA
+# Command set to create and sign with a test software MS Authenticode certificate created from a test CA
 # "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\makecert.exe" -r -pe -n "CN=Rackspace Test CA" -a sha256 -cy authority -sky signature -sv testca.pvk testca.cer
 # "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\makecert.exe" -pe -n "CN=Rackspace Test Software Signing Cert" -a sha256 -cy end -sky signature -ic testca.cer -iv testca.pvk -sv testss.pvk testss.cer
 # "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\pvk2pfx.exe" -spc testss.cer -pvk testss.pvk -pfx testss.pfx
@@ -13,6 +13,17 @@ from optloader import load_options
 #
 # Test CA Cert Import
 # certutil -user -addstore Root testca.cer
+#
+#
+# How to convert a commercially purchased MS Authenticode signing cert to work with this
+#
+## Using a pvk (private key) conversion tool from: http://wiki.cacert.org/Authenticode
+# pvk -in maas-code-sign.key.txt -topvk -nocrypt -out userkey.pvk
+## Convert the certificate files to PKCS#7
+# openssl crl2pkcs7 -certfile maas-code-sign.cert.txt -nocrl -outform PEM -out usercrt.p7b
+## Create the .pfx like above
+# "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\signtool.exe" -spc usercrt.p7b -pvk userkey.pvk -pfx userkey.pfx
+ 
 
 options = load_options("options.gypi")
 
