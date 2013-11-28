@@ -23,7 +23,7 @@ from optloader import load_options
 # openssl crl2pkcs7 -certfile maas-code-sign.cert.txt -nocrl -outform PEM -out usercrt.p7b
 ## Create the .pfx like above
 # "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\signtool.exe" -spc usercrt.p7b -pvk userkey.pvk -pfx userkey.pfx
- 
+
 
 options = load_options("options.gypi")
 
