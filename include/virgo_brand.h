@@ -47,6 +47,10 @@
   VIRGO_DEFAULT_NAME \
   ".cfg"
 
+#define VIRGO_DEFAULT_CONFD_DIR \
+  VIRGO_DEFAULT_NAME \
+  ".conf.d"
+
 #define VIRGO_DEFAULT_BUNDLE_DIR_UNIX \
   "/var/lib/" \
   VIRGO_DEFAULT_NAME \

@@ -135,6 +135,16 @@ virgo__path_config_dir(virgo_t *v, char *buffer, size_t buffer_len) {
   return VIRGO_SUCCESS;
 }
 
+virgo_error_t*
+virgo__path_confd_dir(virgo_t *v, char *buffer, size_t buffer_len) {
+#ifndef _WIN32
+  strncpy(buffer, VIRGO_DEFAULT_CONFIG_DIR_UNIX SEP VIRGO_DEFAULT_CONFD_DIR, buffer_len);
+#else
+  return join_path_with_name(&FOLDERID_ProgramData, "config" SEP VIRGO_DEFAULT_CONFD_DIR, buffer, buffer_len);
+#endif
+  return VIRGO_SUCCESS;
+}
+
 static int
 is_bundle_file(const char *name) {
   return (strstr(name, VIRGO_DEFAULT_BUNDLE_NAME_PREFIX) != NULL) &&
@@ -281,6 +291,9 @@ virgo__paths_get(virgo_t *v, virgo_path_e type, char *buffer, size_t buffer_len)
     break;
   case VIRGO_PATH_DEFAULT_EXE:
     err = virgo__path_default_exe_file(v, buffer, buffer_len);
+    break;
+  case VIRGO_PATH_CONFD_DIR:
+    err = virgo__path_confd_dir(v, buffer, buffer_len);
     break;
   default:
     err = virgo_error_create(-1, "Unknown path type");
