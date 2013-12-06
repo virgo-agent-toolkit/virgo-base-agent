@@ -33,6 +33,7 @@ typedef enum {
   VIRGO_PATH_EXE,
   VIRGO_PATH_DEFAULT_BUNDLE,
   VIRGO_PATH_DEFAULT_EXE,
+  VIRGO_PATH_CONFD_DIR,
 } virgo_path_e;
 
 #ifdef _WIN32
