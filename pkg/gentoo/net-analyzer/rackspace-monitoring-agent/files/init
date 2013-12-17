@@ -3,7 +3,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-PIDFILE=/var/run/$PKG_NAME.pid
+PIDFILE=/var/run/$RC_SVCNAME.pid
 
 depend() {
     use net
@@ -11,20 +11,15 @@ depend() {
 }
 
 start() {
-    ebegin "Starting $PKG_NAME"
-    start-stop-daemon --background --start --exec /usr/bin/$PKG_NAME \
-      --make-pidfile --pidfile $PIDFILE --restart-sysv-on-upgrade
+    ebegin "Starting $RC_SVCNAME"
+    start-stop-daemon --background --start --exec /usr/bin/$RC_SVCNAME \
+      --make-pidfile --pidfile $PIDFILE
     eend $?
 }
 
 stop() {
-    ebegin "Stopping $PKG_NAME"
-    start-stop-daemon --stop --exec /usr/bin/$PKG_NAME \
+    ebegin "Stopping $RC_SVCNAME"
+    start-stop-daemon --stop --exec /usr/bin/$RC_SVCNAME \
       --pidfile $PIDFILE
     eend $?
-}
-
-restart() {
-    stop
-    start
 }
