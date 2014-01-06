@@ -62,12 +62,12 @@ function mkdirp(lpath, mode, callback)
         end
 
         fs.stat(dir, function(err2, stats)
-          if (err2) then
+          if err2 then
             -- Okay, so the path didn't exist, but our first mkdir failed, so return the original error.
             callback(err)
             return
           end
-          if (stats.is_directory) then
+          if stats.is_directory then
             callback()
             return
           end
@@ -75,10 +75,7 @@ function mkdirp(lpath, mode, callback)
           return
         end)
       end)
-  end,
-  function(err)
-    callback(err)
-  end)
+  end, callback)
 end
 
 exports['mkdirp'] = mkdirp
