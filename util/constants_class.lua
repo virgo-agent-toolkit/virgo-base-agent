@@ -9,12 +9,12 @@ function Constants:initialize()
     self.values = {}
 end
 
-function Constants:Get(name, default_value)
+function Constants:get(name, default_value)
     if self.values[name] ~= nil then
         return self.values[name]
     elseif not self.isGlobal then
         -- if the constant does not locally exists, check the globalCtx
-        local v = Constants.globalCtx:Get(name, default_value)
+        local v = Constants.globalCtx:get(name, default_value)
         return v
     else
         return default_value
@@ -118,9 +118,9 @@ globalCtx:Set('DEFAULT_DOWNLOAD_PATH', path.join(RUNTIME_DIR, 'downloads'))
 globalCtx:Set('DEFAULT_RUNTIME_PATH', RUNTIME_DIR)
 
 globalCtx:Set('DEFAULT_VERIFIED_BUNDLE_PATH', BUNDLE_DIR)
-globalCtx:Set('DEFAULT_UNVERIFIED_BUNDLE_PATH', path.join(globalCtx:Get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
+globalCtx:Set('DEFAULT_UNVERIFIED_BUNDLE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
 globalCtx:Set('DEFAULT_VERIFIED_EXE_PATH', EXE_DIR)
-globalCtx:Set('DEFAULT_UNVERIFIED_EXE_PATH', path.join(globalCtx:Get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
+globalCtx:Set('DEFAULT_UNVERIFIED_EXE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
 globalCtx:Set('DEFAULT_PID_FILE_PATH', '/var/run/rackspace-monitoring-agent.pid')
 
 -- Custom plugins related settings
