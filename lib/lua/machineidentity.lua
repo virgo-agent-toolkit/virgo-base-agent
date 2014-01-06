@@ -20,6 +20,7 @@ local async = require('async')
 local childprocess = require('childprocess')
 local os = require('os')
 local utils = require('virgo_utils')
+local fmt = require('string').format
 
 local MachineIdentity = Object:extend()
 
@@ -43,10 +44,10 @@ local function xenAdapter(callback)
   end)
 
   child:on('exit', function(code)
-    if code == 0 then
+    if code == 0 and buffer:len() > 10 then
       callback(nil, utils.trim(buffer:sub(10)))
     else
-      callback(Error:new('Could not retrieve xenstore name'))
+      callback(Error:new(fmt('Could not retrieve xenstore name, ret: %d, buffer: %s', code, buffer)))
     end
   end)
 end
@@ -68,7 +69,7 @@ function MachineIdentity:get(callback)
     function(callback)
       xenAdapter(function(err, _id)
         if err then
-          return callback()
+          return callback(err)
         end
         results['id'] = _id
         callback()
