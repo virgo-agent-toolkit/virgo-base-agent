@@ -173,6 +173,7 @@ virgo_error_t *main_wrapper(virgo_t *v)
 
   /* Cleanup */
   virgo_destroy(v);
+
   return VIRGO_SUCCESS;
 }
 
@@ -218,11 +219,15 @@ int main(int argc, char* argv[])
 #ifdef _WIN32
   err = virgo_service_handler(v, main_wrapper);
 #else
-  err = main_wrapper(v);
+  do {
+    err = main_wrapper(v);
+    if (err) {
+      handle_error(v, "Main exiting", err);
+      virgo_error_clear(err);
+      sleep(5);
+    }
+  } while (err != VIRGO_SUCCESS);
 #endif
-
-  handle_error(v, "Main exiting", err);
-  virgo_error_clear(err);
 
   if (err == VIRGO_SUCCESS) {
     ret = 0;
