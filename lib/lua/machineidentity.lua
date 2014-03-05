@@ -69,7 +69,8 @@ function MachineIdentity:get(callback)
     function(callback)
       xenAdapter(function(err, _id)
         if err then
-          return callback(err)
+          callback(err)
+          return
         end
         results['id'] = _id
         callback()
