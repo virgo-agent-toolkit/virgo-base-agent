@@ -606,6 +606,12 @@ process:on('SIGUSR2', onUSR2)
 -- Setup HUP
 process:on('SIGHUP', onHUP)
 
+-- Capture unhandled errors
+process:on('error', function(err)
+  print('Unhandled Error: ' .. tostring(err))
+  print(require('debug').traceback())
+end)
+
 -- Setup GC
 local GC_INTERVAL = 5 * 1000 -- milliseconds
 local gcInterval = timer.setInterval(GC_INTERVAL, gc)
