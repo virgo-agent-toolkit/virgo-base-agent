@@ -256,6 +256,7 @@ process.on = function(self, _type, listener)
           self:emit(_type, number)
         end)
         signal:start(number)
+        signal:unref()
       end
     end
   end
