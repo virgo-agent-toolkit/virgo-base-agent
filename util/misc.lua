@@ -350,11 +350,75 @@ function isStaging()
 end
 
 
+function deepCopyTable(orig)
+  local orig_type = type(orig)
+  local copy
+  if orig_type == 'table' then
+    copy = {}
+    for orig_key, orig_value in next, orig, nil do
+      copy[deepCopyTable(orig_key)] = deepCopyTable(orig_value)
+    end
+    setmetatable(copy, deepCopyTable(getmetatable(orig)))
+  else -- number, string, boolean, etc
+    copy = orig
+  end
+  return copy
+end
+
+local tableToString
+
+function tableValueToStr( v )
+  if "string" == type( v ) then
+    v = string.gsub( v, "\n", "\\n" )
+    if string.match( string.gsub(v,"[^'\"]",""), '^"+$' ) then
+      return "'" .. v .. "'"
+    end
+    return '"' .. string.gsub(v,'"', '\\"' ) .. '"'
+  else
+    return "table" == type(v) and tableToString(v) or tostring(v)
+  end
+end
+
+function tableKeyToStr( k )
+  if "string" == type( k ) and string.match( k, "^[_%a][_%a%d]*$" ) then
+    return k
+  else
+    return "[" .. tableValueToStr( k ) .. "]"
+  end
+end
+
+tableToString = function(tbl, delim)
+  local result, done = {}, {}
+  local keys = {}
+
+  delim = delim or ','
+
+  for k, v in ipairs(tbl) do
+    table.insert(result, tableValueToStr(v))
+    done[ k ] = true
+  end
+
+  for k, v in pairs(tbl) do
+    table.insert(keys, k)
+  end
+
+  table.sort(keys)
+
+  for _, k in pairs(keys) do
+    if not done[ k ] then
+      table.insert(result, tableKeyToStr(k) .. "=" .. tableValueToStr(tbl[k]))
+    end
+  end
+  return table.concat(result, delim)
+end
+
 --[[ Exports ]]--
 local exports = {}
 exports.copyFile = copyFile
 exports.calcJitter = calcJitter
 exports.calcJitterMultiplier = calcJitterMultiplier
+exports.deepCopyTable = deepCopyTable
+exports.tableToString = tableToString
 exports.merge = merge
 exports.splitAddress = splitAddress
 exports.split = split
