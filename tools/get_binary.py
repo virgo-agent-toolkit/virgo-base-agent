@@ -45,7 +45,6 @@ def main():
     else:
         shutil.copyfile(binary, dest)
 
-
     onlyfiles = [f for f in os.listdir(orig_dest) if os.path.isfile(os.path.join(orig_dest, f))]
     for f in onlyfiles:
         print(f)
