@@ -42,10 +42,9 @@ def main():
 
         hard_file = os.path.join(orig_dest, 'rackspace-monitoring-agent%s.msi' % arch_str)
         shutil.copyfile(binary, hard_file)
+    else:
+        shutil.copyfile(binary, dest)
 
-    print("Current Working Directory: %s" % os.getcwd())
-    print("Moving %s to %s" % (binary, os.path.abspath(dest)))
-    shutil.copyfile(binary, dest)
 
     onlyfiles = [f for f in os.listdir(orig_dest) if os.path.isfile(os.path.join(orig_dest, f))]
     for f in onlyfiles:
