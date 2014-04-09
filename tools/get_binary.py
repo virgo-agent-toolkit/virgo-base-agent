@@ -33,7 +33,14 @@ def main():
       full_version()))
     if pkgutils.pkg_type() == 'windows':
         dest += '.msi'
-        hard_file = os.path.join(orig_dest, 'rackspace-monitoring-agent.msi')
+        arch = os.environ.get('BUILD_ARCH', '')
+        arch_str = '-' + arch
+        if arch == 'ia32':
+            # preserve old binary path
+            hard_file = os.path.join(orig_dest, 'rackspace-monitoring-agent.msi')
+            shutil.copyfile(binary, hard_file)
+
+        hard_file = os.path.join(orig_dest, 'rackspace-monitoring-agent%s.msi' % arch_str)
         shutil.copyfile(binary, hard_file)
 
     print("Current Working Directory: %s" % os.getcwd())
