@@ -84,6 +84,7 @@
         'virgo_init.c',
         'virgo_lua.c',
         'virgo_lua_crashreporter.c',
+        'virgo_lua_exec.c',
         'virgo_lua_loader.c',
         'virgo_lua_logging.c',
         'virgo_lua_debugger.c',

@@ -54,25 +54,12 @@ requests['heartbeat.post'] = function(self, timestamp, callback)
   self:_send(m, callback)
 end
 
-requests['binary_upgrade.get_version'] = function(self, callback)
-  local m = msg.BinaryUpgradeRequest:new()
-  self:_send(m, callback)
-end
-
-requests['bundle_upgrade.get_version'] = function(self, callback)
-  local m = msg.BundleUpgradeRequest:new()
-  self:_send(m, callback)
-end
-
 --[[ Reponse Functions ]]--
 local responses = {}
 
-responses['binary_upgrade.available'] = function(self, replyTo, callback)
-  local m = msg.Response:new(replyTo)
-  self:_send(m, callback)
-end
+responses['upgrade.request'] = function(self, replyTo, callback)
+  self:emit('upgrade.request')
 
-responses['bundle_upgrade.available'] = function(self, replyTo, callback)
   local m = msg.Response:new(replyTo)
   self:_send(m, callback)
 end

@@ -328,6 +328,7 @@ virgo__lua_init(virgo_t *v)
 #endif
   virgo__push_function(L, "is_stdio_available", virgo__lua_is_stdio_available);
   virgo__push_function(L, "get_log_fileno", virgo__lua_get_log_fileno);
+  virgo__push_function(L, "perform_upgrade", virgo__lua_perform_upgrade);
   virgo__set_virgo_key(L, "os", VIRGO_OS);
   virgo__set_virgo_key(L, "version", VIRGO_VERSION);
   virgo__set_virgo_key(L, "platform", VIRGO_PLATFORM);

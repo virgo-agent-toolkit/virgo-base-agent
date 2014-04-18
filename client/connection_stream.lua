@@ -23,16 +23,16 @@ local async = require('async')
 local dns = require('dns')
 
 local ConnectionMessages = require('./connection_messages').ConnectionMessages
-local UpgradePollEmitter = require('./upgrade').UpgradePollEmitter
 
 local AgentClient = require('./client').AgentClient
-local logging = require('logging')
 local consts = require('/base/util/constants')
+local logging = require('logging')
 local misc = require('/base/util/misc')
-local vutils = require('virgo_utils')
 local path = require('path')
-local utils = require('utils')
 local request = require('/base/protocol/request')
+local upgrade = require('/base/client/upgrade')
+local utils = require('utils')
+local vutils = require('virgo_utils')
 
 local ConnectionStream = Emitter:extend()
 function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, types)
@@ -47,74 +47,39 @@ function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, t
   self._upgradeEnabled = upgradeEnabled
   self._options = options or {}
   self._types = types or {}
-
   self._messages = ConnectionMessages:new(self)
-  self._upgrade = UpgradePollEmitter:new()
-  self._upgrade:on('upgrade', utils.bind(ConnectionStream._onUpgrade, self))
-  self._upgrade:on('shutdown', function(reason)
-    self:emit('shutdown', reason)
-  end)
+  self._isUpgrading = false
 end
 
-function ConnectionStream:getUpgrade()
-  return self._upgrade
+function ConnectionStream:getMessages()
+  return self._messages
 end
 
 function ConnectionStream:setChannel(channel)
   self._channel = channel or consts:get('DEFAULT_CHANNEL')
 end
 
-function ConnectionStream:_onUpgrade()
-  local client = self:getClient()
-  local bundleVersion = virgo.bundle_version
-  local processVersion = virgo.virgo_version
-  local uri_path, options
-
-  if not self._upgradeEnabled then
-    return
-  end
-
-  if not client then
-    return
-  end
-
-  options = {
-    method = 'GET',
-    host = client._host,
-    port = client._port,
-    tls = client._tls_options
-  }
-
-  uri_path = fmt('/upgrades/%s/VERSION', self._channel)
-  options = misc.merge({ path = uri_path, }, options)
-  request.makeRequest(options, function(err, result, version)
-    if err then
-      client:log(logging.ERROR, 'Error on upgrade: ' .. tostring(err))
-      return
-    end
-    version = misc.trim(version)
-    client:log(logging.DEBUG, fmt('(upgrade) -> Current Version: %s', bundleVersion))
-    client:log(logging.DEBUG, fmt('(upgrade) -> Upstream Version: %s', version))
-    if version == '0.0.0-0' then
-      client:log(logging.INFO, fmt('(upgrade) -> Upgrades Disabled'))
-      return
-    end
-    if misc.compareVersions(version, bundleVersion) > 0 then
-      client:log(logging.INFO, fmt('(upgrade) -> Performing upgrade to %s', version))
-      self._messages:getUpgrade(version, client, function(err)
-        if err then
-          client:log(logging.ERROR, fmt('(upgrade) -> error: %s', tostring(err)))
-          return
-        end
-        self._upgrade:onSuccess()
-      end)
-    end
-  end)
-end
-
-
 function ConnectionStream:getChannel()
   return self._channel
+end
+
+function ConnectionStream:performUpgrade()
+  if self._isUpgrading == true then
+    logging.debug('Agent is already upgrading')
+    return
+  end
+
+  logging.info('Upgrade Request')
+  self._isUpgrading = true
+
+  upgrade.checkForUpgrade({}, self, function(err, status)
+    self._isUpgrading = false
+    if err then
+      logging.error('Error on upgrade: ' .. misc.trim(tostring(err)))
+      return
+    end
+    self:emit('upgrade.success')
+  end)
 end
 
 --[[
@@ -161,8 +126,7 @@ function ConnectionStream:_createConnection(options)
     err.port = options.port
     err.datacenter = options.datacenter
     err.message = errorMessage
-    client:log(logging.DEBUG, fmt('client error: %s', err.message))
-
+    client:log(logging.DEBUG, fmt('client error: %s', tostring(err)))
     client:destroy()
   end)
 

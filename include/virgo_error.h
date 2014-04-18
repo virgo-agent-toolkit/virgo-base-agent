@@ -75,6 +75,9 @@ typedef int virgo_status_t;
 /* Service Maintenance was Requested */
 #define VIRGO_MAINTREQ -9
 
+/* OS Error */
+#define VIRGO_EOS -10
+
 /** An exception object. */
 typedef struct {
   /** The underlying status code. */

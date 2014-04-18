@@ -44,6 +44,7 @@ int virgo__lua_vfs_init(lua_State *L);
 int virgo__lua_paths(lua_State *L);
 int virgo__lua_logging_open(lua_State *L);
 int virgo__lua_crashreporter_init(lua_State *L);
+int virgo__lua_perform_upgrade(lua_State *L);
 
 #define VIRGO_DEFINE_CONSTANT_ALIAS(L, constant, alias) \
   lua_pushnumber(L, constant);             \
