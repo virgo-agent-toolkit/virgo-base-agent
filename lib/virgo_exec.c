@@ -56,6 +56,15 @@ copy_args(virgo_t *v) {
   return args;
 }
 
+static void
+free_args(char** args) {
+  char** i;
+  for (i = args; (*i) != NULL; ++i) {
+    free(*i);
+  }
+  free(args);
+}
+
 extern char **environ;
 
 static virgo_error_t*
@@ -65,7 +74,7 @@ virgo__exec(virgo_t *v, char *exe_path) {
   int win_sc_started = 0;
   const char* name = "execve";
 
-  args[0] = exe_path;
+  args[0] = strdup(exe_path);
 
 #ifdef _WIN32
   /* when running windows from the service manager */
@@ -82,6 +91,7 @@ virgo__exec(virgo_t *v, char *exe_path) {
 #else
   rc = execve(exe_path, args, environ);
 #endif
+  free_args(args);
   if (rc < 0) {
     return virgo_error_createf(VIRGO_ENOFILE, "%s failed errno=%i", name, errno);
   }
