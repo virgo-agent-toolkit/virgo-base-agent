@@ -337,19 +337,6 @@ function parseCSVLine (line,sep)
 end
 
 
-function isStaging()
-  if not virgo.config then
-    virgo.config = {}
-  end
-  local b = virgo.config['monitoring_use_staging']
-  b = process.env.STAGING or (b and b:lower() == 'true')
-  if b then
-    process.env.STAGING = 1
-  end
-  return b
-end
-
-
 function deepCopyTable(orig)
   local orig_type = type(orig)
   local copy
@@ -432,6 +419,5 @@ exports.nCallbacks = nCallbacks
 exports.compareVersions = compareVersions
 exports.propagateEvents = propagateEvents
 exports.parseCSVLine = parseCSVLine
-exports.isStaging = isStaging
 exports.randstr = randstr
 return exports
