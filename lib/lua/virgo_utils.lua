@@ -83,11 +83,19 @@ function tableGetBoolean(tt, key, default)
   return value
 end
 
+function getCrashPath()
+  if process.env.VIRGO_PATH_CRASH then
+    return process.env.VIRGO_PATH_CRASH
+  end
+  return virgo_paths.get(virgo_paths.VIRGO_PATH_PERSISTENT_DIR)
+end
+
 local exports = {}
 exports.setDelta = setDelta
 exports.getDelta = getDelta
 exports.gmtNow = gmtNow
 exports.gmtRaw = gmtRaw
+exports.getCrashPath  = getCrashPath
 exports.timesync = timesync
 exports.crash = virgo.force_crash
 exports.trim = trim
