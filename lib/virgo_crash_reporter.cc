@@ -56,7 +56,6 @@ static bool dumpCallback(const char* dump_path, const char* minidump_id, void* c
   }
   fprintf(fp, "%s\n%s", DEMARCATOR, VERSION_FULL);
 
-  v = *(virgo_t **)context;
   L = v->L;
 
   if (!L){
@@ -68,6 +67,7 @@ static bool dumpCallback(const char* dump_path, const char* minidump_id, void* c
   rv = lua_pcall(L, 0, 1, 0);
   if (rv != 0) {
     printf("Error with lua dump: %s\n", lua_tostring(L, -1));
+    fprintf(fp, "%s\n%s", DEMARCATOR, "No Lua Stack");
     fclose(fp);
     return succeeded;
   }
@@ -80,12 +80,7 @@ static bool dumpCallback(const char* dump_path, const char* minidump_id, void* c
 
 extern "C" {
 
-  char path[VIRGO_PATH_MAX];
-
-  virgo_t *v = NULL;
-  virgo_error_t *err = virgo__paths_get(v, VIRGO_PATH_PERSISTENT_DIR, path, VIRGO_PATH_MAX);
-
-  void virgo__crash_reporter_init(virgo_t *v) {
+  void virgo__crash_reporter_init(virgo_t *v, const char *path) {
     if (virgo__argv_has_flag(v, NULL, "--production") == 1){
       virgo_global_exception_handler = new google_breakpad::ExceptionHandler(path, NULL, dumpCallback, (void *)v, true);
     }

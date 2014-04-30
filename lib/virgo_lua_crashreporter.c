@@ -1,5 +1,5 @@
 /*
- *  Copyright 2012 Rackspace
+ *  Copyright 2014 Rackspace
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,25 +15,27 @@
  *
  */
 
-extern "C" {
-  #include "virgo__util.h"
-  #include "virgo__types.h"
-  #include "virgo_brand.h"
-  #include "virgo_paths.h"
-  #include "virgo.h"
-  #include "stdio.h"
+#include "virgo.h"
+#include "virgo__types.h"
+#include "virgo__lua.h"
+#include "virgo__util.h"
 
+static int
+luahook_crash_reporter_init(lua_State *L) {
+  virgo_t *v = virgo__lua_context(L);
+  const char *path = luaL_checkstring(L, -1);
+  virgo__crash_reporter_init(v, path);
+  return 0;
+}
+
+static const luaL_reg crash_reporter[] = {
+  {"init", luahook_crash_reporter_init},
+  {NULL, NULL}
 };
 
-extern "C" {
-
-  void virgo__crash_reporter_init(virgo_t *v, const char *path) {
-  };
-
-  void virgo__force_dump() {
-  };
-
-  void virgo__crash_reporter_destroy() {
-  };
-};
+int
+virgo__lua_crashreporter_init(lua_State *L) {
+  luaL_openlib(L, "virgo_crash", crash_reporter, 1);
+  return 1;
+}
 
