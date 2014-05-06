@@ -66,50 +66,12 @@ globalCtx:set('SHUTDOWN_UPGRADE', 1)
 globalCtx:set('SHUTDOWN_RATE_LIMIT', 2)
 globalCtx:set('SHUTDOWN_RESTART', 3)
 
-if misc.isStaging() then
-  globalCtx:set('DEFAULT_MONITORING_SRV_QUERIES', {
-    '_monitoringagent._tcp.dfw1.stage.monitoring.api.rackspacecloud.com',
-    '_monitoringagent._tcp.ord1.stage.monitoring.api.rackspacecloud.com',
-    '_monitoringagent._tcp.lon3.stage.monitoring.api.rackspacecloud.com'
-  })
-
-  globalCtx:set('SNET_MONITORING_TEMPLATE_SRV_QUERIES', {
-      '_monitoringagent._tcp.snet-${region}-region0.stage.monitoring.api.rackspacecloud.com',
-      '_monitoringagent._tcp.snet-${region}-region1.stage.monitoring.api.rackspacecloud.com',
-      '_monitoringagent._tcp.snet-${region}-region2.stage.monitoring.api.rackspacecloud.com'
-  })
-else
-  globalCtx:set('DEFAULT_MONITORING_SRV_QUERIES', {
-    '_monitoringagent._tcp.dfw1.prod.monitoring.api.rackspacecloud.com',
-    '_monitoringagent._tcp.ord1.prod.monitoring.api.rackspacecloud.com',
-    '_monitoringagent._tcp.lon3.prod.monitoring.api.rackspacecloud.com'
-  })
-
-  globalCtx:set('SNET_MONITORING_TEMPLATE_SRV_QUERIES', {
-    '_monitoringagent._tcp.snet-${region}-region0.prod.monitoring.api.rackspacecloud.com',
-    '_monitoringagent._tcp.snet-${region}-region1.prod.monitoring.api.rackspacecloud.com',
-    '_monitoringagent._tcp.snet-${region}-region2.prod.monitoring.api.rackspacecloud.com'
-  })
-
-end
-
-globalCtx:set('VALID_SNET_REGION_NAMES', {
-  'dfw',
-  'ord',
-  'lon',
-  'syd',
-  'hkg',
-  'iad'
-})
-
-
 local PERSISTENT_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_PERSISTENT_DIR)
 local EXE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR)
 local CONFIG_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_CONFIG_DIR)
 local LIBRARY_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_LIBRARY_DIR)
 local RUNTIME_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_RUNTIME_DIR)
 local BUNDLE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_BUNDLE_DIR)
-
 
 globalCtx:set('DEFAULT_PERSISTENT_VARIABLE_PATH', path.join(PERSISTENT_DIR, 'variables'))
 globalCtx:set('DEFAULT_CONFIG_PATH', path.join(CONFIG_DIR, 'rackspace-monitoring-agent.cfg'))
@@ -123,14 +85,7 @@ globalCtx:set('DEFAULT_VERIFIED_EXE_PATH', EXE_DIR)
 globalCtx:set('DEFAULT_UNVERIFIED_EXE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
 globalCtx:set('DEFAULT_PID_FILE_PATH', '/var/run/rackspace-monitoring-agent.pid')
 
--- Custom plugins related settings
-
-globalCtx:set('DEFAULT_CUSTOM_PLUGINS_PATH', path.join(LIBRARY_DIR, 'plugins'))
-globalCtx:set('DEFAULT_PLUGIN_TIMEOUT', 60 * 1000)
-globalCtx:set('PLUGIN_TYPE_MAP', {string = 'string', int = 'int64', float = 'double', gauge = 'gauge'})
-
-globalCtx:set('CRASH_REPORT_URL', 'https://monitoring.api.rackspacecloud.com/agent-crash-report')
-
+globalCtx:set('CRASH_REPORT_URL', '')
 
 local exports = {}
 exports.ConstantsCtx = ConstantsCtx
