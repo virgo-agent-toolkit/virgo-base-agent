@@ -1,4 +1,10 @@
 #!/usr/bin/env python
 import pkgutils
 
-print(pkgutils.pkg_dir())
+def main():
+    print(pkgutils.pkg_dir())
+
+if __name__ == "__main__":
+    main()
+
+

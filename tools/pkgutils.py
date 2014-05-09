@@ -4,6 +4,8 @@ import errno
 import platform
 import sys
 import subprocess
+import json
+import os
 
 # Figure out what type of package to build based on platform info
 #
@@ -28,7 +30,24 @@ def pkg_type():
     return None
 
 
+def get_pkg_distribution():
+    root_path = os.path.dirname(os.path.abspath(__file__))
+    options_gyp_path = os.path.join(root_path, '..', 'options.gypi')
+    try:
+        with open(options_gyp_path):
+            lines = file.read().splitlines(True)
+            data = ''.join(lines[1:]) # skip over the comment
+        options = json.loads(data)
+    except:
+        return None
+    return options['variables']['virgo_distribution']
+
+
 def pkg_dir():
+    force_dist = get_pkg_distribution()
+    if force_dist:
+        return force_dist
+
     system = platform.system().lower()
     machine = platform.machine().lower()
     addon = ""
