@@ -34,7 +34,7 @@ def get_pkg_distribution():
     root_path = os.path.dirname(os.path.abspath(__file__))
     options_gyp_path = os.path.join(root_path, '..', 'options.gypi')
     try:
-        with open(options_gyp_path):
+        with open(options_gyp_path) as file:
             lines = file.read().splitlines(True)
             data = ''.join(lines[1:])  # skip over the comment
         options = json.loads(data)
