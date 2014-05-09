@@ -36,7 +36,7 @@ def get_pkg_distribution():
     try:
         with open(options_gyp_path):
             lines = file.read().splitlines(True)
-            data = ''.join(lines[1:]) # skip over the comment
+            data = ''.join(lines[1:])  # skip over the comment
         options = json.loads(data)
     except:
         return None
