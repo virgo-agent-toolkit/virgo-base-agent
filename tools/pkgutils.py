@@ -33,19 +33,21 @@ def pkg_type():
 def get_pkg_distribution():
     root_path = os.path.dirname(os.path.abspath(__file__))
     options_gyp_path = os.path.join(root_path, '..', 'options.gypi')
-    file = open(options_gyp_path)
-    lines = file.read().splitlines(True)
-    lines = lines[1:]
-    options = json.loads(''.join(lines))
-    file.close()
+    try:
+        with open(options_gyp_path):
+            lines = file.read().splitlines(True)
+            data = ''.join(lines[1:]) # skip over the comment
+        options = json.loads(data)
+    except:
+        return None
     return options['variables']['virgo_distribution']
 
 
 def pkg_dir():
     force_dist = get_pkg_distribution()
-    if force_dist != '':
+    if force_dist:
         return force_dist
-    
+
     system = platform.system().lower()
     machine = platform.machine().lower()
     addon = ""
