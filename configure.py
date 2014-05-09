@@ -45,6 +45,11 @@ parser.add_option("--host_arch",
     dest="host_arch",
     help="Select the architecture of the build host (defaults to autodetect)")
 
+parser.add_option("--distribution",
+    action="store",
+    dest="distribution",
+    help="Force the distribution")
+
 (options, args) = parser.parse_args()
 
 
@@ -270,6 +275,7 @@ def configure_virgo():
     variables = gypi['variables']
     variables['virgo_debug'] = 'true' if options.debug else 'false'
     variables['virgo_prefix'] = options.prefix if options.prefix else ''
+    variables['virgo_distribution'] = options.distribution if options.distribution else ''
     variables['luvit_prefix'] = options.prefix if options.prefix else ''
     variables['host_arch'] = options.host_arch if options.host_arch else host_arch()
     variables['target_arch'] = options.target_arch if options.target_arch else target_arch()
