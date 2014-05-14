@@ -188,13 +188,14 @@ virgo__lua_win32_get_associated_exe(lua_State *L) {
   TCHAR exePath[ MAX_PATH ] = { 0 };
   virgo_t* v = virgo__lua_context(L);
   const char *extension = luaL_checkstring(L, 1);
+  const char *verb = luaL_checkstring(L, 2);
 
   hr = AssocQueryString(ASSOCF_INIT_IGNOREUNKNOWN, ASSOCSTR_EXECUTABLE,
-                        extension, "open",
+                        extension, verb,
                         exePath, &exePathLen);
   if (hr < 0) {
     lua_pushnil(L);
-    lua_pushfstring(L, "could not find file association: '%d'", hr);
+    lua_pushfstring(L, "could not find file association: (ext: %s verb: %s) hr: '%d'", extension, verb, hr);
     return 2;
   }
 
