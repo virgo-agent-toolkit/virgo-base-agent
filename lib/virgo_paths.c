@@ -110,7 +110,7 @@ virgo__path_library_dir(virgo_t *v, char *buffer, size_t buffer_len) {
 #ifndef _WIN32
   strncpy(buffer, VIRGO_DEFAULT_LIBRARY_DIR_UNIX, buffer_len);
 #else
-  return join_path_with_name(&FOLDERID_LocalAppData, "library", buffer, buffer_len);
+  return join_path_with_name(&FOLDERID_ProgramFiles, "", buffer, buffer_len);
 #endif
   return VIRGO_SUCCESS;
 }
