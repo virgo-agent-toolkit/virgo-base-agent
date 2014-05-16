@@ -126,17 +126,7 @@ established.
 --]]
 function ConnectionStream:createConnections(endpoints, callback)
   local iter = function(endpoint, callback)
-    local baseOptions = misc.merge({}, self._options)
-    local options = misc.merge(baseOptions, {
-      endpoint = endpoint,
-      id = self._id,
-      datacenter = tostring(endpoint),
-      token = self._token,
-      guid = self._guid,
-      timeout = consts:get('CONNECT_TIMEOUT')
-    })
-
-    self:createConnection(options, callback)
+    self:createConnection({endpoint = endpoint}, callback)
   end
 
   async.series({
@@ -351,17 +341,19 @@ callback - Callback called with (err)
 ]]--
 function ConnectionStream:createConnection(options, callback)
   local opts = misc.merge({
+    endpoint = endpoint,
     id = self._id,
+    datacenter = tostring(endpoint),
     token = self._token,
     guid = self._guid,
     timeout = consts:get('CONNECT_TIMEOUT')
-  }, options)
+  }, self._options, options)
 
-  options.endpoint:getHostInfo(function(err, host, ip, port)
+  opts.endpoint:getHostInfo(function(err, host, ip, port)
     if err then
       logging.errorf('%s -> Error resolving (%s)',
         options.datacenter, tostring(err))
-      self:reconnect(options, callback)
+      self:reconnect(opts, callback)
       return
     end
 
