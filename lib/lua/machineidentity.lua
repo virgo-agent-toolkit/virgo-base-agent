@@ -19,6 +19,7 @@ local Object = require('core').Object
 local async = require('async')
 local childprocess = require('childprocess')
 local os = require('os')
+local fs = require('fs')
 local utils = require('virgo_utils')
 local fmt = require('string').format
 
@@ -52,12 +53,24 @@ local function xenAdapter(callback)
   end)
 end
 
+local function cloudInitAdapter(callback)
+  -- TODO: Win32 cloud-init paths
+  local instanceIdPath = '/var/lib/cloud/data/instance-id'
+  fs.readFile(instanceIdPath, function(err, data)
+    if err ~= nil then
+      callback(err)
+      return
+    end
+    callback(nil, utils.trim(data))
+    return
+  end)
+end
+
 function MachineIdentity:initialize(config)
   self._config = config
 end
 
 function MachineIdentity:get(callback)
-  local results = {}
   local rv
 
   rv = utils.tableGetBoolean(self._config, 'autodetect_machine_id', true)
@@ -65,20 +78,28 @@ function MachineIdentity:get(callback)
     return callback()
   end
 
-  async.series({
-    function(callback)
-      xenAdapter(function(err, _id)
-        if err then
+  function handle_id(instanceId)
+    callback(nil, {id = instanceId})
+  end
+
+  cloudInitAdapter(function(err, instanceId)
+    if err ~= nil then
+      xenAdapter(function(err, instanceId)
+        if err ~= nil then
           callback(err)
           return
         end
-        results['id'] = _id
-        callback()
+
+          handle_id(instanceId)
+          return
       end)
+      return
     end
-  }, function(err)
-    callback(err, results)
+
+    handle_id(instanceId)
+    return
   end)
+
 end
 
 local exports = {}
