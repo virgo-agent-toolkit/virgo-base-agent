@@ -35,7 +35,7 @@ def main():
         dest += '.msi'
         arch = os.environ.get('BUILD_ARCH', '')
         arch_str = '-' + arch
-        if arch == 'ia32':
+        if arch == 'x64':
             # preserve old binary path
             hard_file = os.path.join(orig_dest, 'rackspace-monitoring-agent.msi')
             shutil.copyfile(binary, hard_file)
