@@ -341,9 +341,8 @@ callback - Callback called with (err)
 ]]--
 function ConnectionStream:createConnection(options, callback)
   local opts = misc.merge({
-    endpoint = endpoint,
     id = self._id,
-    datacenter = tostring(endpoint),
+    datacenter = tostring(options.endpoint),
     token = self._token,
     guid = self._guid,
     timeout = consts:get('CONNECT_TIMEOUT')
