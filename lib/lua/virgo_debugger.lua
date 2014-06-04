@@ -679,8 +679,12 @@ _G.dump_lua = function()
   local lua_dump = {}
   lua_dump.stack = stack
   lua_dump.tb = debug.traceback("", 2)
-  virgo["config"]["monitoring_token"] = "******"
-  lua_dump.virgo = dump(virgo)
+  if virgo and virgo["config"] then
+    virgo["config"]["monitoring_token"] = "******"
+    lua_dump.virgo = dump(virgo)
+  else
+    lua_dump.virgo = dump({})
+  end
   lua_dump.globals = dump(getfenv(0))
   return JSON.stringify(lua_dump)
 end

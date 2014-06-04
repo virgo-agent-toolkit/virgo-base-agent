@@ -57,12 +57,12 @@ static bool dumpCallback(const char* dump_path, const char* minidump_id, void* c
   fprintf(fp, "%s\n%s", DEMARCATOR, VERSION_FULL);
 
   L = v->L;
-
   if (!L){
     printf("No lua found.");
     fclose(fp);
     return succeeded;
   }
+
   lua_getglobal(L, "dump_lua");
   rv = lua_pcall(L, 0, 1, 0);
   if (rv != 0) {
