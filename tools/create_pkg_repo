@@ -65,6 +65,8 @@ if __name__ == "__main__":
 
     usage = "usage: %prog destination agent"
     parser = OptionParser(usage=usage)
+    parser.add_option("", "--version", action="store", dest="version", default="0.0.0-0", 
+            help="don't print status messages to stdout")
     (options, args) = parser.parse_args()
 
     if len(args) < 1 or len(args) > 2:
@@ -78,8 +80,13 @@ if __name__ == "__main__":
 
     if len(args) == 2:
         agent = args[1]
+
         # Copy the CHANGELOG to the repo root
         shutil.copy(os.path.join('agents', agent, 'CHANGELOG'), dest_root)
+
+        # Write VERSION file
+        with open(os.path.join(dest_root, 'VERSION'), "wb") as f:
+            f.write(options.version + '\n')
 
     if pkg == 'rpm':
         src = os.path.join(out, 'rpmbuild')
