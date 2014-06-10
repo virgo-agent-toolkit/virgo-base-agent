@@ -61,8 +61,12 @@ local function cloudInitAdapter(callback)
       callback(err)
       return
     end
-    callback(nil, utils.trim(data))
-    return
+    data = utils.trim(data)
+    if data:find('datasource-none') then
+      callback(Error:new('Invalid instance-id'))
+    else
+      callback(nil, data)
+    end
   end)
 end
 
