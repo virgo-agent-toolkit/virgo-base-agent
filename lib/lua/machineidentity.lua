@@ -61,8 +61,16 @@ local function cloudInitAdapter(callback)
       callback(err)
       return
     end
-    callback(nil, utils.trim(data))
-    return
+
+    data = utils.trim(data)
+
+    -- the fallback datasource is iid-datasource-none when it does not exist
+    -- http://cloudinit.readthedocs.org/en/latest/topics/datasources.html#fallback-none
+    if data:find('datasource-none') then
+      callback(Error:new('Invalid instance-id'))
+    else
+      callback(nil, data)
+    end
   end)
 end
 
