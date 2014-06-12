@@ -387,12 +387,14 @@ def main(bundle_list_file, bundle_dir=None):
         platform = configure_virgo_platform(bundle_dir, pkg_vars)
 
     f = open(bundle_list_file, 'r')
-    files = f.read().split()
+    files = f.read().split('\n')
     f.close()
 
     bundle_files = []
     for f in files:
-        bundle_files.append(os.path.relpath(f, root_dir))
+        f.rstrip('\r')
+        if (len(f) > 0):
+            bundle_files.append(os.path.relpath(f, root_dir))
     platform['variables']['BUNDLE_FILES'] = bundle_files
 
     platform['variables']['BUNDLE_LIST_FILE'] = os.path.relpath(bundle_list_file, root_dir)
