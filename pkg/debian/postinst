@@ -1,7 +1,8 @@
 #!/bin/sh
 update-rc.d $PKG_NAME defaults 91 09
 
-mkdir -p /var/lib/rackspace-monitoring-agent
+mkdir -p /var/lib/$PKG_NAME
+mkdir -p /etc/$PKG_NAME.conf.d
 
 case "$1" in
     configure)
