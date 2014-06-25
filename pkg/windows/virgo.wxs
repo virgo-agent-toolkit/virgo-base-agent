@@ -67,6 +67,11 @@
             <Component Id="ConfigDirectory" Guid="FB99EF1C-AF81-4257-9392-FBA49851A856">
               <CreateFolder />
             </Component>
+            <Directory Id="RAXMONSERVERSIDECONF" Name="$(var.PkgName).conf.d">
+              <Component Id="ServerSideConfigDirectory" Guid="6D2E31E6-F109-44CF-88FB-BE9FDD34C557">
+                <CreateFolder />
+              </Component>
+            </Directory>
           </Directory>
         </Directory>
       </Directory>
@@ -75,6 +80,7 @@
       <ComponentRef Id="MainExecutable" />
       <ComponentRef Id="PluginDirectory" />
       <ComponentRef Id="ConfigDirectory" />
+      <ComponentRef Id="ServerSideConfigDirectory" />
     </Feature>
     <Icon Id="agent_icon" SourceFile="$(var.BUNDLE_DIR)\agent.ico" />
     <Property Id="ARPPRODUCTICON" Value="agent_icon" />

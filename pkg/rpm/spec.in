@@ -46,6 +46,8 @@ install -m 655 ${VIRGO_BASE_DIR}/pkg/out/script $RPM_BUILD_ROOT/%{_sysconfdir}/l
 # agent to complain about a missing monitoring_id on start
 touch $RPM_BUILD_ROOT/%{_sysconfdir}/${PKG_NAME}.cfg
 
+install -d $RPM_BUILD_ROOT/%{_sysconfdir}/${PKG_NAME}.conf.d
+
 %check
 make test
 
@@ -82,6 +84,7 @@ fi
 %{_sysconfdir}/logrotate.d/$PKG_NAME
 %{_initrddir}/$PKG_NAME
 %config(noreplace) %{_sysconfdir}/$PKG_NAME.cfg
+%config(noreplace) %{_sysconfdir}/$PKG_NAME.conf.d
 
 %changelog
 
