@@ -50,6 +50,11 @@ parser.add_option("--distribution",
     dest="distribution",
     help="Force the distribution")
 
+parser.add_option("--no-submodule-update",
+    action="store_true",
+    dest="no_submodule_update",
+    help="Skip updating the submodules while developing")
+
 (options, args) = parser.parse_args()
 
 
@@ -346,6 +351,9 @@ def submodule_update_init():
 
 
 def main(bundle_list_file, bundle_dir=None):
+    if not options.no_submodule_update:
+        submodule_update_init()
+
     print 'Creating GYP include files (.gypi)'
     if not bundle_dir:
         bundle_dir = os.getcwd()
