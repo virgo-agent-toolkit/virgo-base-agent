@@ -161,7 +161,7 @@ function ConnectionStream:_createConnection(options)
     err.port = options.port
     err.datacenter = options.datacenter
     err.message = errorMessage
-    client:log(logging.DEBUG, 'client error: %s', misc.toString(err))
+    client:log(logging.DEBUG, fmt('client error: %s', err.message))
 
     client:destroy()
   end)
@@ -190,7 +190,7 @@ function ConnectionStream:_createConnection(options)
     self:emit('handshake_success')
     client:getMachine():react(client, 'handshake_success')
     self._messages:emit('handshake_success', client, data)
-  end)
+ end)
 
   client:on('message', function(msg)
     self._messages:emit('message', client, msg)
