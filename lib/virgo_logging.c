@@ -158,7 +158,7 @@ virgo_log(virgo_t *v, virgo_log_level_e level, const char *str)
     memcpy(&buf[0]+blen, llstr, 6);
     blen += 6;
 
-    availlen = sizeof(buf) - blen - 2;
+    availlen = sizeof(buf) - blen - EOL_LEN;
 
     if (slen > availlen) {
       slen = availlen;
