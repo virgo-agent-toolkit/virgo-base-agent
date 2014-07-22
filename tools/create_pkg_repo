@@ -82,7 +82,8 @@ if __name__ == "__main__":
         agent = args[1]
 
         # Copy the CHANGELOG to the repo root
-        shutil.copy(os.path.join('agents', agent, 'CHANGELOG'), dest_root)
+        if os.path.isfile('CHANGELOG'):
+            shutil.copy('CHANGELOG', dest_root)
 
         # Write VERSION file
         with open(os.path.join(dest_root, 'VERSION'), "wb") as f:
