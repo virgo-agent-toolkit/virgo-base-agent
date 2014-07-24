@@ -612,6 +612,14 @@ process:on('error', function(err)
   print(require('debug').traceback())
 end)
 
+function seedRNG()
+  local math = require('math')
+  local os = require('os')
+  math.randomseed(os.time())
+end
+
+seedRNG()
+
 -- Setup GC
 local GC_INTERVAL = 5 * 1000 -- milliseconds
 local gcInterval = timer.setInterval(GC_INTERVAL, gc)
