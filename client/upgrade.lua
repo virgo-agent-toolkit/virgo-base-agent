@@ -266,11 +266,11 @@ function downloadUpgrade(streams, version, callback)
         async.parallel({
           function(callback)
             client:log(logging.INFO, fmt('Moving file to %s', filename_verified))
-            misc.copyFile(filename, filename_verified, callback)
+            fs.rename(filename, filename_verfied, callback)
           end,
           function(callback)
             client:log(logging.INFO, fmt('Moving file to %s', filename_verified_sig))
-            misc.copyFile(filename_sig, filename_verified_sig, callback)
+            fs.rename(filename_sig, filename_verfied_sig, callback)
           end
         }, function(err)
           if err then
