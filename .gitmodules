@@ -12,3 +12,6 @@
 [submodule "deps/libarchive"]
 	path = deps/libarchive
 	url = https://github.com/racker/libarchive.git
+[submodule "modules/stream"]
+	path = modules/stream
+	url = https://github.com/virgo-agent-toolkit/luvit-stream.git
