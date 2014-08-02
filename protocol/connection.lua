@@ -23,6 +23,7 @@ local ResponseTimeoutError = require('../errors').ResponseTimeoutError
 local JSON = require('json')
 local fmt = require('string').format
 local http = require('http')
+local stream = require('/base/modules/stream')
 
 local logging = require('logging')
 local msg = require ('./messages')
@@ -85,7 +86,13 @@ function AgentProtocolConnection:initialize(log, myid, token, guid, conn)
   self._myid = myid
   self._token = token
   self._conn = conn
-  self._conn:on('data', utils.bind(AgentProtocolConnection._onData, self))
+  -- self._conn:on('data', utils.bind(AgentProtocolConnection._onData, self))
+  local sink = stream.Writable:new()
+  sink._write = function(sink, data, encoding, callback)
+    self._processMessage(data)
+    callback()
+  end
+  
   self._buf = ''
   self._msgid = 0
   self._endpoints = { }
@@ -134,6 +141,7 @@ function AgentProtocolConnection:_popLine()
 end
 
 function AgentProtocolConnection:_onData(data)
+  assert(false) -- shouldn't use this anymore
   local obj, status, line
 
   self._buf = self._buf .. data
@@ -279,6 +287,7 @@ function AgentProtocolConnection:setState(state)
 end
 
 function AgentProtocolConnection:startHandshake(callback)
+  assert(false) -- should not use this anymore
   self:setState(STATES.HANDSHAKE)
   self:request('handshake.hello', self._myid, self._token, function(err, msg)
     if err then
