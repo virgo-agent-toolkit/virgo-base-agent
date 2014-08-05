@@ -48,7 +48,7 @@ struct virgo_t {
   int restart_on_upgrade;
   virgo_log_level_e log_level;
   FILE *log_fp;
-  int pid_fd;
+  pid_t pid_fd;
   const char *log_path;
   const char *service_name;
 #ifdef _WIN32
