@@ -35,9 +35,9 @@
 #include <stdlib.h>
 #ifdef _WIN32
 #include <direct.h>
-#endif
-
+#else
 #include <sys/file.h>
+#endif
 
 #include "luvit.h"
 #include "uv.h"
