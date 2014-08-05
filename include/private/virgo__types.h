@@ -25,6 +25,11 @@
 
 #include "stdio.h"
 
+#ifdef _WIN32
+#ifndef pid_t
+typedef int pid_t;
+#endif
+#endif
 
 #ifndef _virgo__types_h_
 #define _virgo__types_h_
