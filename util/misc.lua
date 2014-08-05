@@ -54,22 +54,6 @@ function split(str, pattern)
   return parts
 end
 
-function writePid(pidFile, callback)
-  if pidFile then
-    logging.debug('Writing PID to: ' .. pidFile)
-    fs.writeFile(pidFile, tostring(process.pid), function(err)
-      if err then
-        logging.error('Failed writing PID')
-      else
-        logging.info('Successfully wrote ' .. pidFile)
-      end
-      callback(err)
-    end)
-  else
-    callback()
-  end
-end
-
 function tablePrint(tt, indent, done)
   done = done or {}
   indent = indent or 0

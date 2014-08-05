@@ -37,6 +37,8 @@
 #include <direct.h>
 #endif
 
+#include <sys/file.h>
+
 #include "luvit.h"
 #include "uv.h"
 #include "utils.h"
@@ -88,6 +90,77 @@ virgo__push_function(lua_State *L, const char *name, lua_CFunction cfunc) {
   lua_getglobal(L, "virgo");
   lua_pushcfunction(L, cfunc);
   lua_setfield(L, -2, name);
+}
+
+static int
+virgo__lua_close_pid(lua_State *L) {
+  virgo_t *v = virgo__lua_context(L);
+  
+  if (v->pid_fd < 0) {
+    return 0;
+  }
+
+  close(v->pid_fd);
+  v->pid_fd = -1;
+
+  return 0;
+}
+
+static int
+virgo__lua_write_pid(lua_State *L) {
+#ifdef _WIN32
+  lua_pushnumber(L, VIRGO_ENOTIMPL);
+  lua_pushstring(L, "Not Implemented on Windows");
+  return 2;
+#else
+  virgo_t *v = virgo__lua_context(L);
+  const char* path = luaL_checkstring(L, -1);
+  int rv;
+  int stale_file = FALSE;
+  struct stat st;
+  char buffer[24];
+
+  if (v->pid_fd >= 0) {
+    lua_pushnumber(L, 1);
+    lua_pushstring(L, "pidfile in use");
+    return 2;
+  }
+
+  rv = stat(path, &st);
+  if (rv == 0) {
+    stale_file = TRUE;
+  }
+
+  v->pid_fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+  if (v->pid_fd < 0) {
+    lua_pushnumber(L, errno);
+    lua_pushstring(L, strerror(errno));
+    return 2;
+  }
+
+  rv = flock(v->pid_fd, LOCK_EX | LOCK_NB);
+  if (rv < 0) {
+    close(v->pid_fd);
+    lua_pushnumber(L, errno);
+    lua_pushstring(L, strerror(errno));
+    return 2;
+  }
+
+  if (stale_file) {
+    virgo_log_infof(v, "Stale PID file found. Overwriting.");
+  }
+
+  snprintf(buffer, sizeof(buffer), "%ld", (long)getpid());
+
+  lseek(v->pid_fd, SEEK_SET, 0);
+  ftruncate(v->pid_fd, 0);
+  write(v->pid_fd, buffer, strlen(buffer));
+  fsync(v->pid_fd);
+  lseek(v->pid_fd, SEEK_SET, 0);
+
+  lua_pushnil(L);
+  return 1;
+#endif
 }
 
 static int
@@ -247,6 +320,8 @@ virgo__lua_init(virgo_t *v)
   virgo__push_function(L, "gmtnow", virgo_time_now);
   virgo__push_function(L, "force_dump", virgo__lua_force_dump);
   virgo__push_function(L, "perform_restart_on_upgrade", virgo__lua_restart_on_upgrade);
+  virgo__push_function(L, "write_pid", virgo__lua_write_pid);
+  virgo__push_function(L, "close_pid", virgo__lua_close_pid);
 
 #ifdef _WIN32
   virgo__push_function(L, "win32_get_associated_exe", virgo__lua_win32_get_associated_exe);

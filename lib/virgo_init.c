@@ -30,6 +30,8 @@
 #ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
+#else
+#include <unistd.h>
 #endif
 
 #include <openssl/ssl.h>
@@ -95,6 +97,7 @@ virgo_create(virgo_t **p_v, const char *default_module, int argc, char** argv)
   v->lua_default_module = strdup(default_module);
   v->log_level = VIRGO_LOG_INFO;
   v->try_upgrade = TRUE;
+  v->pid_fd = -1;
 
   v->argc = argc;
   v->argv = argv;
@@ -201,6 +204,9 @@ virgo_destroy(virgo_t *v)
   }
   if (v->log_fp && v->log_fp != stderr) {
     fclose(v->log_fp);
+  }
+  if (v->pid_fd >= 0) {
+    close(v->pid_fd);
   }
 
   free((void*)v);
