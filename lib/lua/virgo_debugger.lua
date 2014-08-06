@@ -666,7 +666,7 @@ _G.dump_lua = function()
   local stack = {}
   local _, lvl = unpack(get_lvl(1))
   local function dump(o)
-    return utils.dump(o, 0, true)
+    return JSON.stringify(o)
   end
   for i=2,lvl do
     local vars = capture_vars(i, true, true, true)
