@@ -83,6 +83,7 @@ function AgentClient:initialize(options, connectionStream, types)
                                      self._port,
                                      self._host,
                                      DATACENTER_COUNT[options.datacenter]))
+                                    
 end
 
 function AgentClient:_incrementDatacenterCount()
@@ -146,7 +147,7 @@ function AgentClient:connect()
       self:emit('message', msg, self)
     end)
 
-    -- hack: should not have to access _connection
+    -- hack: should not have to access _connection.handshake_msg
     self._heartbeat_interval = self._connection.handshake_msg.result.heartbeat_interval
     self._entity_id = self._connection.handshake_msg.result.entity_id
     self._connectionStream:setChannel(self._connection.handshake_msg.result.channel)
@@ -154,7 +155,7 @@ function AgentClient:connect()
 
     self._log(logging.DEBUG, fmt('Using timeout %sms', self:_socketTimeout()))
     -- hack: should be handled in Connection class
-    self._connection._connection.socket:setTimeout(self:_socketTimeout(), function()
+    self._connection._tls_connection.socket:setTimeout(self:_socketTimeout(), function()
       self:emit('timeout')
     end)
     --  TODO: make this work: self._connection.readable:on('end', function()
@@ -341,6 +342,15 @@ function AgentClient:clearHeartbeatInterval()
 end
 
 function AgentClient:destroy()
+  if self:isDestroyed() then
+    return
+  end
+  self:getMachine():react(self, 'done')
+  self:setDestroyed()
+  self._connection:destroy()
+end
+
+function AgentClient:destroy_old()
   if self:isDestroyed() then
     return
   end

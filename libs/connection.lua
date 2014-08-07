@@ -4,6 +4,7 @@ local logging = require('logging')
 local loggingUtil = require('/base/util/logging')
 local stream = require('/base/modules/stream')
 local string = require('string')
+local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
 
@@ -14,7 +15,10 @@ local CXN_STATES = {
   READY = 'READY',
   AUTHENTICATED = 'AUTHENTICATED',
   ERROR = 'ERROR',
+  DESTROYED = 'DESTROYED',
 }
+
+local HANDSHAKE_TIMEOUT = 30000
 
 local Connection = stream.Duplex:extend()
 function Connection:initialize(manifest, options)
@@ -81,6 +85,17 @@ function Connection:connect(callback, callback_error)
   self:emit(self._state)
 end
 
+function Connection:destroy()
+  if self._state == CXN_STATES.DESTROYED then
+    return
+  end
+  if self._tls_connection then
+    self._log(logging.DEBUG, 'Closing underlying TLS connection')
+    self._tls_connection:destroy()
+    self:_changeState(CXN_STATES.DESTROYED)
+  end
+end
+
 function Connection:_changeState(to, data)
   self._log(logging.DEBUG, self._state .. ' -> ' .. to)
   self._state = to
@@ -121,9 +136,7 @@ function Connection:_connect()
     end
     self.connection = stream.Duplex:new():wrap(self._tls_connection)
     self.connection._write = function(conn, data, encoding, callback)
-      self._log(logging.DEBUG, 'songgao: self.connection._write')
       self._tls_connection:write(data)
-      self._log(logging.DEBUG, 'songgao: self.connection._write end')
       callback()
     end
     self:_changeState(CXN_STATES.CONNECTED)
@@ -139,19 +152,17 @@ function Connection:_ready()
     writableObjectMode = true
   })
   jsonify._transform = function(this, chunk, encoding, callback)
-    self._log(logging.DEBUG, 'songgao: _transform')
     if not chunk.id then
       chunk.id = msg_id
       msg_id = msg_id + 1
     end
     success, err = pcall(function()
-      this:push(JSON.stringify(o) .. '\n')
+      this:push(JSON.stringify(chunk) .. '\n')
     end)
     if not success then
       self._log(logging.ERROR, err)
     end
     callback(nil) -- suppress the error
-    self._log(logging.DEBUG, 'songgao: end _transform')
   end
 
   local dejsonify = stream.Transform:new({
@@ -194,27 +205,29 @@ function Connection:_handshake()
   else -- client side (agent) code: initiate handshake
     local msg = self:_handshakeMessage()
     local function onDataClient(data)
-      self._log(logging.DEBUG, 'songgao: got data')
       if data.id == msg.id and data.source == msg.target then
         -- self.remote = data.manifest
         -- TODO: ^^ protocol change?
         -- TODO
         if true then -- if successful
           self.readable:removeListener('data', onDataClient)
-          self:_changeState(CXN_STATES.AUTHENTICATED)
           -- hack before Connection class fully takes over handshakes
           self.handshake_msg = data
+          self._log(logging.DEBUG, string.format('handshake successful (heartbeat_interval=%dms)', self.handshake_msg.result.heartbeat_interval))
 
-          self._log(logging.DEBUG, fmt('handshake successful (heartbeat_interval=%dms)', msg.result.heartbeat_interval))
+          self:_changeState(CXN_STATES.AUTHENTICATED)
         end
       end
     end
     -- using on() instead of once() and let the handler removes itself because
     -- incoming message might be non-handshake messages.
     self.readable:on('data', onDataClient)
-    self._log(logging.DEBUG, 'songgao: before write')
+    timer.setTimeout(HANDSHAKE_TIMEOUT, function()
+      if self._state ~= CXN_STATES.AUTHENTICATED then
+        self:_error(string.format("Handshake timeout, haven't received response in %d ms", HANDSHAKE_TIMEOUT))
+      end
+    end)
     self.writable:write(self:_handshakeMessage())
-    self._log(logging.DEBUG, 'songgao: after write')
   end
 end
 

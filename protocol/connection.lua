@@ -87,11 +87,12 @@ function AgentProtocolConnection:initialize(log, myid, token, guid, conn)
   self._token = token
   self._conn = conn
   -- self._conn:on('data', utils.bind(AgentProtocolConnection._onData, self))
-  local sink = stream.Writable:new()
+  local sink = stream.Writable:new({objectMode = true})
   sink._write = function(sink, data, encoding, callback)
-    self._processMessage(data)
+    self:_processMessage(data)
     callback()
   end
+  self._conn:pipe(sink)
   
   self._buf = ''
   self._msgid = 0
@@ -207,8 +208,8 @@ function AgentProtocolConnection:_send(msg, callback, timeout)
 
   msg.target = 'endpoint'
   msg.source = self._guid
-  local msg_str = JSON.stringify(msg)
-  local data = msg_str .. '\n'
+  -- local msg_str = JSON.stringify(msg)
+  -- local data = msg_str .. '\n'
   local key = self:_completionKey(msg.target, msg.id)
 
   if timeout then
@@ -257,8 +258,8 @@ function AgentProtocolConnection:_send(msg, callback, timeout)
     end
   end
 
-  self._log(logging.DEBUG, fmt('SENDING: (%s) => %s', key, data))
-  self._conn:write(data)
+  self._log(logging.DEBUG, fmt('SENDING: (%s) => %s', key, JSON.stringify(msg)))
+  self._conn:write(msg)
   self._msgid = self._msgid + 1
 end
 
