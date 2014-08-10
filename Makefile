@@ -32,10 +32,13 @@ clean: distclean
 pep8:
 	python ${VIRGO_BASE_DIR}/tools/pep8.py --exclude=deps,gyp,contrib,pep8.py --ignore=E126,E501,E128,E127 . configure
 
-test: tests
+test: tests-tape tests 
 tests: all
 	python ${VIRGO_BASE_DIR}/tools/build.py test
 	$(MAKE) pep8
+
+tests-tape: all
+	out/${BUILDTYPE}/${PKG_NAME} -o -e ${VIRGO_BASE_DIR}/tests/unit-tests/entry.lua
 
 crash: all
 	python ${VIRGO_BASE_DIR}/tools/build.py crash
