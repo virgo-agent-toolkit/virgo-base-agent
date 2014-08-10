@@ -10,7 +10,7 @@ return {
         process.exit(1)
       end
     end)
-    
+
     require('./test-connection')
   end
 }

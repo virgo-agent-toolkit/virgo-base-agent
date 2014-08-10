@@ -2,14 +2,13 @@ local dns = require('dns')
 local JSON = require('json')
 local logging = require('logging')
 local loggingUtil = require('/base/util/logging')
+local Split = require('/base/modules/split-stream')
 local stream = require('/base/modules/stream')
 local string = require('string')
 local table = require('table')
 local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
-
-local Refragmenter = require('./refragmenter')
 
 local CXN_STATES = {
   INITIAL = 'INITIAL',
@@ -35,7 +34,7 @@ function Connection:initialize(manifest, options)
 
   self.options = options or {}
 
-	self.timers = {}
+  self.timers = {}
 
   --[[
   This means different behaviors on initiating the connection and during the
@@ -70,9 +69,9 @@ function Connection:initialize(manifest, options)
   end
 
   self._log = loggingUtil.makeLogger(string.format('Connection: %s (%s:%s)',
-    tostring(self.endpoint),
-    self.host,
-    tostring(self.port)
+  tostring(self.endpoint),
+  self.host,
+  tostring(self.port)
   ))
 
   -- state machine chaining
@@ -97,9 +96,9 @@ function Connection:destroy()
   if self._tls_connection then
     self._log(logging.DEBUG, 'Closing underlying TLS connection')
     self._tls_connection:destroy()
-		for k,v in ipairs(self.timers) do
-			timer.clearTimer(v)
-		end
+    for k,v in ipairs(self.timers) do
+      timer.clearTimer(v)
+    end
     self:_changeState(CXN_STATES.DESTROYED)
   end
 end
@@ -153,7 +152,7 @@ end
 
 -- construct JSON parser/encoding on top of the TLS connection
 function Connection:_ready()
-	local msg_id = 0
+  local msg_id = 0
 
   local jsonify = stream.Transform:new({
     objectMode = false,
@@ -165,8 +164,8 @@ function Connection:_ready()
       msg_id = msg_id + 1
     end
 
-		chunk.target = 'endpoint'
-		chunk.source = self.options.agent.id
+    chunk.target = 'endpoint'
+    chunk.source = self.options.agent.id
 
     success, err = pcall(function()
       this:push(JSON.stringify(chunk) .. '\n')
@@ -177,21 +176,21 @@ function Connection:_ready()
     callback(nil) -- suppress the error
   end
 
-  local dejsonify = stream.Transform:new({
-    objectMode = true,
-    writableObjectMode = false
+  local dejsonify = Split:new({
+    objectMode = true, 
+    mapper = function(chunk)
+      local obj = nil
+      success, err = pcall(function()
+        obj = JSON.parse(chunk)
+      end)
+      if not success then
+        self._log(logging.ERROR, err)
+      end
+      return obj
+    end,
   })
-  dejsonify._transform = function(this, chunk, encoding, callback)
-    success, err = pcall(function()
-      this:push(JSON.parse(chunk))
-    end)
-    if not success then
-      self._log(logging.ERROR, err)
-    end
-    callback(nil) -- suppress the error
-  end
 
-  self.readable = self.connection:pipe(Refragmenter:new()):pipe(dejsonify)
+  self.readable = self.connection:pipe(dejsonify)
   self.writable = jsonify
   self.writable:pipe(self.connection)
   self:_changeState(CXN_STATES.READY)
@@ -218,13 +217,13 @@ function Connection:_handshake()
     local msg = self:_handshakeMessage()
     local function onDataClient(data)
       if data.id == msg.id and data.source == msg.target and data.target == msg.source then
-				if data.v ~= msg.v then
-					self:_error(string.format('Version mismatch: message_version=%d response_version=%d', msg.v, data.v))
-					return
-				elseif data['error'] then
-					self:_error(data['error'].message)
-					return
-				end
+        if data.v ~= msg.v then
+          self:_error(string.format('Version mismatch: message_version=%d response_version=%d', msg.v, data.v))
+          return
+        elseif data['error'] then
+          self:_error(data['error'].message)
+          return
+        end
 
         -- self.remote = data.manifest
         -- TODO: ^^ protocol change?
@@ -254,8 +253,8 @@ end
 function Connection:_handshakeMessage()
   -- TODO: construct handshake message here rather than using protocol/messages
   local msg = require('/base/protocol/messages').HandshakeHello:new(self.options.agent.token, self.options.agent.id):serialize()
-	msg.id = nil -- let jsonify handle msg_id
-	return msg
+  msg.id = nil -- let jsonify handle msg_id
+  return msg
 end
 
 function Connection:pipe(dest, pipeOpts)
