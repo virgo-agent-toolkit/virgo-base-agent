@@ -22,6 +22,16 @@ local CXN_STATES = {
 
 local HANDSHAKE_TIMEOUT = 30000
 
+--[[
+-- Connection is a class that initiates TLS connection to other parties,
+-- manages protocol states (handshake, etc.) and handles JSON (un)marshalling. 
+--
+-- Although for now it is implemented to be Agent specific, Connection is
+-- intended to be a general class that works for both agents and agent
+-- endpoints. This means at some point, it will be able to not only initiate
+-- connection and handshake, but also listen for connections and respond to
+-- handshake requests. (refer to virgo.js)
+]]
 local Connection = stream.Duplex:extend()
 function Connection:initialize(manifest, options)
   stream.Duplex.initialize(self, {objectMode = true})
@@ -36,36 +46,23 @@ function Connection:initialize(manifest, options)
 
   self.timers = {}
 
-  --[[
-  This means different behaviors on initiating the connection and during the
-  handshake. Client initiates connection while server listens; clients
-  initiates handshake while server responds.
-  ]]
-  self._is_server = false
+  if type(options.endpoint) == 'table' then
+    self.host = options.endpoint.host or nil
+    self.port = options.endpoint.port or 443
+  elseif type(options.endpoint) == 'string' then
+    self.endpoint = options.endpoint
+  else
+    assert(false) -- TODO
+  end
 
-  self.connection = self.options.connection or nil
-  if self.connection == nil then -- client (agent) mode
-    if type(options.endpoint) == 'table' then
-      self.host = options.endpoint.host or nil
-      self.port = options.endpoint.port or 443
-    elseif type(options.endpoint) == 'string' then
-      self.endpoint = options.endpoint
-    else
-      assert(false) -- TODO
-    end
+  self.ca = options.ca or nil
+  self.key = options.key or nil
 
-    self.ca = options.ca or nil
-    self.key = options.key or nil
-
-    if self.host ~= nil then
-      self._state = CXN_STATES.RESOLVED
-    else
-      -- no host provided; need to resolve SRV.
-      self._state = CXN_STATES.INITIAL
-    end
-  else -- underlying tls connection provided; server mode
-    self._is_server = true
-    self._state = CXN_STATES.CONNECTED
+  if self.host ~= nil then
+    self._state = CXN_STATES.RESOLVED
+  else
+    -- no host provided; need to resolve SRV.
+    self._state = CXN_STATES.INITIAL
   end
 
   self._log = loggingUtil.makeLogger(string.format('Connection: %s (%s:%s)',
@@ -168,7 +165,7 @@ function Connection:_ready()
     chunk.source = self.options.agent.id
 
     success, err = pcall(function()
-      this:push(JSON.stringify(chunk) .. '\n')
+      this:push(JSON.stringify(chunk) .. '\n') -- \n delimited JSON
     end)
     if not success then
       self._log(logging.ERROR, err)
@@ -178,6 +175,7 @@ function Connection:_ready()
 
   local dejsonify = Split:new({
     objectMode = true, 
+    -- \n is the default separator
     mapper = function(chunk)
       local obj = nil
       success, err = pcall(function()
@@ -196,65 +194,58 @@ function Connection:_ready()
   self:_changeState(CXN_STATES.READY)
 end
 
--- client (agent) and server (endpoint) handshake and exchange manifest data.
+-- initiate Handshake request (handshake.hello)
 function Connection:_handshake()
-  if (self._is_server) then -- server side (endpoint) respond to handshake
-    local function onDataServer(data) -- TODO: look at ele endpoint code
-      if data.method == 'handshake.hello' then
-        self.remote = data.manifest
-        -- TODO
-        if true then -- if successful
-          self.readable:removeListener('data', onDataServer)
-          self.writable:write(self:_handshakeMessage())
-          self:_changeState(CXN_STATES.AUTHENTICATED)
-        end
+  local msg = self:_handshakeMessage()
+  local function onDataClient(data)
+    if data.id == msg.id and data.source == msg.target and data.target == msg.source then
+      if data.v ~= msg.v then
+        self:_error(string.format('Version mismatch: message_version=%d response_version=%d', msg.v, data.v))
+        return
+      elseif data['error'] then
+        self:_error(data['error'].message)
+        return
+      end
+
+      -- self.remote = data.manifest
+      -- TODO: ^^ protocol change?
+      -- TODO
+      if true then -- if successful
+        self.readable:removeListener('data', onDataClient)
+        -- hack before Connection class fully takes over handshakes
+        self.handshake_msg = data
+        self._log(logging.DEBUG, string.format('handshake successful (heartbeat_interval=%dms)', self.handshake_msg.result.heartbeat_interval))
+
+        self:_changeState(CXN_STATES.AUTHENTICATED)
       end
     end
-    -- using on() instead of once() and let the handler removes itself because
-    -- incoming message might be non-handshake messages.
-    self.readable:on('data', onDataServer)
-  else -- client side (agent) code: initiate handshake
-    local msg = self:_handshakeMessage()
-    local function onDataClient(data)
-      if data.id == msg.id and data.source == msg.target and data.target == msg.source then
-        if data.v ~= msg.v then
-          self:_error(string.format('Version mismatch: message_version=%d response_version=%d', msg.v, data.v))
-          return
-        elseif data['error'] then
-          self:_error(data['error'].message)
-          return
-        end
-
-        -- self.remote = data.manifest
-        -- TODO: ^^ protocol change?
-        -- TODO
-        if true then -- if successful
-          self.readable:removeListener('data', onDataClient)
-          -- hack before Connection class fully takes over handshakes
-          self.handshake_msg = data
-          self._log(logging.DEBUG, string.format('handshake successful (heartbeat_interval=%dms)', self.handshake_msg.result.heartbeat_interval))
-
-          self:_changeState(CXN_STATES.AUTHENTICATED)
-        end
-      end
-    end
-    -- using on() instead of once() and let the handler removes itself because
-    -- incoming message might be non-handshake messages.
-    self.readable:on('data', onDataClient)
-    table.insert(self.timers, timer.setTimeout(HANDSHAKE_TIMEOUT, function()
-      if self._state ~= CXN_STATES.AUTHENTICATED then
-        self:_error(string.format("Handshake timeout, haven't received response in %d ms", HANDSHAKE_TIMEOUT))
-      end
-    end))
-    self.writable:write(msg)
   end
+  -- using on() instead of once() and let the handler removes itself because
+  -- incoming message might be non-handshake messages.
+  self.readable:on('data', onDataClient)
+  table.insert(self.timers, timer.setTimeout(HANDSHAKE_TIMEOUT, function()
+    if self._state ~= CXN_STATES.AUTHENTICATED then
+      self:_error(string.format("Handshake timeout, haven't received response in %d ms", HANDSHAKE_TIMEOUT))
+    end
+  end))
+  self.writable:write(msg)
 end
 
 function Connection:_handshakeMessage()
-  -- TODO: construct handshake message here rather than using protocol/messages
-  local msg = require('/base/protocol/messages').HandshakeHello:new(self.options.agent.token, self.options.agent.id):serialize()
-  msg.id = nil -- let jsonify handle msg_id
-  return msg
+  return {
+    v = '1',
+    id = nil, -- let jsonify handle msg_id
+    target = 'endpoint',
+    source = self.options.agent.guid,
+    method = 'handshake.hello',
+    params = {
+      token = self.options.agent.token,
+      agent_id = self.options.agent.id,
+      agent_name = self.options.agent.name,
+      process_version = virgo.virgo_version,
+      bundle_version = virgo.bundle_version,
+    },
+  }
 end
 
 function Connection:pipe(dest, pipeOpts)

@@ -121,8 +121,10 @@ function AgentClient:connect()
   options.endpoint.host = self._ip
   options.endpoint.port = self._port
   options.agent = {}
+  options.agent.guid = self._guid
   options.agent.id = self._id
   options.agent.token = self._token
+  options.agent.name = 'Rackspace Monitoring Agent'
   self._connection = Connection:new({}, options)
 
   self._log(logging.DEBUG, 'Connecting...')
