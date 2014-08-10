@@ -86,7 +86,6 @@ function AgentProtocolConnection:initialize(log, myid, token, guid, conn)
   self._myid = myid
   self._token = token
   self._conn = conn
-  -- self._conn:on('data', utils.bind(AgentProtocolConnection._onData, self))
   local sink = stream.Writable:new({objectMode = true})
   sink._write = function(sink, data, encoding, callback)
     self:_processMessage(data)
@@ -139,27 +138,6 @@ function AgentProtocolConnection:_popLine()
   end
 
   return line
-end
-
-function AgentProtocolConnection:_onData(data)
-  assert(false) -- shouldn't use this anymore
-  local obj, status, line
-
-  self._buf = self._buf .. data
-  line = self:_popLine()
-
-  while line do
-    self._log(logging.DEBUG, 'got line: ' .. line)
-
-    status, obj = pcall(JSON.parse, line)
-    if not status then
-      self._log(logging.ERROR, fmt('Failed to parse incoming line: line="%s",err=%s', line, obj))
-    else
-      self:_processMessage(obj)
-    end
-
-    line = self:_popLine()
-  end
 end
 
 function AgentProtocolConnection:_processMessage(msg)

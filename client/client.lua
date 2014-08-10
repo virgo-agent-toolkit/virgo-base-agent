@@ -352,18 +352,6 @@ function AgentClient:destroy()
   self._connection:destroy()
 end
 
-function AgentClient:destroy_old()
-  if self:isDestroyed() then
-    return
-  end
-  self:getMachine():react(self, 'done')
-  self:setDestroyed()
-  if self._sock then
-    self:log(logging.DEBUG, 'Closing socket')
-    self._sock:destroy()
-  end
-end
-
 local exports = {}
 exports.AgentClient = AgentClient
 return exports

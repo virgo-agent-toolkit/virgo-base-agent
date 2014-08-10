@@ -51,8 +51,6 @@ function Connection:initialize(manifest, options)
     self.port = options.endpoint.port or 443
   elseif type(options.endpoint) == 'string' then
     self.endpoint = options.endpoint
-  else
-    assert(false) -- TODO
   end
 
   self.ca = options.ca or nil
@@ -207,17 +205,14 @@ function Connection:_handshake()
         return
       end
 
-      -- self.remote = data.manifest
-      -- TODO: ^^ protocol change?
-      -- TODO
-      if true then -- if successful
-        self.readable:removeListener('data', onDataClient)
-        -- hack before Connection class fully takes over handshakes
-        self.handshake_msg = data
-        self._log(logging.DEBUG, string.format('handshake successful (heartbeat_interval=%dms)', self.handshake_msg.result.heartbeat_interval))
+      -- TODO: self.remote = data.manifest | protocol change
 
-        self:_changeState(CXN_STATES.AUTHENTICATED)
-      end
+      self.readable:removeListener('data', onDataClient)
+      -- hack before Connection class fully takes over handshakes
+      self.handshake_msg = data
+      self._log(logging.DEBUG, string.format('handshake successful (heartbeat_interval=%dms)', self.handshake_msg.result.heartbeat_interval))
+
+      self:_changeState(CXN_STATES.AUTHENTICATED)
     end
   end
   -- using on() instead of once() and let the handler removes itself because
