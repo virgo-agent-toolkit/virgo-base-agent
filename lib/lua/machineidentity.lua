@@ -22,8 +22,15 @@ local os = require('os')
 local fs = require('fs')
 local utils = require('virgo_utils')
 local fmt = require('string').format
+local http = require('http')
 
 local MachineIdentity = Object:extend()
+
+local function awsAdapter(callback)
+  local uri = 'http://instance-data.ec2.internal/latest/meta-data/instance-id'
+  local req = http.request(uri, callback)
+  req:done()
+end
 
 local function xenAdapter(callback)
   local exePath
@@ -94,18 +101,20 @@ function MachineIdentity:get(callback)
     if err ~= nil then
       xenAdapter(function(err, instanceId)
         if err ~= nil then
-          callback(err)
+          awsAdapter(function(err, instanceId)
+            if err ~= nil then
+              return callback(err)
+            end
+            handle_id(instanceId)
+          end)
           return
         end
-
-          handle_id(instanceId)
-          return
+        handle_id(instanceId)
+        return
       end)
       return
     end
-
     handle_id(instanceId)
-    return
   end)
 
 end
