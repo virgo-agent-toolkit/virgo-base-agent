@@ -25,11 +25,11 @@ local Emitter = require('core').Emitter
 local logging = require('logging')
 local misc = require('/base/util/misc')
 local loggingUtil = require ('/base/util/logging')
-local Proxy = require ('/base/util/proxy').Proxy
 local ProtocolConnection = require('/base/protocol/connection')
 local table = require('table')
 local caCerts = require('/certs').caCerts
 local vutils = require('virgo_utils')
+local request = require('request')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
 
@@ -154,22 +154,16 @@ function AgentClient:connect()
       self:emit('handshake_success', msg.result)
     end)
   end
-  local http_proxy = process.env.HTTP_PROXY
+  local http_proxy = process.env.HTTP_PROXY or process.env.HTTPS_PROXY
   if http_proxy then
     self._log(logging.DEBUG, fmt('Using PROXY %s', http_proxy))
-    local proxy_options = {
-      ['proxy_url'] = http_proxy
-    }
-    local proxy = Proxy:new(proxy_options)
-    local host = fmt('%s:%s', self._ip, self._port)
-    proxy:connect(host, function(err, proxysock)
+    local upstream_host = fmt('%s:%s', self._ip, self._port)
+    request.proxy(http_proxy, upstream_host, function(err, proxysock)
       if err then
         self:emit('error', err)
         return
       end
-      -- Remove all listeners on the proxy socket
-      proxysock:removeAllListeners()
-
+ 
       self._log(logging.DEBUG, '... connected to proxy')
 
       local tls_options = misc.deepCopyTable(self._tls_options)
