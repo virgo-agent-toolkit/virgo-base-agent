@@ -35,7 +35,7 @@ test('Connection is stream.Duplex', nil, function(t)
   local connection = Connection:new(nil, {
     endpoint = {
       host = 'localhost',
-      port = 12345,
+      port = 50041,
     },
     agent = {
       token = 'this_is_a_token',
@@ -50,7 +50,7 @@ local test_hello_response_error_handling = function(t, fixture, checkErr)
   local connection = Connection:new(nil, {
     endpoint = {
       host = 'localhost',
-      port = 12345,
+      port = 50041,
     },
     agent = {
       token = 'this_is_a_token',
@@ -61,7 +61,7 @@ local test_hello_response_error_handling = function(t, fixture, checkErr)
     },
   })
   local server = mock_server(fixture .. '\n')
-  server:listen(12345, function()
+  server:listen(50041, function()
     connection:connect(function()
       t:equal(true, false, 'expected error in Connection')
       t:finish()
@@ -105,7 +105,7 @@ test('fragmented message', nil, function(t)
   local connection = Connection:new(nil, {
     endpoint = {
       host = 'localhost',
-      port = 12345,
+      port = 50041,
     },
     agent = {
       token = 'this_is_a_token',
@@ -117,7 +117,7 @@ test('fragmented message', nil, function(t)
   })
   local fixture = fixtures['handshake.hello.response']
   local server = mock_server({fixture:sub(1, 4), fixture:sub(5, #fixture) .. '\n'})
-  server:listen(12345, function()
+  server:listen(50041, function()
     connection:connect(function()
       connection:destroy()
       server:close()
@@ -136,7 +136,7 @@ test('multiple messages in a single chunk', nil, function(t)
   local connection = Connection:new(nil, {
     endpoint = {
       host = 'localhost',
-      port = 12345,
+      port = 50041,
     },
     agent = {
       token = 'this_is_a_token',
@@ -155,7 +155,7 @@ test('multiple messages in a single chunk', nil, function(t)
     server:close()
     t:finish()
   end
-  server:listen(12345, function()
+  server:listen(50041, function()
     connection:connect(function()
       connection:pipe(sink)
     end,
