@@ -56,6 +56,7 @@ function AgentClient:initialize(options, connectionStream, types)
   self._ip = options.ip
   self._port = options.port
   self._host = options.host
+  self._proxy = options.proxy
 
   self._timeout = options.timeout or 5000
 
@@ -154,11 +155,10 @@ function AgentClient:connect()
       self:emit('handshake_success', msg.result)
     end)
   end
-  local http_proxy = process.env.HTTP_PROXY or process.env.HTTPS_PROXY
-  if http_proxy then
-    self._log(logging.DEBUG, fmt('Using PROXY %s', http_proxy))
+  if self._proxy then
+    self._log(logging.DEBUG, fmt('Using PROXY %s', self._proxy))
     local upstream_host = fmt('%s:%s', self._ip, self._port)
-    request.proxy(http_proxy, upstream_host, function(err, proxysock)
+    request.proxy(self._proxy, upstream_host, function(err, proxysock)
       if err then
         self:emit('error', err)
         return
