@@ -28,12 +28,20 @@ local MachineIdentity = Object:extend()
 
 local function awsAdapter(callback)
   local uri = 'http://instance-data.ec2.internal/latest/meta-data/instance-id'
-  http.request(uri, callback):done()
+  local req = http.request(uri, callback)
+  req:setTimeout(1000)
+  req:once('timeout', callback)
+  req:once('error', callback)
+  req:done()
 end
 
 local function gceAdapter(callback)
   local uri = 'http://metadata.google.internal/computeMetadata/v1/instance/id'
-  http.request(uri, callback):done()
+  local req = http.request(uri, callback)
+  req:setTimeout(1000)
+  req:once('timeout', callback)
+  req:once('error', callback)
+  req:done()
 end
 
 local function xenAdapter(callback)
