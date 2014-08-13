@@ -28,8 +28,12 @@ local MachineIdentity = Object:extend()
 
 local function awsAdapter(callback)
   local uri = 'http://instance-data.ec2.internal/latest/meta-data/instance-id'
-  local req = http.request(uri, callback)
-  req:done()
+  http.request(uri, callback):done()
+end
+
+local function gceAdapter(callback)
+  local uri = 'http://metadata.google.internal/computeMetadata/v1/instance/id'
+  http.request(uri, callback):done()
 end
 
 local function xenAdapter(callback)
@@ -87,36 +91,40 @@ end
 
 function MachineIdentity:get(callback)
   local rv
+  local instanceId
 
   rv = utils.tableGetBoolean(self._config, 'autodetect_machine_id', true)
   if rv == false then
     return callback()
   end
 
-  function handle_id(instanceId)
-    callback(nil, {id = instanceId})
-  end
+  local adapters = {
+    cloudInitAdapter,
+    xenAdapter,
+    awsAdapter,
+    gceAdapter
+  }
 
-  cloudInitAdapter(function(err, instanceId)
-    if err ~= nil then
-      xenAdapter(function(err, instanceId)
-        if err ~= nil then
-          awsAdapter(function(err, instanceId)
-            if err ~= nil then
-              return callback(err)
-            end
-            handle_id(instanceId)
-          end)
-          return
-        end
-        handle_id(instanceId)
-        return
-      end)
-      return
+  async.forEachSeries(adapters, function(adapter, callback)
+    adapter(function(err, _instanceId)
+      if err then
+        return callback()
+      end
+      if instanceId then
+        return callback()
+      end
+      instanceId = _instanceId
+      callback()
+    end)
+  end, function(err)
+    if err then
+      return callback(err)
     end
-    handle_id(instanceId)
+    if instanceId == nil then
+      return callback(Error:new('no instance id'))
+    end
+    callback(nil, { id = instanceId })
   end)
-
 end
 
 local exports = {}
