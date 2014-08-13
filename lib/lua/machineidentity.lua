@@ -28,7 +28,16 @@ local MachineIdentity = Object:extend()
 
 local function awsAdapter(callback)
   local uri = 'http://instance-data.ec2.internal/latest/meta-data/instance-id'
-  local req = http.request(uri, callback)
+  local req = http.request(uri, function(res)
+    local id = ''
+    res:on('data', function(data)
+      id = id .. data
+    end)
+    res:on("end", function()
+      res:destroy()
+      callback(nil, id)
+    end)
+  end)
   req:setTimeout(1000)
   req:once('timeout', callback)
   req:once('error', callback)
@@ -37,8 +46,18 @@ end
 
 local function gceAdapter(callback)
   local uri = 'http://metadata.google.internal/computeMetadata/v1/instance/id'
-  local req = http.request(uri, callback)
+  local req = http.request(uri, function(res)
+    local id = ''
+    res:on('data', function(data)
+      id = id .. data
+    end)
+    res:on("end", function()
+      res:destroy()
+      callback(nil, id)
+    end)
+  end)
   req:setTimeout(1000)
+  req:setHeader('MetaData-Flavor', 'Google')
   req:once('timeout', callback)
   req:once('error', callback)
   req:done()
