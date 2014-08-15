@@ -29,6 +29,7 @@ local ProtocolConnection = require('/base/protocol/connection')
 local table = require('table')
 local caCerts = require('/certs').caCerts
 local vutils = require('virgo_utils')
+local request = require('request')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
 
@@ -55,6 +56,7 @@ function AgentClient:initialize(options, connectionStream, types)
   self._ip = options.ip
   self._port = options.port
   self._host = options.host
+  self._proxy = options.proxy
 
   self._timeout = options.timeout or 5000
 
@@ -113,7 +115,13 @@ end
 function AgentClient:connect()
   -- Create connection timeout
   self._log(logging.DEBUG, 'Connecting...')
-  self._sock = tls.connect(self._port, self._ip, self._tls_options, function(err, cleartext)
+
+  local function onConnect(err, cleartext)
+    if err then
+      self:emit('error', err)
+      return
+    end
+
     -- Log
     self._log(logging.INFO, 'Connected')
     self:emit('connect')
@@ -146,8 +154,44 @@ function AgentClient:connect()
       self._connectionStream:setChannel(msg.result.channel)
       self:emit('handshake_success', msg.result)
     end)
-  end)
-  self._log(logging.DEBUG, fmt('Using timeout %sms', self:_socketTimeout()))
+  end
+  if self._proxy then
+    self._log(logging.DEBUG, fmt('Using PROXY %s', self._proxy))
+    local upstream_host = fmt('%s:%s', self._ip, self._port)
+    request.proxy(self._proxy, upstream_host, function(err, proxysock)
+      if err then
+        self:emit('error', err)
+        return
+      end
+ 
+      self._log(logging.DEBUG, '... connected to proxy')
+
+      local tls_options = misc.deepCopyTable(self._tls_options)
+      tls_options.socket = proxysock
+      tls_options.host = self._ip
+
+      -- Upgrade Socket
+      self._log(logging.DEBUG, '... upgrading socket to TLS')
+      tls.connect(tls_options, function(err, cleartext)
+        if err then
+          self._log(logging.DEBUG, '... upgrading socket failed')
+          self:emit('error', err)
+          return
+        end
+        self._log(logging.DEBUG, '... upgrading socket succeeded')
+        self._sock = cleartext
+        onConnect(err, cleartext)
+        self:_attachSocketHandlers()
+      end)
+    end)
+  else
+    self._sock = tls.connect(self._port, self._ip, self._tls_options, onConnect)
+    self:_attachSocketHandlers()
+    self._log(logging.DEBUG, fmt('Using timeout %sms', self:_socketTimeout()))
+  end
+end
+
+function AgentClient:_attachSocketHandlers()
   self._sock.socket:setTimeout(self:_socketTimeout(), function()
     self:emit('timeout')
   end)
