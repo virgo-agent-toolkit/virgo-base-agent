@@ -49,7 +49,7 @@ end)
 local test_hello_response_error_handling = function(t, fixture, checkErr)
   local connection = Connection:new(nil, {
     endpoint = {
-      host = 'localhost',
+      host = '127.0.0.1',
       port = 50041,
     },
     agent = {
@@ -104,7 +104,7 @@ end)
 test('fragmented message', nil, function(t)
   local connection = Connection:new(nil, {
     endpoint = {
-      host = 'localhost',
+      host = '127.0.0.1',
       port = 50041,
     },
     agent = {
@@ -135,7 +135,7 @@ end)
 test('multiple messages in a single chunk', nil, function(t)
   local connection = Connection:new(nil, {
     endpoint = {
-      host = 'localhost',
+      host = '127.0.0.1',
       port = 50041,
     },
     agent = {
