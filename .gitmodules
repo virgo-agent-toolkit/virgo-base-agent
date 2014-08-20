@@ -12,3 +12,12 @@
 [submodule "deps/libarchive"]
 	path = deps/libarchive
 	url = https://github.com/racker/libarchive.git
+[submodule "modules/stream"]
+	path = modules/stream
+	url = https://github.com/virgo-agent-toolkit/luvit-stream.git
+[submodule "modules/tape"]
+	path = modules/tape
+	url = https://github.com/virgo-agent-toolkit/luvit-tape.git
+[submodule "modules/split-stream"]
+	path = modules/split-stream
+	url = https://github.com/virgo-agent-toolkit/luvit-split-stream.git

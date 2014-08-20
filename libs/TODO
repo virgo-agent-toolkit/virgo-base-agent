@@ -1,0 +1,3 @@
+Since the luvit convention is to name this dir `lib`, we should probably rename
+current `base/lib` (C code) to something else, and rename this one to
+`base/lib`?

@@ -32,6 +32,7 @@ local vutils = require('virgo_utils')
 local request = require('request')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
+local Connection = require('/base/libs/connection')
 
 local fmt = require('string').format
 
@@ -82,6 +83,7 @@ function AgentClient:initialize(options, connectionStream, types)
                                      self._port,
                                      self._host,
                                      DATACENTER_COUNT[options.datacenter]))
+                                    
 end
 
 function AgentClient:_incrementDatacenterCount()
@@ -113,6 +115,62 @@ function AgentClient:_socketTimeout()
 end
 
 function AgentClient:connect()
+  local options = {}
+  options.tls_options = self._tls_options
+  options.endpoint = {}
+  options.endpoint.host = self._ip
+  options.endpoint.port = self._port
+  options.agent = {}
+  options.agent.guid = self._guid
+  options.agent.id = self._id
+  options.agent.token = self._token
+  options.agent.name = 'Rackspace Monitoring Agent'
+  self._connection = Connection:new({}, options)
+
+  self._log(logging.DEBUG, 'Connecting...')
+  self._connection:connect(function()
+
+    self._log(logging.INFO, 'Connected')
+    self:emit('connect')
+
+    local protocolType = self._types.ProtocolConnection or ProtocolConnection
+    self.protocol = protocolType:new(self._log, self._id, self._token, self._guid, self._connection)
+    self.protocol:on('error', function(err)
+      -- set self.rateLimitReached so reconnect logic stops
+      -- if close event is emitted before this message event
+      if err['type'] == 'rateLimitReached' then
+        self.rateLimitReached = true
+      end
+
+      self:emit('error', err)
+    end)
+
+    self.protocol:on('message', function(msg)
+      self:emit('message', msg, self)
+    end)
+
+    -- hack: should not have to access _connection.handshake_msg
+    self._heartbeat_interval = self._connection.handshake_msg.result.heartbeat_interval
+    self._entity_id = self._connection.handshake_msg.result.entity_id
+    self._connectionStream:setChannel(self._connection.handshake_msg.result.channel)
+    self:emit('handshake_success', self._connection.handshake_msg.result)
+
+    self._log(logging.DEBUG, fmt('Using timeout %sms', self:_socketTimeout()))
+    -- hack: should be handled in Connection class
+    self._connection._tls_connection.socket:setTimeout(self:_socketTimeout(), function()
+      self:emit('timeout')
+    end)
+    --  TODO: make this work: self._connection.readable:on('end', function()
+    self._connection._tls_connection:on('end', function()
+      self:emit('end')
+    end)
+  end,
+  function(err)
+    self:emit('error', err)
+  end)
+end
+
+function AgentClient:connect_old()
   -- Create connection timeout
   self._log(logging.DEBUG, 'Connecting...')
 
@@ -291,10 +349,7 @@ function AgentClient:destroy()
   end
   self:getMachine():react(self, 'done')
   self:setDestroyed()
-  if self._sock then
-    self:log(logging.DEBUG, 'Closing socket')
-    self._sock:destroy()
-  end
+  self._connection:destroy()
 end
 
 local exports = {}
