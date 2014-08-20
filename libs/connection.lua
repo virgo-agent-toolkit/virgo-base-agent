@@ -2,6 +2,8 @@ local dns = require('dns')
 local JSON = require('json')
 local logging = require('logging')
 local loggingUtil = require('/base/util/logging')
+local misc = require('/base/util/misc')
+local request = require('request')
 local Split = require('/base/modules/split-stream')
 local stream = require('/base/modules/stream')
 local string = require('string')
@@ -9,10 +11,12 @@ local table = require('table')
 local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
+local fmt = require('string').format
 
 local CXN_STATES = {
   INITIAL = 'INITIAL',
   RESOLVED = 'RESOLVED',
+  PROXIED = 'PROXIED',
   CONNECTED = 'CONNECTED',
   READY = 'READY',
   AUTHENTICATED = 'AUTHENTICATED',
@@ -43,6 +47,7 @@ function Connection:initialize(manifest, options)
   self.remote = nil
 
   self.options = options or {}
+  self.proxy = self.options.proxy
 
   self.timers = {}
 
@@ -53,8 +58,10 @@ function Connection:initialize(manifest, options)
     self.endpoint = options.endpoint
   end
 
-  self.ca = options.ca or nil
-  self.key = options.key or nil
+  -- copy tls_options so that we don't alter the object provided by user
+  self._tls_options = misc.deepCopyTable(self.options.tls_options) or {}
+  self._tls_options.ca = self._tls_options.ca or options.ca
+  self._tls_options.key = self._tls_options.key or options.key
 
   if self.host ~= nil then
     self._state = CXN_STATES.RESOLVED
@@ -63,15 +70,16 @@ function Connection:initialize(manifest, options)
     self._state = CXN_STATES.INITIAL
   end
 
-  self._log = loggingUtil.makeLogger(string.format('Connection: %s (%s:%s)',
-  tostring(self.endpoint),
-  self.host,
-  tostring(self.port)
+  self._log = loggingUtil.makeLogger(fmt('Connection: %s (%s:%s)',
+    tostring(self.endpoint),
+    self.host,
+    tostring(self.port)
   ))
 
   -- state machine chaining
   self:once(CXN_STATES.INITIAL, utils.bind(self._resolve, self))
-  self:once(CXN_STATES.RESOLVED, utils.bind(self._connect, self))
+  self:once(CXN_STATES.RESOLVED, utils.bind(self._proxy, self))
+  self:once(CXN_STATES.PROXIED, utils.bind(self._connect, self))
   self:once(CXN_STATES.CONNECTED, utils.bind(self._ready, self))
   self:once(CXN_STATES.READY, utils.bind(self._handshake, self))
 end
@@ -105,7 +113,7 @@ function Connection:_changeState(to, data)
 end
 
 function Connection:_error(err)
-  self._log(logging.ERROR, err)
+  self._log(logging.ERROR, tostring(err))
   self:_changeState(CXN_STATES.ERROR, err)
 end
 
@@ -122,16 +130,36 @@ function Connection:_resolve()
   end)
 end
 
+-- get the proxy ready if configured, or pass to next state if no proxy is
+-- configured
+function Connection:_proxy()
+  if self.proxy then
+    self._log(logging.DEBUG, fmt('Using PROXY %s', self.proxy))
+    local upstream_host = fmt('%s:%s', self.host, self.port)
+    request.proxy(self.proxy, upstream_host, function(err, proxysock)
+      if err then
+        self:_error(err)
+        return
+      end
+
+      self._log(logging.DEBUG, '... connected to proxy')
+      self._tls_options.socket = proxysock
+      self._tls_options.host = self.host
+
+      self._log(logging.DEBUG, '... upgrading socket to TLS')
+      self:_changeState(CXN_STATES.PROXIED)
+    end)
+  else
+    self:_changeState(CXN_STATES.PROXIED)
+  end
+end
+
 -- initiate TLS connection
 function Connection:_connect()
-  local tls_options = {}
-  for _,k in pairs({'host', 'port', 'ca', 'key'}) do
-    tls_options[k] = self[k]
+  for _,k in pairs({'host', 'port'}) do
+    self._tls_options[k] = self[k]
   end
-  for k,v in pairs(self.options.tls_options) do
-    tls_options[k] = v
-  end
-  self._tls_connection = tls.connect(tls_options, function(err)
+  self._tls_connection = tls.connect(self._tls_options, function(err)
     if err then
       self:_error(err)
       return
