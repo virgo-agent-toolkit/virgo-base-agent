@@ -11,6 +11,7 @@ local table = require('table')
 local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
+local fmt = require('string').format
 
 local CXN_STATES = {
   INITIAL = 'INITIAL',
@@ -46,6 +47,7 @@ function Connection:initialize(manifest, options)
   self.remote = nil
 
   self.options = options or {}
+  self.proxy = self.options.proxy
 
   self.timers = {}
 
@@ -58,9 +60,8 @@ function Connection:initialize(manifest, options)
 
   -- copy tls_options so that we don't alter the object provided by user
   self._tls_options = misc.deepCopyTable(self.options.tls_options) or {}
-
-  self._tls_options.ca = options.ca or nil
-  self._tls_options.key = options.key or nil
+  self._tls_options.ca = self._tls_options.ca or options.ca
+  self._tls_options.key = self._tls_options.key or options.key
 
   if self.host ~= nil then
     self._state = CXN_STATES.RESOLVED
@@ -69,10 +70,10 @@ function Connection:initialize(manifest, options)
     self._state = CXN_STATES.INITIAL
   end
 
-  self._log = loggingUtil.makeLogger(string.format('Connection: %s (%s:%s)',
-  tostring(self.endpoint),
-  self.host,
-  tostring(self.port)
+  self._log = loggingUtil.makeLogger(fmt('Connection: %s (%s:%s)',
+    tostring(self.endpoint),
+    self.host,
+    tostring(self.port)
   ))
 
   -- state machine chaining
@@ -112,7 +113,7 @@ function Connection:_changeState(to, data)
 end
 
 function Connection:_error(err)
-  self._log(logging.ERROR, err)
+  self._log(logging.ERROR, tostring(err))
   self:_changeState(CXN_STATES.ERROR, err)
 end
 
@@ -132,12 +133,12 @@ end
 -- get the proxy ready if configured, or pass to next state if no proxy is
 -- configured
 function Connection:_proxy()
-  if self.options._proxy then
-    self._log(logging.DEBUG, fmt('Using PROXY %s', self.options._proxy))
+  if self.proxy then
+    self._log(logging.DEBUG, fmt('Using PROXY %s', self.proxy))
     local upstream_host = fmt('%s:%s', self.host, self.port)
-    request.proxy(self._proxy, upstream_host, function(err, proxysock)
+    request.proxy(self.proxy, upstream_host, function(err, proxysock)
       if err then
-        self._error(err)
+        self:_error(err)
         return
       end
 

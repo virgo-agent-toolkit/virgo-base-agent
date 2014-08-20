@@ -125,6 +125,7 @@ function AgentClient:connect()
   options.agent.id = self._id
   options.agent.token = self._token
   options.agent.name = 'Rackspace Monitoring Agent'
+  options.proxy = self._proxy
   self._connection = Connection:new({}, options)
 
   self._log(logging.DEBUG, 'Connecting...')
