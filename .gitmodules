@@ -27,3 +27,6 @@
 [submodule "modules/async"]
 	path = modules/async
 	url = https://github.com/virgo-agent-toolkit/luvit-async.git
+[submodule "modules/hsm"]
+	path = modules/hsm
+	url = https://github.com/virgo-agent-toolkit/luvit-hsm.git
