@@ -23,10 +23,13 @@ local errors = require('/base/errors')
 local request = require('/base/protocol/request')
 
 local code_cert
+local success
 if _G.TESTING_CERTS then
   code_cert = _G.TESTING_CERTS
 else
-  code_cert = require('/code_cert.prod.lua')
+  success, code_cert = pcall(function()
+    return require('/code_cert.prod.lua')
+  end)
 end
 
 
@@ -127,6 +130,10 @@ function ConnectionMessages:getUpgrade(version, client, callback)
   local verified_dir = consts:get('DEFAULT_VERIFIED_BUNDLE_PATH')
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
   local verified_binary_dir = consts:get('DEFAULT_VERIFIED_EXE_PATH')
+
+  if not code_cert then
+    return callback(Error:new('code cert not loaded'))
+  end
 
   local function download_iter(item, callback)
     local options = {

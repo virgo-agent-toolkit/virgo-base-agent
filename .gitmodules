@@ -21,3 +21,12 @@
 [submodule "modules/split-stream"]
 	path = modules/split-stream
 	url = https://github.com/virgo-agent-toolkit/luvit-split-stream.git
+[submodule "modules/hsm"]
+	path = modules/hsm
+	url = https://github.com/hnakamur/luvit-hsm.git
+[submodule "modules/request"]
+	path = modules/request
+	url = https://github.com/virgo-agent-toolkit/luvit-request.git
+[submodule "modules/async"]
+	path = modules/async
+	url = https://github.com/virgo-agent-toolkit/luvit-async.git

@@ -2,6 +2,7 @@ local os = require('os')
 local misc = require('./misc')
 local path = require('path')
 local Object = require('core').Object
+local fmt = require('string').format
 
 local ConstantsCtx = Object:extend()
 
@@ -74,7 +75,7 @@ local RUNTIME_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_RUNTIME_DIR)
 local BUNDLE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_BUNDLE_DIR)
 
 globalCtx:set('DEFAULT_PERSISTENT_VARIABLE_PATH', path.join(PERSISTENT_DIR, 'variables'))
-globalCtx:set('DEFAULT_CONFIG_PATH', path.join(CONFIG_DIR, 'rackspace-monitoring-agent.cfg'))
+globalCtx:set('DEFAULT_CONFIG_PATH', path.join(CONFIG_DIR, fmt('%s.cfg', virgo.pkg_name)))
 globalCtx:set('DEFAULT_STATE_PATH', path.join(RUNTIME_DIR, 'states'))
 globalCtx:set('DEFAULT_DOWNLOAD_PATH', path.join(RUNTIME_DIR, 'downloads'))
 globalCtx:set('DEFAULT_RUNTIME_PATH', RUNTIME_DIR)
@@ -83,7 +84,7 @@ globalCtx:set('DEFAULT_VERIFIED_BUNDLE_PATH', BUNDLE_DIR)
 globalCtx:set('DEFAULT_UNVERIFIED_BUNDLE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
 globalCtx:set('DEFAULT_VERIFIED_EXE_PATH', EXE_DIR)
 globalCtx:set('DEFAULT_UNVERIFIED_EXE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
-globalCtx:set('DEFAULT_PID_FILE_PATH', '/var/run/rackspace-monitoring-agent.pid')
+globalCtx:set('DEFAULT_PID_FILE_PATH', fmt('/var/run/%s.pid', virgo.pkg_name))
 
 globalCtx:set('CRASH_REPORT_URL', '')
 

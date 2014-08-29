@@ -1,7 +1,7 @@
 {
   'targets': [
     {
-      'target_name': 'virgo',
+      'target_name': '<(PKG_NAME)',
       'type': 'executable',
 
       'dependencies': [
@@ -26,6 +26,8 @@
         'VERSION_FULL="<(VERSION_FULL)"',
         'VERSION_RELEASE="<(VERSION_RELEASE)"',
         'SHORT_DESCRIPTION="<(SHORT_DESCRIPTION)"',
+        'PKG_NAME="<(PKG_NAME)"',
+        'DOC_LINK="<(DOC_LINK)"',
       ],
 
       'conditions': [

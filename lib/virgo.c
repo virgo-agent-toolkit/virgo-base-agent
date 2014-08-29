@@ -50,11 +50,11 @@ static void
 show_help()
 {
   /* TODO: improve for windows */
-  printf("Usage: rackspace-monitoring-agent [options] [--setup] \n"
+  printf("Usage: " PKG_NAME " [options] [--setup] \n"
          "\n"
          "Options:\n"
          "  -v, --version         Print version.\n"
-         "  -c, --config val      Set configuration file path. Default: /etc/rackspace-monitoring-agent.cfg\n"
+         "  -c, --config val      Set configuration file path.\n"
          "  -e val                Enter at module specified.\n"
          "  -o                    Do not attempt upgrade.\n"
          "  -l, --logfile val     Log to specified file path.\n"
@@ -74,9 +74,9 @@ show_help()
          "  --restart-sysv-on-upgrade  Attempt to restart on upgrade. (System V)\n"
 #endif
          "\n"
-         "Documentation can be found at http://monitoring.api.rackspacecloud.com/\n");
-  fflush(stdout);
+         DOC_LINK "\n");
 
+  fflush(stdout);
 }
 
 static void

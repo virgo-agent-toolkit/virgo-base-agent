@@ -3,7 +3,7 @@ local JSON = require('json')
 local logging = require('logging')
 local loggingUtil = require('/base/util/logging')
 local misc = require('/base/util/misc')
-local request = require('request')
+local request = require('/base/modules/request')
 local Split = require('/base/modules/split-stream')
 local stream = require('/base/modules/stream')
 local string = require('string')
@@ -54,6 +54,7 @@ function Connection:initialize(manifest, options)
   if type(options.endpoint) == 'table' then
     self.host = options.endpoint.host or nil
     self.port = options.endpoint.port or 443
+    self.endpoint = fmt('%s:%s', self.host, self.port)
   elseif type(options.endpoint) == 'string' then
     self.endpoint = options.endpoint
   end

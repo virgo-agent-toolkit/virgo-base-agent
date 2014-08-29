@@ -1,5 +1,5 @@
 --[[
-Copyright 2012 Rackspace
+Copyright 2012-2014 Rackspace
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@ limitations under the License.
 
 local AgentClient = require('./client').AgentClient
 local ConnectionStream = require('./connection_stream').ConnectionStream
+local Endpoint = require('./endpoint').Endpoint
 
 local exports = {}
 exports.AgentClient = AgentClient
 exports.ConnectionStream = ConnectionStream
+exports.Endpoint = Endpoint
 return exports
