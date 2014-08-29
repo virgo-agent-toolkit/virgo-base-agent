@@ -19,9 +19,12 @@
     {
       'target_name': 'bundle.zip.embed',
       'type': 'none',
+      'dependencies': [
+        'bundle.zip',
+      ],
       'actions': [
         {
-          'action_name': 'bundle',
+          'action_name': 'bundle_embed',
           'inputs': ['tools/gyp_utils.py', '<@(BUNDLE_LIST_FILE)', '<@(BUNDLE_FILES)'],
           'outputs': ["<(PRODUCT_DIR)/bundle.zip"],
           'action': [
@@ -34,9 +37,12 @@
     {
       'target_name': 'bundle.h',
       'type': 'none',
+      'dependencies': [
+        'bundle.zip.embed',
+      ],
       'actions': [
         {
-          'action_name': 'bundle',
+          'action_name': 'bundle_h',
           'inputs': ['<(PRODUCT_DIR)/bundle.zip'],
           'outputs': ['<(SHARED_INTERMEDIATE_DIR)/bundle.h'],
           'action': [
