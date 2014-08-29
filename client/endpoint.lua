@@ -7,14 +7,6 @@ local logging = require('logging')
 local math = require('math')
 local misc = require('/base/util/misc')
 
-local staging = {}
-staging.isStaging = function()
-  return false
-end
-local success = pcall(function()
-  staging = require('/staging')
-end)
-
 local Endpoint = Object:extend()
 
 function Endpoint:initialize(host, port, srv_query)
@@ -87,22 +79,6 @@ function Endpoint.meta.__tostring(table)
   end
 end
 
-function getEndpointSRV()
-  if staging.isStaging() then
-    return constants:get('DEFAULT_MONITORING_SRV_QUERIES_STAGING')
-  end
-  return constants:get('DEFAULT_MONITORING_SRV_QUERIES')
-end
-
-function getServiceNetSRV()
-  if staging.isStaging() then
-    return constants:get('SNET_MONITORING_TEMPLATE_SRV_QUERIES_STAGING')
-  end
-  return constants:get('SNET_MONITORING_TEMPLATE_SRV_QUERIES')
-end
-
 local exports = {}
 exports.Endpoint = Endpoint
-exports.getEndpointSRV = getEndpointSRV
-exports.getServiceNetSRV = getServiceNetSRV
 return exports
