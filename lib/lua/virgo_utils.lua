@@ -17,6 +17,8 @@ limitations under the License.
 local logging = require('logging')
 local Error = require('core').Error
 local math = require('math')
+local path = require('path')
+local table = require('table')
 
 local delta = 0
 local delay = 0
@@ -90,6 +92,44 @@ function getCrashPath()
   return virgo_paths.get(virgo_paths.VIRGO_PATH_PERSISTENT_DIR)
 end
 
+
+local function windowsConvertCmd(cmd, params)
+  local closeStdin = false
+  local ext = path.extname(cmd)
+
+  if virgo.win32_get_associated_exe ~= nil and ext ~= "" then
+    -- If we are on windows, we want to suport custom plugins like "foo.py",
+    -- but this means we need to map the .py file ending to the Python Executable,
+    -- and mutate our run path to be like: C:/Python27/python.exe custom_plugins_path/foo.py
+    local assocExe, err = virgo.win32_get_associated_exe(ext, '0') -- Try the 0 verb first for Powershell
+    if assocExe == nil then
+      assocExe, err = virgo.win32_get_associated_exe(ext, 'open')
+    end
+
+    if assocExe ~= nil then
+      -- If Powershell is the EXE then add a parameter for the exec policy
+      local justExe = path.basename(assocExe)
+      -- On windows if the associated exe is %1 it references itself
+      if assocExe ~= "%1" then
+        table.insert(params, 1, cmd)
+        cmd = assocExe
+        -- Force Bypass for this child powershell
+        if justExe == "powershell.exe" then
+          table.insert(params, 1, '-File')
+          table.insert(params, 1, 'Bypass')
+          table.insert(params, 1, '-ExecutionPolicy')
+          closeStdin = true -- NEEDED for Powershell 2.0 to exit
+        end
+      end
+    else
+      self._log(logging.WARNING, fmt('error getting associated executable for "%s": %s', ext, err))
+    end
+  end
+
+  return cmd, params, closeStdin
+end
+
+
 local exports = {}
 exports.setDelta = setDelta
 exports.getDelta = getDelta
@@ -100,4 +140,5 @@ exports.timesync = timesync
 exports.crash = virgo.force_crash
 exports.trim = trim
 exports.tableGetBoolean = tableGetBoolean
+exports.windowsConvertCmd = windowsConvertCmd
 return exports

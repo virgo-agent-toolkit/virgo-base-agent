@@ -32,6 +32,8 @@ local logging = require('logging')
 local path = require('path')
 local spawn = require('childprocess').spawn
 local table = require('table')
+local windowsConvertCmd = require('virgo_utils').windowsConvertCmd
+
 
 local code_cert
 if _G.TESTING_CERTS then
@@ -46,7 +48,8 @@ local UPGRADE_DOWNGRADE = 2
 
 -- Call executable with -v and save the version
 local function getVersionFromProcess(exe_path, callback)
-  local child = spawn(exe_path, {"-v", "-o"})
+  local cmd, arg = windowsConvertCmd(exe_path, {"-v", "-o"})
+  local child = spawn(cmd, arg)
   local data = ''
   child.stdout:on('data', function(_data)
     data = data .. _data
@@ -55,7 +58,7 @@ local function getVersionFromProcess(exe_path, callback)
     if code == 0 then
       callback(nil, trim(data))
     else
-      callback(Error:new(fmt("could not get version from %s", exe_path)))
+      callback(Error:new(fmt("could not get version from %s, exit %d", exe_path, code)))
     end
   end)
 end
