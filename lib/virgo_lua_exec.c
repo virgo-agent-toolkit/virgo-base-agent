@@ -34,6 +34,17 @@
 
 extern char **environ;
 
+#ifdef _WIN32
+/* a Win32 Subsitutue for basename()*/
+char *basename(char *path)
+{
+  static char fname[_MAX_FNAME];
+  fname[0] = '\0';
+  _splitpath_s(path, NULL, 0, NULL, 0, fname, _MAX_FNAME, NULL, 0);
+  return fname;
+}
+#endif
+
 int virgo__lua_perform_upgrade(lua_State *L) {
   char *args[MAX_CMDLINE_PARAMETERS + 1], *exe = NULL;
   int arg_length, i, rc;
