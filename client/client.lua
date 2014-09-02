@@ -139,7 +139,7 @@ function AgentClient:connect()
     self:emit('connect')
 
     local protocolType = self._types.ProtocolConnection or ProtocolConnection
-    self.protocol = protocolType:new(self._log, self._id, self._token, self._guid, cleartext)
+    self.protocol = protocolType:new(self._log, self._id, self._token, self._guid, self._connection)
     self.protocol:on('upgrade.request', utils.bind(AgentClient.onUpgradeRequest, self))
     self.protocol:on('error', function(err)
       -- set self.rateLimitReached so reconnect logic stops
