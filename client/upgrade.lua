@@ -33,7 +33,7 @@ local path = require('path')
 local spawn = require('childprocess').spawn
 local table = require('table')
 local windowsConvertCmd = require('virgo_utils').windowsConvertCmd
-
+local os = require('os')
 
 local code_cert
 if _G.TESTING_CERTS then
@@ -61,6 +61,19 @@ local function getVersionFromProcess(exe_path, callback)
       callback(Error:new(fmt("could not get version from %s, exit %d", exe_path, code)))
     end
   end)
+end
+
+-- Read the MSI to get the version string
+local function getVersionFromMSI(msi_path, callback)
+  local version = nil
+  local status, err = pcall(function()
+    version = virgo.fetch_msi_version(msi_path)
+  end)
+  callback(err, version)
+end
+
+local function installMSI(msi_path)
+  spawn("msiexec", {"/q", "/passive", "/i", msi_path}, { detached = true })
 end
 
 local function versionCheck(my_version, other_version, callback)
@@ -160,7 +173,13 @@ local function attempt(options, callback)
   local other_version = nil
   local paths
   local upgrade_status
-  local exe
+  local potential
+  local getVersion
+
+  if options.skip then
+    log(logging.DEBUG, 'skipping upgrade')
+    return callback()
+  end
 
   if options.my_version then
     my_version = options.my_version
@@ -174,17 +193,18 @@ local function attempt(options, callback)
     paths = getPaths(options)
   end
 
-  if options.skip then
-    log(logging.DEBUG, 'skipping upgrade')
-    return callback()
-  end
+  potential = paths[paths.other_exe].exe
 
-  exe = paths[paths.other_exe].exe
+  if os.type() ~= 'win32' then
+    getVersion = getVersionFromProcess
+  else
+    getVersion = getVersionFromMSI
+  end
 
   async.series({
     function(callback)
-      log(logging.DEBUG, fmt('check version of exe: %s', exe))
-      getVersionFromProcess(exe, function(err, version)
+      log(logging.DEBUG, fmt('check version of potential upgrade: %s', potential))
+      getVersion(potential, function(err, version)
         if not err then
           other_version = version
         end
@@ -206,7 +226,11 @@ local function attempt(options, callback)
       elseif upgrade_status == UPGRADE_PERFORM then
         log(logging.DEBUG, fmt("upgrading (%s, %s)", my_version, other_version))
         if not options.pretend then
-          virgo.perform_upgrade(createArgs(exe, process.argv))
+          if os.type() == 'win32' then
+            install_msi(potential)
+          else
+            virgo.perform_upgrade(createArgs(potential, process.argv))            
+          end
         end
       end
       callback()
@@ -216,7 +240,7 @@ local function attempt(options, callback)
   end)
 end
 
-function downloadUpgrade(streams, version, callback)
+function downloadUpgradeUnix(streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
@@ -337,6 +361,72 @@ function downloadUpgrade(streams, version, callback)
   end)
 end
 
+function downloadUpgradeWin(streams, version, callback)
+  local client = streams:getClient()
+  local channel = streams:getChannel()
+  local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
+
+  if not client then
+    return
+  end
+
+  callback = callback or function() end
+
+  local function download_iter(item, callback)
+    local options = {
+      method = 'GET',
+      host = client._host,
+      port = client._port,
+      tls = client._tls_options,
+    }
+
+    local filename = path.join(unverified_binary_dir, item.payload)
+
+    async.parallel({
+      function(callback)
+        local opts = misc.merge({
+          path = fmt('/upgrades/%s/%s', channel, item.payload),
+          download = path.join(unverified_binary_dir, item.payload)
+        }, options)
+        request.makeRequest(opts, callback)
+      end
+    }, function(err)
+      if err then
+        return callback(err)
+      end
+    end)
+  end
+
+  local function mkdirp(path, callback)
+    fsutil.mkdirp(path, "0755", function(err)
+      if not err then return callback() end
+      if err.code == "EEXIST" then return callback() end
+      callback(err)
+    end)
+  end
+
+  async.waterfall({
+    function(callback)
+      mkdirp(unverified_binary_dir, callback)
+    end,
+    function(callback)
+      local files = {
+        payload = fmt('%s-%s-%s-%s-%s.msi', s.vendor, s.vendor_version, s.arch, virgo.default_name, version):lower(),
+        path = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR),
+        permissions = tonumber('755', 8)
+      }
+      download_iter(files, callback)
+    end
+  }, function(err)
+    if err then
+      client:log(logging.ERROR, fmt('Error downloading update: %s', tostring(err)))
+      return callback(err)
+    end
+    client:log(logging.INFO, 'An update to the agent has been downloaded')
+    callback()
+  end)
+end
+
 function checkForUpgrade(options, streams, callback)
   options = options or {}
 
@@ -378,9 +468,14 @@ end
 
 local exports = {}
 exports.attempt = attempt
-exports.downloadUpgrade = downloadUpgrade
+if os.type() == "Windows" then
+  exports.downloadUpgrade = downloadUpgradeWin
+else
+  exports.downloadUpgrade = downloadUpgradeUnix
+end
 exports.checkForUpgrade = checkForUpgrade
 exports.UPGRADE_EQUAL = UPGRADE_EQUAL
 exports.UPGRADE_PERFORM = UPGRADE_PERFORM
 exports.UPGRADE_DOWNGRADE = UPGRADE_DOWNGRADE
+exports.getPaths = getPaths
 return exports

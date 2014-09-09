@@ -46,6 +46,7 @@
           ],
           'sources': [
             'virgo_win32_service.c',
+            'virgo_win32_msi.c',
           ],
         }],
         ['"<(without_ssl)" == "false"', {
