@@ -72,7 +72,7 @@ function ConnectionStream:performUpgrade()
   logging.info('Upgrade Request')
   self._isUpgrading = true
 
-  upgrade.checkForUpgrade({}, self, function(err, status)
+  local status, err = pcall(upgrade.checkForUpgrade, {}, self, function(err, status)
     self._isUpgrading = false
     if err then
       logging.error('Error on upgrade: ' .. misc.trim(tostring(err)))
@@ -80,6 +80,11 @@ function ConnectionStream:performUpgrade()
     end
     self:emit('upgrade.success')
   end)
+
+  if not status then
+    self._isUpgrading = false
+    logging.error('Check For Upgrade Failed: ' .. misc.trim(tostring(err)))
+  end
 end
 
 --[[
