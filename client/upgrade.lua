@@ -35,6 +35,8 @@ local table = require('table')
 local windowsConvertCmd = require('virgo_utils').windowsConvertCmd
 local os = require('os')
 
+local exports = {}
+
 local code_cert
 if _G.TESTING_CERTS then
   code_cert = _G.TESTING_CERTS
@@ -382,19 +384,11 @@ function downloadUpgradeWin(streams, version, callback)
 
     local filename = path.join(unverified_binary_dir, item.payload)
 
-    async.parallel({
-      function(callback)
-        local opts = misc.merge({
-          path = fmt('/upgrades/%s/%s', channel, item.payload),
-          download = path.join(unverified_binary_dir, item.payload)
-        }, options)
-        request.makeRequest(opts, callback)
-      end
-    }, function(err)
-      if err then
-        return callback(err)
-      end
-    end)
+    local opts = misc.merge({
+      path = fmt('/upgrades/%s/%s', channel, item.payload),
+      download = path.join(unverified_binary_dir, item.payload)
+    }, options)
+    request.makeRequest(opts, callback)
   end
 
   local function mkdirp(path, callback)
@@ -405,13 +399,15 @@ function downloadUpgradeWin(streams, version, callback)
     end)
   end
 
+  local s = sigar:new():sysinfo()
+
   async.waterfall({
     function(callback)
       mkdirp(unverified_binary_dir, callback)
     end,
     function(callback)
       local files = {
-        payload = fmt('%s-%s-%s-%s-%s.msi', s.vendor, s.vendor_version, s.arch, virgo.default_name, version):lower(),
+        payload = fmt('%s-%s.msi', virgo.default_name, s.arch):lower(),
         path = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR),
         permissions = tonumber('755', 8)
       }
@@ -459,16 +455,15 @@ function checkForUpgrade(options, streams, callback)
     if version == '0.0.0-0' then
       callback(Error:new('Disabled'))
     elseif misc.compareVersions(version, bundleVersion) > 0 then
-      downloadUpgrade(streams, version, callback)
+      exports.downloadUpgrade(streams, version, callback)
     else
       callback(Error:new('No upgrade'))
     end
   end)
 end
 
-local exports = {}
 exports.attempt = attempt
-if os.type() == "Windows" then
+if os.type() == "win32" then
   exports.downloadUpgrade = downloadUpgradeWin
 else
   exports.downloadUpgrade = downloadUpgradeUnix
