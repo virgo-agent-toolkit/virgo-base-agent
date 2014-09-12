@@ -36,15 +36,23 @@ int virgo__lua_fetch_msi_version(lua_State *L)
   LPSTR pszVersion = NULL;
   DWORD dwSizeVersion = 0;
   LPCSTR prop = "ProductVersion";
+  HFILE file;
+  OFSTRUCT of;
 
   if (!msi) {
     luaL_error(L, "argument 2 must be a string");
   }
 
+  file = OpenFile(msi, &of, OF_EXIST);
+  if (file == HFILE_ERROR)
+  {
+    return luaL_error(L, "msi %s doesn't exist", msi);
+  }
+
   ret = MsiOpenPackage(msi, &hProduct);
   if (ret != ERROR_SUCCESS)
   {
-      return luaL_error(L, "msi open package failed");
+    return luaL_error(L, "msi open package failed");
   }
 
   ret = MsiGetProductProperty(hProduct, prop, pszVersion, &dwSizeVersion);

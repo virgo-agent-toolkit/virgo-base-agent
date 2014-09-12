@@ -207,6 +207,12 @@ local function attempt(options, callback)
 
   async.series({
     function(callback)
+      fs.exists(potential, function(err, y)
+        log(logging.DEBUG, fmt('potential upgrade: %s, exists: %s', potential, tostring(y)))
+        callback(err)
+      end)
+    end,
+    function(callback)
       log(logging.DEBUG, fmt('check version of potential upgrade: %s', potential))
       getVersion(potential, function(err, version)
         if not err then
@@ -402,6 +408,7 @@ function downloadUpgradeWin(streams, version, callback)
   end
 
   local s = sigar:new():sysinfo()
+  local payload = fmt('%s-%s.msi', virgo.default_name, s.arch):lower()
 
   async.waterfall({
     function(callback)
@@ -409,8 +416,8 @@ function downloadUpgradeWin(streams, version, callback)
     end,
     function(callback)
       local files = {
-        payload = fmt('%s-%s.msi', virgo.default_name, s.arch):lower(),
-        path = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR),
+        payload = payload,
+        path = dlpath,
         permissions = tonumber('755', 8)
       }
       download_iter(files, callback)
@@ -421,7 +428,7 @@ function downloadUpgradeWin(streams, version, callback)
       return callback(err)
     end
     client:log(logging.INFO, 'An update to the agent has been downloaded')
-    callback()
+    exports.attempt({['b'] = { ['exe'] = path.join(unverified_binary_dir, payload) }},callback)
   end)
 end
 
