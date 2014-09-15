@@ -131,7 +131,7 @@ virgo__lua_write_pid(lua_State *L) {
     stale_file = TRUE;
   }
 
-  v->pid_fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+  v->pid_fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (v->pid_fd < 0) {
     lua_pushnumber(L, errno);
     lua_pushstring(L, strerror(errno));
