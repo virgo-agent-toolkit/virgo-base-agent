@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
   virgo_error_t *err = NULL;
   int ret;
 
-  v = virgo_context_new(argc, argv, "Rackspace Monitoring Agent");
+  v = virgo_context_new(argc, argv, SHORT_DESCRIPTION);
 
 #ifdef _WIN32
   err = virgo_service_handler(v, main_wrapper);
