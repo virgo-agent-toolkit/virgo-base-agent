@@ -15,7 +15,7 @@
   <!--    <?define ProductDir='C:\data\virgo\Debug' ?> -->
   <?define SourceDir = $(var.RepoDir) ?>
   <Product Name="$(var.ProductName)" Id="*" UpgradeCode="826873C9-1A63-4A05-98F4-95D8D8EF3507" Language="1033" Codepage="1252" Version="$(var.ProductVersion)" Manufacturer="$(var.ProductAuthor)">
-    <Package Id="*" Keywords="Installer" Description="$(var.ProductName) Installer" Comments="$(var.ProductDescription)" Manufacturer="$(var.ProductAuthor)" InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+    <Package Id="*" Keywords="Installer" Description="$(var.ProductName) Installer" Comments="$(var.ProductDescription)" Manufacturer="$(var.ProductAuthor)" InstallerVersion="200" Languages="1033" Compressed="yes" SummaryCodepage="1252" InstallScope="perMachine" />
     <Upgrade Id="826873C9-1A63-4A05-98F4-95D8D8EF3507">
       <UpgradeVersion OnlyDetect="no" Property="PREVIOUSFOUND" Minimum="1.0.0.0" IncludeMinimum="yes" Maximum="99.0.0.0" IncludeMaximum="no" />
     </Upgrade>
