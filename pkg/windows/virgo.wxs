@@ -41,6 +41,7 @@
                 DisplayName="$(var.ProductName)"
                 Type="ownProcess"
                 Start="auto"
+                Vital="yes"
                 ErrorControl="normal"
                 Arguments='--logfile "C:\ProgramData\$(var.ProductShortName)\log.txt"'
                 Description="$(var.ProductServiceDescription)">

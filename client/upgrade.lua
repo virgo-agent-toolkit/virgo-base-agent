@@ -34,6 +34,7 @@ local spawn = require('childprocess').spawn
 local table = require('table')
 local windowsConvertCmd = require('virgo_utils').windowsConvertCmd
 local os = require('os')
+local JSON = require('json')
 
 local exports = {}
 
@@ -77,7 +78,16 @@ local function getVersionFromMSI(msi_path, callback)
 end
 
 local function installMSI(msi_path)
-  spawn("msiexec", {"/q", "/passive", "/i", msi_path}, { detached = true })
+  local log = loggingUtil.makeLogger('upgrade-msi')
+  local params = {"/passive", "/quiet", "/i", msi_path}
+  log(logging.DEBUG, fmt("trying to run: msiexec %s", JSON.stringify(params)))
+  local child = spawn("msiexec", params, { detached = true })
+  child:on('exit', function(code)
+    log(logging.DEBUG, fmt("msiexec %s ; EXIT CODE %d", JSON.stringify(params), code))
+  end)
+  child:on('error', function(err)
+    log(logging.ERROR, fmt("msiexec %s ; ERR %s", JSON.stringify(params), tostring(code)))
+  end)
 end
 
 local function versionCheck(my_version, other_version, callback)
@@ -237,7 +247,7 @@ local function attempt(options, callback)
         log(logging.DEBUG, fmt("upgrading (%s, %s)", my_version, other_version))
         if not options.pretend then
           if os.type() == 'win32' then
-            install_msi(potential)
+            installMSI(potential)
           else
             virgo.perform_upgrade(createArgs(potential, process.argv))            
           end
