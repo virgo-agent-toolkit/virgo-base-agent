@@ -53,13 +53,15 @@ local function getVersionFromProcess(exe_path, callback)
   local cmd, arg = windowsConvertCmd(exe_path, {"-v", "-o"})
   local child = spawn(cmd, arg)
   local data = ''
+  callback = misc.fireOnce(callback)
   child.stdout:on('data', function(_data)
     data = data .. _data
   end)
+  child.stdout:on('end', function()
+    callback(nil, trim(data))
+  end)
   child:on('exit', function(code)
-    if code == 0 then
-      callback(nil, trim(data))
-    else
+    if code ~= 0 then
       callback(Error:new(fmt("could not get version from %s, exit %d", exe_path, code)))
     end
   end)
