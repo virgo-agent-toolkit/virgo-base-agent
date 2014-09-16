@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
   }
 
   /* Set Service Name */
-  err = virgo_conf_service_name(v, "Rackspace Monitoring Agent");
+  err = virgo_conf_service_name(v, SHORT_DESCRIPTION);
   if (err) {
     handle_error(v, "Error setting service name", err);
     return EXIT_FAILURE;

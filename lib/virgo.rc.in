@@ -14,7 +14,7 @@ BEGIN
       VALUE "InternalName", "rackspace-monitoring-agent.exe"
       VALUE "LegalCopyright", "Rackspace Hosting, Inc."
       VALUE "OriginalFilename", "rackspace-monitoring-agent.exe"
-      VALUE "ProductName", "Rackspace Monitoring Agent"
+      VALUE "ProductName", "${SHORT_DESCRIPTION}"
       VALUE "ProductVersion", "${VERSION_FULL}"
     END
   END

@@ -25,33 +25,15 @@
         '_FILE_OFFSET_BITS=64',
         'VERSION_FULL="<(VERSION_FULL)"',
         'VERSION_RELEASE="<(VERSION_RELEASE)"',
+        'SHORT_DESCRIPTION="<(SHORT_DESCRIPTION)"',
       ],
 
-      'actions': [
-        {
-          'action_name': 'generate_rc',
-          'inputs': [
-            'lib/virgo.rc.in'
-          ],
-          'outputs': [
-            'lib/virgo.rc'
-          ],
-          'action': [
-            'python',
-            'tools/lame_sed.py',
-            '<@(_inputs)',
-            '<@(_outputs)',
-            '{VERSION_FULL}:<(VERSION_FULL)',
-            '{VERSION_MAJOR}:<(VERSION_MAJOR)',
-            '{VERSION_MINOR}:<(VERSION_MINOR)',
-            '{VERSION_PATCH}:<(VERSION_PATCH)',
-            '{VERSION_RELEASE}:<(VERSION_RELEASE)',
-          ],
-        },
-      ],
       'conditions': [
         [ 'OS=="win"',
           {
+            'dependencies': [
+              'virgorc',
+            ],
             'defines': [
               'FD_SETSIZE=1024'
             ],
@@ -62,9 +44,6 @@
                 '-lShlwapi.lib',
                 '-lGdi32.lib',
                 '-lUser32.lib'
-            ],
-            'sources': [
-                'lib/virgo.rc',
             ],
           },
           { # POSIX
@@ -127,10 +106,41 @@
       ],
       'targets': [
         {
+          'target_name': 'virgorc',
+          'type': 'static_library',
+
+          'sources': [
+            'lib/virgo.rc'
+          ],
+          'actions': [
+            {
+              'action_name': 'generate_rc',
+              'inputs': [
+                'lib/virgo.rc.in'
+              ],
+              'outputs': [
+                'lib/virgo.rc'
+              ],
+              'action': [
+                'python',
+                'tools/lame_sed.py',
+                '<@(_inputs)',
+                '<@(_outputs)',
+                '{SHORT_DESCRIPTION}:<(SHORT_DESCRIPTION)',
+                '{VERSION_FULL}:<(VERSION_FULL)',
+                '{VERSION_MAJOR}:<(VERSION_MAJOR)',
+                '{VERSION_MINOR}:<(VERSION_MINOR)',
+                '{VERSION_PATCH}:<(VERSION_PATCH)',
+                '{VERSION_RELEASE}:<(VERSION_RELEASE)',
+              ],
+            },
+          ],
+        },
+        {
           'target_name': 'virgo.msi',
           'type': 'none',
           'dependencies': [
-            'virgo#host',
+            'virgo',
           ],
 
           'sources': [
