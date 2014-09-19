@@ -171,6 +171,9 @@ function Connection:_connect()
     end
     self:_changeState(CXN_STATES.CONNECTED)
   end)
+  self._tls_connection:on('error', function(err)
+    self:_error(err)
+  end)
 end
 
 -- construct JSON parser/encoding on top of the TLS connection
