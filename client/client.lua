@@ -123,7 +123,7 @@ function AgentClient:connect()
   options.agent.guid = self._guid
   options.agent.id = self._id
   options.agent.token = self._token
-  options.agent.name = 'Rackspace Monitoring Agent'
+  options.agent.name = virgo.pkg_name
   options.proxy = self._proxy
 
   self._connection = Connection:new({}, options)
