@@ -16,7 +16,6 @@ endif
 
 all: out/Makefile
 	$(MAKE) -C out BUILDTYPE=$(BUILDTYPE) -j4
-	mv out/${BUILDTYPE}/virgo out/${BUILDTYPE}/${PKG_NAME}
 	python ${VIRGO_BASE_DIR}/tools/build.py sig-gen ${SIGNING_KEY} out/${BUILDTYPE}/${PKG_NAME} out/${BUILDTYPE}/${PKG_NAME}.sig
 
 out/Makefile:
