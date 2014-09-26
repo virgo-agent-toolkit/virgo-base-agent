@@ -74,7 +74,7 @@ show_help()
          "  --restart-sysv-on-upgrade  Attempt to restart on upgrade. (System V)\n"
 #endif
          "\n"
-         DOC_LINK "\n");
+         DOCUMENTATION_LINK "\n");
 
   fflush(stdout);
 }
