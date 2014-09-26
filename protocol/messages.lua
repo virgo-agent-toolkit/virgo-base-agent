@@ -90,7 +90,7 @@ function HandshakeHello:initialize(token, agentId)
   self.method = 'handshake.hello'
   self.params.token = token
   self.params.agent_id = agentId
-  self.params.agent_name = 'Rackspace Monitoring Agent'
+  self.params.agent_name = virgo.pkg_name
   self.params.process_version = virgo.virgo_version
   self.params.bundle_version = virgo.bundle_version
 end
