@@ -153,6 +153,10 @@ function preload_lua_modules()
   for _,v in ipairs(lua_modules.lua_modules) do
     package.loaded[v] = require('/lua_modules/'..v)
   end
+  local base_modules = require('/base/modules').modules
+  for _, v in ipairs(base_modules) do
+    package.loaded[v] = require('/base/modules/'..v)
+  end
   virgo.bundle_version = lua_modules.version
   virgo.virgo_version = virgo.agent_config.version
 end

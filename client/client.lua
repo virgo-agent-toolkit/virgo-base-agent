@@ -29,7 +29,6 @@ local ProtocolConnection = require('/base/protocol/connection')
 local table = require('table')
 local caCerts = require('/certs').caCerts
 local vutils = require('virgo_utils')
-local request = require('request')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
 local Connection = require('/base/libs/connection')
@@ -124,10 +123,10 @@ function AgentClient:connect()
   options.agent.guid = self._guid
   options.agent.id = self._id
   options.agent.token = self._token
-  options.agent.name = 'Rackspace Monitoring Agent'
+  options.agent.name = virgo.pkg_name
   options.proxy = self._proxy
-  self._connection = Connection:new({}, options)
 
+  self._connection = Connection:new({}, options)
   self._log(logging.DEBUG, 'Connecting...')
   self._connection:connect(function()
 
@@ -165,8 +164,7 @@ function AgentClient:connect()
     self._connection._tls_connection:on('end', function()
       self:emit('end')
     end)
-  end,
-  function(err)
+  end, function(err)
     self:emit('error', err)
   end)
 end
