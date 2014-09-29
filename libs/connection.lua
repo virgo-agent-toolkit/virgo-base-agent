@@ -35,7 +35,7 @@ local HANDSHAKE_TIMEOUT = 30000
 -- endpoints. This means at some point, it will be able to not only initiate
 -- connection and handshake, but also listen for connections and respond to
 -- handshake requests. (refer to virgo.js)
-]]
+--]]
 local Connection = stream.Duplex:extend()
 function Connection:initialize(manifest, options)
   stream.Duplex.initialize(self, {objectMode = true})
