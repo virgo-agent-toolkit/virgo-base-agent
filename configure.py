@@ -45,6 +45,11 @@ parser.add_option("--host_arch",
     dest="host_arch",
     help="Select the architecture of the build host (defaults to autodetect)")
 
+parser.add_option("--set-version",
+    action="store",
+    dest="setversion",
+    help="Sets the version manually in the form of x.y.z-r")
+
 parser.add_option("--distribution",
     action="store",
     dest="distribution",
@@ -246,15 +251,22 @@ def configure_virgo_platform(bundle_dir, platform_vars):
     variables['PKG_NAME'] = platform_vars['PKG_NAME']
     variables['BUNDLE_NAME'] = platform_vars['PKG_NAME']
     variables['VIRGO_HEAD_SHA'] = pkgutils.git_head()
-    # Hack here: we should look at the parent for the versioning of stuffs
-    versions = version.version(sep=None, cwd=bundle_dir)
+    if not options.setversion:
+        # Hack here: we should look at the parent for the versioning of stuffs
+        versions = version.version(sep=None, cwd=bundle_dir)
+        bundle_versions = version.version(cwd=bundle_dir)
+    else:
+        def force_version(**kwargs):
+            return (options.setversion + '-bbbbbbbb').split('-')
+        versions = version.version(sep=None, cwd=bundle_dir, describer=force_version)
+        bundle_versions = version.version(cwd=bundle_dir, describer=force_version)
     variables['PKG_TYPE'] = pkgutils.pkg_type() or ""
     variables['VERSION_MAJOR'] = versions.get('major', 0)
     variables['VERSION_MINOR'] = versions.get('minor', 0)
     variables['VERSION_RELEASE'] = versions.get('release', 0)
     variables['VERSION_PATCH'] = versions.get('patch', 0)
     variables['VERSION_FULL'] = versions.get('tag', 0)
-    variables['BUNDLE_VERSION'] = version.version(cwd=bundle_dir)
+    variables['BUNDLE_VERSION'] = bundle_versions
     variables['PREFIX'] = options.prefix if options.prefix else ''
 
     for k, v in platform_vars.items():
