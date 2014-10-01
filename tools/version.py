@@ -25,9 +25,9 @@ def git_describe_fields(version):
     return dict(zip(fields, version))
 
 
-def version(sep='-', cwd=None):
+def version(sep='-', cwd=None, describer=git_describe):
     # import pdb; pdb.set_trace()
-    version = git_describe(is_exact=False, split=True, cwd=cwd)
+    version = describer(is_exact=False, split=True, cwd=cwd)
     zeroed = zero_release(version)
     fields = git_describe_fields(zeroed)
 
