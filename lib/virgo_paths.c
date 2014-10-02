@@ -145,33 +145,6 @@ virgo__path_confd_dir(virgo_t *v, char *buffer, size_t buffer_len) {
   return VIRGO_SUCCESS;
 }
 
-static int
-is_bundle_file(const char *name) {
-  return (strstr(name, VIRGO_DEFAULT_BUNDLE_NAME_PREFIX) != NULL) &&
-    (strstr(name, ".sig") == NULL);
-}
-
-static int
-is_exe_file(const char *name) {
-  return (strstr(name, VIRGO_DEFAULT_EXE_NAME_PREFIX) != NULL) &&
-    (strstr(name, ".sig") == NULL);
-}
-
-virgo_error_t*
-virgo__path_zip_file_latest(virgo_t *v, char *buffer, size_t buffer_len) {
-  virgo_error_t *err = VIRGO_SUCCESS;
-  char path[VIRGO_PATH_MAX];
-
-  /* Fetch the BUNDLE directory */
-  err = virgo__paths_get(v, VIRGO_PATH_BUNDLE_DIR, path, sizeof(path));
-  if (err) {
-    return err;
-  }
-
-  err = virgo__versions_latest_file(v, path, is_bundle_file, buffer, buffer_len);
-  return err;
-}
-
 virgo_error_t*
 virgo__path_zip_file(virgo_t *v, char *buffer, size_t buffer_len) {
   virgo_error_t *err = VIRGO_SUCCESS;
@@ -215,20 +188,6 @@ virgo__path_default_exe_file(virgo_t *v, char *buffer, size_t buffer_len) {
 }
 
 virgo_error_t*
-virgo__path_exe_file_latest(virgo_t* v, char *buffer, size_t buffer_len) {
-  virgo_error_t *err;
-  char path[VIRGO_PATH_MAX];
-
-  err = virgo__paths_get(v, VIRGO_PATH_EXE_DIR, path, sizeof(path));
-  if (err) {
-    return err;
-  }
-
-  err = virgo__versions_latest_file(v, path, is_exe_file, buffer, buffer_len);
-  return err;
-}
-
-virgo_error_t*
 virgo__path_exe_file(virgo_t* v, char *buffer, size_t buffer_len) {
   virgo_error_t *err;
 
@@ -258,12 +217,6 @@ virgo__paths_get(virgo_t *v, virgo_path_e type, char *buffer, size_t buffer_len)
     break;
   case VIRGO_PATH_EXE_DIR:
     err = virgo__path_exe_dir(v, buffer, buffer_len);
-    break;
-  case VIRGO_PATH_BUNDLE_DIR_LATEST:
-    err = virgo__path_zip_file_latest(v, buffer, buffer_len);
-    break;
-  case VIRGO_PATH_EXE_DIR_LATEST:
-    err = virgo__path_exe_file_latest(v, buffer, buffer_len);
     break;
   case VIRGO_PATH_PERSISTENT_DIR:
     err = virgo__path_persistent_dir(v, buffer, buffer_len);

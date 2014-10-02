@@ -174,3 +174,4 @@ virgo__exec_upgrade(virgo_t *v, int *perform_upgrade, virgo__exec_upgrade_cb sta
 #endif
   return err;
 }
+

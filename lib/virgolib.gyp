@@ -46,6 +46,7 @@
           ],
           'sources': [
             'virgo_win32_service.c',
+            'virgo_win32_msi.c',
           ],
         }],
         ['"<(without_ssl)" == "false"', {
@@ -84,6 +85,7 @@
         'virgo_init.c',
         'virgo_lua.c',
         'virgo_lua_crashreporter.c',
+        'virgo_lua_exec.c',
         'virgo_lua_loader.c',
         'virgo_lua_logging.c',
         'virgo_lua_debugger.c',

@@ -80,8 +80,6 @@ globalCtx:set('DEFAULT_STATE_PATH', path.join(RUNTIME_DIR, 'states'))
 globalCtx:set('DEFAULT_DOWNLOAD_PATH', path.join(RUNTIME_DIR, 'downloads'))
 globalCtx:set('DEFAULT_RUNTIME_PATH', RUNTIME_DIR)
 
-globalCtx:set('DEFAULT_VERIFIED_BUNDLE_PATH', BUNDLE_DIR)
-globalCtx:set('DEFAULT_UNVERIFIED_BUNDLE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
 globalCtx:set('DEFAULT_VERIFIED_EXE_PATH', EXE_DIR)
 globalCtx:set('DEFAULT_UNVERIFIED_EXE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
 globalCtx:set('DEFAULT_PID_FILE_PATH', fmt('/var/run/%s.pid', virgo.pkg_name))

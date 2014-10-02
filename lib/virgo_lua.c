@@ -53,6 +53,7 @@
 
 extern int luaopen_sigar(lua_State *L);
 extern int virgo__lua_exec(lua_State *L);
+extern int virgo__lua_fetch_msi_version(lua_State *L);
 
 static void
 virgo__lua_luvit_init(virgo_t *v) {
@@ -325,9 +326,11 @@ virgo__lua_init(virgo_t *v)
 
 #ifdef _WIN32
   virgo__push_function(L, "win32_get_associated_exe", virgo__lua_win32_get_associated_exe);
+  virgo__push_function(L, "fetch_msi_version", virgo__lua_fetch_msi_version);
 #endif
   virgo__push_function(L, "is_stdio_available", virgo__lua_is_stdio_available);
   virgo__push_function(L, "get_log_fileno", virgo__lua_get_log_fileno);
+  virgo__push_function(L, "perform_upgrade", virgo__lua_perform_upgrade);
   virgo__set_virgo_key(L, "os", VIRGO_OS);
   virgo__set_virgo_key(L, "version", VIRGO_VERSION);
   virgo__set_virgo_key(L, "platform", VIRGO_PLATFORM);

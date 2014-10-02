@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #ifndef _WIN32
 #include <unistd.h>
+#include <errno.h>
 #else
 #include <io.h>
 #endif
@@ -95,45 +96,52 @@ show_version(virgo_t *v)
   fflush(stdout);
 }
 
-static void
-upgrade_status_cb(virgo_t *v, const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  virgo_log_fmtv(v, VIRGO_LOG_INFO, fmt, ap);
-  va_end(ap);
+virgo_t*
+virgo_context_new(int argc, char *argv[], const char *process_title) {
+  virgo_t *v;
+  virgo_error_t *err;
+
+  err = virgo_create(&v, "./init", argc, argv);
+
+  if (err) {
+    handle_error(v, "Error in startup", err);
+    exit(EXIT_FAILURE);
+  }
+
+  if (1 == virgo_argv_has_help(v)) {
+    show_help();
+    exit(0);
+  }
+
+  /* Set Service Name */
+  err = virgo_conf_service_name(v, process_title);
+  if (err) {
+    handle_error(v, "Error setting service name", err);
+    exit(EXIT_FAILURE);
+  }
+
+  /* Read command-line arguments */
+  err = virgo_conf_args(v);
+  if (err) {
+    handle_error(v, "Error in settings args", err);
+    exit(EXIT_FAILURE);
+  }
+
+  err = virgo_log_rotate(v);
+
+  if (err) {
+    handle_error(v, "Error rotating logs", err);
+    exit(EXIT_FAILURE);
+  }
+
+  return v;
 }
 
-virgo_error_t *main_wrapper(virgo_t *v)
+
+virgo_error_t*
+main_wrapper(virgo_t *v)
 {
   virgo_error_t *err = NULL;
-  char path[VIRGO_PATH_MAX];
-  int perform_upgrade = FALSE;
-
-  virgo__paths_get(v, VIRGO_PATH_DEFAULT_EXE, path, VIRGO_PATH_MAX);
-  virgo_log_debugf(v, "Default EXE Path: %s", path);
-
-  virgo__paths_get(v, VIRGO_PATH_EXE, path, VIRGO_PATH_MAX);
-  virgo_log_debugf(v, "EXE Path: %s", path);
-
-  virgo__paths_get(v, VIRGO_PATH_EXE_DIR, path, VIRGO_PATH_MAX);
-  virgo_log_debugf(v, "Latest EXE Path: %s", path);
-
-  /* See if we are upgrading */
-  if (virgo_try_upgrade(v)) {
-    /* Attempt upgrade. On success this process gets replaced. */
-    err = virgo__exec_upgrade(v, &perform_upgrade, &upgrade_status_cb);
-    if (err) {
-      return err;
-    }
-  }
-
-  err = virgo__paths_get(v, VIRGO_PATH_CURRENT_EXECUTABLE_PATH, path, sizeof(path));
-  if (err) {
-    handle_error(v, "Could not find current executable name", err);
-    return err;
-  }
-
-  // virgo_log_debugf(v, "Process Executable: %s", path);
 
   /* Setup Lua Contexts for Luvit and Libuv runloop */
   err = virgo_init(v);
@@ -182,38 +190,7 @@ int main(int argc, char* argv[])
   virgo_error_t *err = NULL;
   int ret;
 
-  err = virgo_create(&v, "./init", argc, argv);
-
-  if (err) {
-    handle_error(v, "Error in startup", err);
-    return EXIT_FAILURE;
-  }
-
-  if (1 == virgo_argv_has_help(v)) {
-    show_help();
-    return 0;
-  }
-
-  /* Set Service Name */
-  err = virgo_conf_service_name(v, SHORT_DESCRIPTION);
-  if (err) {
-    handle_error(v, "Error setting service name", err);
-    return EXIT_FAILURE;
-  }
-
-  /* Read command-line arguments */
-  err = virgo_conf_args(v);
-  if (err) {
-    handle_error(v, "Error in settings args", err);
-    return EXIT_FAILURE;
-  }
-
-  err = virgo_log_rotate(v);
-
-  if (err) {
-    handle_error(v, "Error rotating logs", err);
-    return EXIT_FAILURE;
-  }
+  v = virgo_context_new(argc, argv, SHORT_DESCRIPTION);
 
 #ifdef _WIN32
   err = virgo_service_handler(v, main_wrapper);

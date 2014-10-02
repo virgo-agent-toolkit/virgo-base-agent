@@ -28,6 +28,7 @@ local loggingUtil = require ('/base/util/logging')
 local ProtocolConnection = require('/base/protocol/connection')
 local table = require('table')
 local caCerts = require('/certs').caCerts
+local utils = require('utils')
 local vutils = require('virgo_utils')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
@@ -113,6 +114,10 @@ function AgentClient:_socketTimeout()
   return misc.calcJitter(HEARTBEAT_INTERVAL, consts:get('SOCKET_TIMEOUT'))
 end
 
+function AgentClient:onUpgradeRequest()
+  self._connectionStream:performUpgrade()
+end
+
 function AgentClient:connect()
   local options = {}
   options.tls_options = self._tls_options
@@ -135,6 +140,7 @@ function AgentClient:connect()
 
     local protocolType = self._types.ProtocolConnection or ProtocolConnection
     self.protocol = protocolType:new(self._log, self._id, self._token, self._guid, self._connection)
+    self.protocol:on('upgrade.request', utils.bind(AgentClient.onUpgradeRequest, self))
     self.protocol:on('error', function(err)
       -- set self.rateLimitReached so reconnect logic stops
       -- if close event is emitted before this message event
