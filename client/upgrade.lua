@@ -38,12 +38,13 @@ local JSON = require('json')
 
 local exports = {}
 
-local code_cert
+local _, code_cert
 if _G.TESTING_CERTS then
   code_cert = _G.TESTING_CERTS
 else
-  code_cert = require('/code_cert.prod.lua')
+  _, code_cert = pcall(require, '/code_cert.prod.lua')
 end
+_ = nil
 
 local UPGRADE_EQUAL = 0
 local UPGRADE_PERFORM = 1
