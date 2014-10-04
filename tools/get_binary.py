@@ -13,6 +13,8 @@ import pkgutils
 def main():
     usage = "usage: %prog [destination path]"
     parser = OptionParser(usage=usage)
+    parser.add_option("", "--set-version", action="store", dest="version", default=full_version(),
+            help="set the version in the file name")
     (options, args) = parser.parse_args()
 
     if len(args) != 1:
@@ -30,7 +32,7 @@ def main():
     print(binary)
 
     dest = os.path.join(dest, '%s-rackspace-monitoring-agent-%s' % (pkgutils.pkg_dir(),
-      full_version()))
+      options.version))
     if pkgutils.pkg_type() == 'windows':
         dest += '.msi'
         arch = os.environ.get('BUILD_ARCH', '')
