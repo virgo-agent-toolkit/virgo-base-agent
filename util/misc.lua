@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
+local async = require('async')
 local math = require('math')
 local timer = require('timer')
 local table = require('table')
@@ -278,7 +279,16 @@ function copyFile(fromFile, toFile, callback)
   readStream:pipe(writeStream)
 end
 
-
+function copyFileAndRemove(fromFile, toFile, callback)
+  async.series({
+    function(callback)
+      copyFile(fromFile, toFile, callback)
+    end,
+    function(callback)
+      fs.unlink(fromFile, callback)
+    end
+  }, callback)
+end
 
 function parseCSVLine (line,sep)
   local res = {}
@@ -388,6 +398,7 @@ local exports = {}
 exports.copyFile = copyFile
 exports.calcJitter = calcJitter
 exports.calcJitterMultiplier = calcJitterMultiplier
+exports.copyFileAndRemove = copyFileAndRemove
 exports.deepCopyTable = deepCopyTable
 exports.tableToString = tableToString
 exports.merge = merge
