@@ -314,11 +314,11 @@ function downloadUpgradeUnix(streams, version, callback)
         async.parallel({
           function(callback)
             client:log(logging.INFO, fmt('Moving file to %s', filename_verified))
-            fs.rename(filename, filename_verified, callback)
+            misc.copyFileAndRemove(filename, filename_verified, callback)
           end,
           function(callback)
             client:log(logging.INFO, fmt('Moving file to %s', filename_verified_sig))
-            fs.rename(filename_sig, filename_verified_sig, callback)
+            misc.copyFileAndRemove(filename_sig, filename_verified_sig, callback)
           end
         }, function(err)
           if err then
