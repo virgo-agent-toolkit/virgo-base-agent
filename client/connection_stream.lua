@@ -131,7 +131,7 @@ function ConnectionStream:_createConnection(options)
     err.port = options.port
     err.datacenter = options.datacenter
     err.message = errorMessage
-    client:log(logging.DEBUG, fmt('client error: %s', tostring(err)))
+    client:log(logging.DEBUG, fmt('client error: %s', err.message))
     client:destroy()
   end)
 
