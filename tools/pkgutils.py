@@ -183,7 +183,7 @@ def git_head():
     return version.strip()
 
 
-def package_builder_dir():
+def package_builder_dir(setversion=None):
     """returns the directory that is packaged into rpms/debs.
     This is useful because the builders maybe specifiy different cflags, etc, which
     interfere with generating symbols files."""
@@ -194,9 +194,11 @@ def package_builder_dir():
     if pkgType == 'deb':
         buildDirArgs = [basePath, 'out', 'Debug']
     elif pkgType == 'rpm':
-        v = git_describe()
+        if setversion is None:
+            v = git_describe()
+            setversion = v[0]
         buildDirArgs = [basePath, 'out']
-        buildDirArgs += ('rpmbuild', 'BUILD', "rackspace-monitoring-agent-%s" % v[0])
+        buildDirArgs += ('rpmbuild', 'BUILD', "rackspace-monitoring-agent-%s" % setversion)
         buildDirArgs += ('out', 'Debug')
     elif pkgType == 'windows':
         buildDirArgs = [basePath, 'base\\Release']
