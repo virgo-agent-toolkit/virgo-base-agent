@@ -93,9 +93,11 @@ function getCrashPath()
 end
 
 
-local function windowsConvertCmd(cmd, params)
+local function windowsConvertCmd(cmd, pparams)
+  local misc = require('/base/util/misc')
   local closeStdin = false
   local ext = path.extname(cmd)
+  local params = misc.deepCopyTable(pparams)
 
   if virgo.win32_get_associated_exe ~= nil and ext ~= "" then
     -- If we are on windows, we want to suport custom plugins like "foo.py",
