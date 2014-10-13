@@ -1,5 +1,5 @@
 Name:		$PKG_NAME
-Version:	$VERSION_FULL
+Version:	$VERSION_SHORT
 Release:	$VERSION_RELEASE
 Summary:	$SHORT_DESCRIPTION
 
@@ -22,7 +22,7 @@ $LONG_DESCRIPTION
 
 
 %prep
-%setup -q
+%setup -q -n $PKG_NAME-$VERSION_FULL
 
 
 %build

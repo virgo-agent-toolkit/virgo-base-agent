@@ -254,19 +254,20 @@ def configure_virgo_platform(bundle_dir, platform_vars):
     if not options.setversion:
         # Hack here: we should look at the parent for the versioning of stuffs
         versions = version.version(sep=None, cwd=bundle_dir)
-        bundle_versions = version.version(cwd=bundle_dir)
+        full_versions = version.version(cwd=bundle_dir)
     else:
         def force_version(**kwargs):
             return (options.setversion + '-bbbbbbbb').split('-')
         versions = version.version(sep=None, cwd=bundle_dir, describer=force_version)
-        bundle_versions = version.version(cwd=bundle_dir, describer=force_version)
+        full_versions = version.version(cwd=bundle_dir, describer=force_version)
     variables['PKG_TYPE'] = pkgutils.pkg_type() or ""
     variables['VERSION_MAJOR'] = versions.get('major', 0)
     variables['VERSION_MINOR'] = versions.get('minor', 0)
     variables['VERSION_RELEASE'] = versions.get('release', 0)
     variables['VERSION_PATCH'] = versions.get('patch', 0)
-    variables['VERSION_FULL'] = versions.get('tag', 0)
-    variables['BUNDLE_VERSION'] = bundle_versions
+    variables['VERSION_SHORT'] = versions.get('tag', 0)
+    variables['VERSION_FULL'] = full_versions
+    variables['BUNDLE_VERSION'] = full_versions
     variables['PREFIX'] = options.prefix if options.prefix else ''
 
     for k, v in platform_vars.items():

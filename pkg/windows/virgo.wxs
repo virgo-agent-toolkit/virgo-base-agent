@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <?define ProductVersion = $(var.VERSIONFULL) ?>
+  <?define ProductVersion = $(var.VERSIONSHORT) ?>
   <?define ProductName = $(var.SHORT_DESCRIPTION) ?>
   <?define ProductShortName = $(var.SHORT_NAME) ?>
   <?define ProductDescription = $(var.WIN_PRODUCT_DESCRIPTION) ?>
