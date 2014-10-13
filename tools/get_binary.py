@@ -23,7 +23,7 @@ def main():
 
     dest = args[0]
     orig_dest = dest
-    build_dir = pkgutils.package_builder_dir()
+    build_dir = pkgutils.package_builder_dir(setversion=options.version)
     binary_name = pkgutils.package_binary()
     binary = os.path.join(build_dir, binary_name)
 
