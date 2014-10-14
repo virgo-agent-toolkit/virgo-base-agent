@@ -48,6 +48,7 @@ function Connection:initialize(manifest, options)
 
   self.options = options or {}
   self.proxy = self.options.proxy
+  self.features = options.features or {}
 
   self.timers = {}
 
@@ -271,6 +272,7 @@ function Connection:_handshakeMessage()
       agent_name = self.options.agent.name,
       process_version = virgo.virgo_version,
       bundle_version = virgo.bundle_version,
+      features = table.concat(self.features or {}, ',') ,
     },
   }
 end
