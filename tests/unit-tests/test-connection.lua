@@ -159,7 +159,6 @@ test('multiple messages in a single chunk', nil, function(t)
     t:finish()
   end
   server:listen(50041, function()
-    p(connection)
     connection:connect(function()
       connection:pipe(sink)
     end,
@@ -200,7 +199,6 @@ test('test no features', nil, function(t)
     t:finish()
   end
   server:listen(50041, function()
-    p(connection)
     connection:connect(function()
       connection:pipe(sink)
     end,
