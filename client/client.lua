@@ -58,6 +58,7 @@ function AgentClient:initialize(options, connectionStream, types)
   self._port = options.port
   self._host = options.host
   self._proxy = options.proxy
+  self._features = options.features
 
   self._timeout = options.timeout or 5000
 
@@ -140,7 +141,7 @@ function AgentClient:connect()
     self:emit('connect')
 
     local protocolType = self._types.ProtocolConnection or ProtocolConnection
-    self.protocol = protocolType:new(self._log, self._id, self._token, self._guid, self._connection)
+    self.protocol = protocolType:new(self._log, self._id, self._token, self._guid, self._connection, self._features)
     self.protocol:on('upgrade.request', utils.bind(AgentClient.onUpgradeRequest, self))
     self.protocol:on('error', function(err)
       -- set self.rateLimitReached so reconnect logic stops

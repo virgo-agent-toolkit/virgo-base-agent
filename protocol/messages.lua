@@ -85,7 +85,7 @@ end
 --[[ Handshake.Hello ]]--
 
 local HandshakeHello = Request:extend()
-function HandshakeHello:initialize(token, agentId)
+function HandshakeHello:initialize(token, agentId, features)
   Request.initialize(self)
   self.method = 'handshake.hello'
   self.params.token = token
@@ -93,6 +93,7 @@ function HandshakeHello:initialize(token, agentId)
   self.params.agent_name = virgo.pkg_name
   self.params.process_version = virgo.virgo_version
   self.params.bundle_version = virgo.bundle_version
+  self.params.features = table.concat(features or {}, ',')
 end
 
 --[[ Heartbeat ]]--
