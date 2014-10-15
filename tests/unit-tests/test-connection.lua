@@ -184,9 +184,6 @@ test('test no features', nil, function(t)
     },
     tls_options = {
       rejectUnauthorized = false,
-    },
-    features = {
-      'TEST_FEATURE_1'
     }
   })
   local fixture = fixtures['handshake.hello.response'] .. '\n'
@@ -203,7 +200,7 @@ test('test no features', nil, function(t)
       connection:pipe(sink)
     end,
     function(err)
-      t:equal('TEST_FEATURE_1', connection.features[1])
+      t:equal(nil, connection.features[1])
       t:equal(true, false, 'error encounter in Connection Handshake')
       connection:destroy()
       server:close()
