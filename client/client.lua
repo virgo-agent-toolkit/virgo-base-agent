@@ -130,6 +130,7 @@ function AgentClient:connect()
   options.agent.token = self._token
   options.agent.name = virgo.pkg_name
   options.proxy = self._proxy
+  options.features = self._features
 
   self._connection = Connection:new({}, options)
   self._log(logging.DEBUG, 'Connecting...')
