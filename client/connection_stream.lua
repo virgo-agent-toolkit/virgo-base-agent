@@ -35,7 +35,7 @@ local utils = require('utils')
 local vutils = require('virgo_utils')
 
 local ConnectionStream = Emitter:extend()
-function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, types)
+function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, types, features)
   self._id = id
   self._token = token
   self._guid = guid
@@ -47,6 +47,7 @@ function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, t
   self._upgradeEnabled = upgradeEnabled
   self._options = options or {}
   self._types = types or {}
+  self._features = features or {}
   self._messages = ConnectionMessages:new(self)
   self._isUpgrading = false
 end
@@ -311,6 +312,7 @@ callback - Callback called with (err)
 function ConnectionStream:createConnection(options, callback)
   local opts = misc.merge({
     endpoint = options.endpoint,
+    features = self._features,
     id = self._id,
     datacenter = tostring(options.endpoint),
     token = self._token,

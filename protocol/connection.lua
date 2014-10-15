@@ -44,8 +44,8 @@ local AgentProtocolConnection = Emitter:extend()
 --[[ Request Functions ]]--
 local requests = {}
 
-requests['handshake.hello'] = function(self, agentId, token, callback)
-  local m = msg.HandshakeHello:new(token, agentId)
+requests['handshake.hello'] = function(self, agentId, token, features, callback)
+  local m = msg.HandshakeHello:new(token, agentId, features)
   self:_send(m, callback, self.HANDSHAKE_TIMEOUT)
 end
 
@@ -64,11 +64,12 @@ responses['upgrade.request'] = function(self, replyTo, callback)
   self:_send(m, callback)
 end
 
-function AgentProtocolConnection:initialize(log, myid, token, guid, conn)
+function AgentProtocolConnection:initialize(log, myid, token, guid, conn, features)
 
   assert(conn ~= nil)
   assert(myid ~= nil)
 
+  self._features = features
   self._log = log
   self._myid = myid
   self._token = token
@@ -255,7 +256,7 @@ end
 function AgentProtocolConnection:startHandshake(callback)
   assert(false) -- should not use this anymore
   self:setState(STATES.HANDSHAKE)
-  self:request('handshake.hello', self._myid, self._token, function(err, msg)
+  self:request('handshake.hello', self._myid, self._token, self._features, function(err, msg)
     if err then
       self._log(logging.ERR, fmt('handshake failed (message=%s)', err.message))
       callback(err, msg)

@@ -145,6 +145,9 @@ test('multiple messages in a single chunk', nil, function(t)
     tls_options = {
       rejectUnauthorized = false,
     },
+    features = {
+      'TEST_FEATURE_1'
+    }
   })
   local fixture = fixtures['handshake.hello.response'] .. '\n'
   local server = mock_server(fixture .. fixture)
@@ -160,6 +163,44 @@ test('multiple messages in a single chunk', nil, function(t)
       connection:pipe(sink)
     end,
     function(err)
+      t:equal('TEST_FEATURE_1', connection.features[1])
+      t:equal(true, false, 'error encounter in Connection Handshake')
+      connection:destroy()
+      server:close()
+      t:finish()
+    end)
+  end)
+end)
+
+test('test no features', nil, function(t)
+  local connection = Connection:new(nil, {
+    endpoint = {
+      host = '127.0.0.1',
+      port = 50041,
+    },
+    agent = {
+      token = 'this_is_a_token',
+      id = 'agentA',
+    },
+    tls_options = {
+      rejectUnauthorized = false,
+    }
+  })
+  local fixture = fixtures['handshake.hello.response'] .. '\n'
+  local server = mock_server(fixture .. fixture)
+  local sink = stream.Writable:new({objectMode = true})
+  sink._write = function(this, data, encoding, callback)
+    callback()
+    connection:destroy()
+    server:close()
+    t:finish()
+  end
+  server:listen(50041, function()
+    connection:connect(function()
+      connection:pipe(sink)
+    end,
+    function(err)
+      t:equal(nil, connection.features[1])
       t:equal(true, false, 'error encounter in Connection Handshake')
       connection:destroy()
       server:close()
