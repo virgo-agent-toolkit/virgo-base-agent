@@ -272,7 +272,7 @@ function Connection:_handshakeMessage()
       agent_name = self.options.agent.name,
       process_version = virgo.virgo_version,
       bundle_version = virgo.bundle_version,
-      features = table.concat(self.features or {}, ',') ,
+      features = self.features or {}
     },
   }
 end
