@@ -93,7 +93,7 @@ function HandshakeHello:initialize(token, agentId, features)
   self.params.agent_name = virgo.pkg_name
   self.params.process_version = virgo.virgo_version
   self.params.bundle_version = virgo.bundle_version
-  self.params.features = table.concat(features or {}, ',')
+  self.params.features = features
 end
 
 --[[ Heartbeat ]]--
