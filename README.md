@@ -12,7 +12,12 @@ Virgo provides:
 5. Automatic .zip bundle generation from a directory (ie, easy deployment).
 6. Automatic versioning from .git introspection of both virgo and the bundle.
 
-The first agent to use this infrastructure is the Rackspace Cloud Monitoring agent.  Join in and build your agent with us.
+The first agent to use this infrastructure is the Rackspace Cloud Monitoring agent.
+
+Join in and build your agent with us. We're in **#virgo on irc.freenode.net** and [Virgo Agent Toolkit Dev][devGG] and [Virgo Agent Toolkit User][userGG] on GoogleGroups.
+
+[devGG]: https://groups.google.com/forum/#!forum/virgo-agent-toolkit-dev
+[userGG]: https://groups.google.com/forum/#!forum/virgo-agent-toolkit-user
 
 License
 =======
