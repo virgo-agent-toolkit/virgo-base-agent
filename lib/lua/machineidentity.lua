@@ -31,7 +31,12 @@ local function xenAdapter(callback)
 
   if os.type() == 'win32' then
     exePath = 'c:\\Program Files\\Citrix\\XenTools\\xenstore_client.exe'
-    exeArgs = { 'read', 'name' }
+    if fs.existsSync(exePath) then
+      exeArgs = { 'read', 'name' }
+    else
+      exePath = 'powershell'
+      exeArgs = { '-Command', '{$sid = ((Get-WmiObject -Class CitrixXenStoreBase -Namespace root\\wmi).AddSession("Temp").SessionId) ; $s = (Get-WmiObject -Namespace root\\wmi -Query "select * from CitrixXenStoreSession where SessionId=$sid") ; $v = $s.GetValue("name").value ; $s.EndSession() ; $v}' }
+    end
   else
     exePath = 'xenstore-read'
     exeArgs = { 'name' }
