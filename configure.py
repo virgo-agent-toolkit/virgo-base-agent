@@ -208,6 +208,7 @@ def host_arch():
         'i686': 'ia32',
         'x86_64': 'x64',
         'amd64': 'x64',
+        'amd_64': 'x64',
     }
 
     arch = uname('-p')
@@ -218,6 +219,9 @@ def host_arch():
     if arch.startswith('arm'):
         # Handle arm, armv6l, armv7l, etc.
         return 'arm'
+
+    if arches.get(arch) == None:
+        arch = uname('-m')
 
     return arches.get(arch, arch)
 
