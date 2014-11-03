@@ -220,7 +220,7 @@ def host_arch():
         # Handle arm, armv6l, armv7l, etc.
         return 'arm'
 
-    if arches.get(arch) == None:
+    if arches.get(arch) is None:
         arch = uname('-m')
 
     return arches.get(arch, arch)
