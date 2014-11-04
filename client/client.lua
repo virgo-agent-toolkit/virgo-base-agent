@@ -59,6 +59,7 @@ function AgentClient:initialize(options, connectionStream, types)
   self._host = options.host
   self._proxy = options.proxy
   self._features = options.features
+  self._extensions = options.extensions
 
   self._timeout = options.timeout or 5000
 
@@ -132,6 +133,7 @@ function AgentClient:connect()
   options.agent.name = virgo.pkg_name
   options.proxy = self._proxy
   options.features = self._features
+  options.extensions = self._extensions
 
   self._connection = Connection:new({}, options)
   self._log(logging.DEBUG, 'Connecting...')
