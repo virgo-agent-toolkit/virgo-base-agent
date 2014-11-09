@@ -49,6 +49,7 @@ function Connection:initialize(manifest, options)
   self.options = options or {}
   self.proxy = self.options.proxy
   self.features = options.features or {}
+  self.extensions = options.extensions or {}
 
   self.timers = {}
 
@@ -256,6 +257,7 @@ function Connection:_handshake()
       self:_error(string.format("Handshake timeout, haven't received response in %d ms", HANDSHAKE_TIMEOUT))
     end
   end))
+  self._log(logging.DEBUG, fmt('SENDING: (%s) => %s', 'unknown', JSON.stringify(msg)))
   self.writable:write(msg)
 end
 
@@ -273,6 +275,7 @@ function Connection:_handshakeMessage()
       process_version = virgo.virgo_version,
       bundle_version = virgo.bundle_version,
       features = self.features or {},
+      extensions = self.extensions['handshake.hello'] or {}
     },
   }
 end
