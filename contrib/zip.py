@@ -31,7 +31,7 @@ class VirgoZip(zipfile.ZipFile):
         self.write(ctx.realpath, ctx.relpath) 
 
     def save(self):
-        [ self._write(ctx) for _, ctx in sorted(self.files.iteritems()) ]
+        [ self._write(ctx) for _, ctx in sorted(self.files.items()) ]
 
 z = VirgoZip(sys.argv[2:], sys.argv[1])
 z.run()
