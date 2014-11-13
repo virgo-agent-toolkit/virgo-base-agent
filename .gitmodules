@@ -1,6 +1,3 @@
-[submodule "tools/gyp"]
-	path = tools/gyp
-	url = https://chromium.googlesource.com/external/gyp
 [submodule "app/modules/stream"]
 	path = app/modules/stream
 	url = https://github.com/virgo-agent-toolkit/luvit-stream.git
