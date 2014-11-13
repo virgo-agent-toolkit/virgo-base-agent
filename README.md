@@ -1,3 +1,9 @@
+Transition to Luvi
+==================
+
+# make
+# make test
+
 Virgo
 =====
 
