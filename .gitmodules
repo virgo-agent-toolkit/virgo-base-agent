@@ -12,21 +12,24 @@
 [submodule "deps/libarchive"]
 	path = deps/libarchive
 	url = https://github.com/racker/libarchive.git
-[submodule "modules/stream"]
-	path = modules/stream
+[submodule "app/modules/stream"]
+	path = app/modules/stream
 	url = https://github.com/virgo-agent-toolkit/luvit-stream.git
-[submodule "modules/tape"]
-	path = modules/tape
+[submodule "app/modules/tape"]
+	path = app/modules/tape
 	url = https://github.com/virgo-agent-toolkit/luvit-tape.git
-[submodule "modules/split-stream"]
-	path = modules/split-stream
+[submodule "app/modules/split-stream"]
+	path = app/modules/split-stream
 	url = https://github.com/virgo-agent-toolkit/luvit-split-stream.git
-[submodule "modules/request"]
-	path = modules/request
+[submodule "app/modules/request"]
+	path = app/modules/request
 	url = https://github.com/virgo-agent-toolkit/luvit-request.git
-[submodule "modules/async"]
-	path = modules/async
+[submodule "app/modules/async"]
+	path = app/modules/async
 	url = https://github.com/virgo-agent-toolkit/luvit-async.git
-[submodule "modules/hsm"]
-	path = modules/hsm
+[submodule "app/modules/hsm"]
+	path = app/modules/hsm
 	url = https://github.com/virgo-agent-toolkit/luvit-hsm.git
+[submodule "deps/luvit-up"]
+	path = deps/luvit-up
+	url = https://github.com/luvit/luvit.git
