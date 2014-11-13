@@ -18,6 +18,8 @@ class VirgoZip(zipfile.ZipFile):
         for root in self.roots:
             for r, dirs, files in os.walk(root):
                 for f in files:
+                    if not f.endswith('.lua'):
+                        continue
                     realpath = os.path.join(r, f)
                     relpath = os.path.relpath(realpath, root)
                     if relpath:
@@ -25,7 +27,7 @@ class VirgoZip(zipfile.ZipFile):
                         self.files[fctx.relpath] = fctx
 
     def _write(self, ctx):
-        print(ctx.relpath)
+        print('Adding: ' + ctx.relpath)
         self.write(ctx.realpath, ctx.relpath) 
 
     def save(self):
