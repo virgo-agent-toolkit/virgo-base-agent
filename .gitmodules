@@ -1,13 +1,6 @@
-[submodule "deps/sigar"]
-	path = deps/sigar
-	url = https://github.com/racker/sigar.git
-	ignore = dirty
 [submodule "tools/gyp"]
 	path = tools/gyp
 	url = https://chromium.googlesource.com/external/gyp
-[submodule "deps/libarchive"]
-	path = deps/libarchive
-	url = https://github.com/racker/libarchive.git
 [submodule "app/modules/stream"]
 	path = app/modules/stream
 	url = https://github.com/virgo-agent-toolkit/luvit-stream.git
