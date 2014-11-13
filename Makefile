@@ -12,6 +12,6 @@ all:
 	contrib/zip.py ${LUVI_ZIP} deps/luvit-up/app app
 
 test:
-	LUVI_ZIP=${LUVI_ZIP} deps/luvit-up/luvi-binaries/${PLATFORM}/luvi
+	LUVI_ZIP=${LUVI_ZIP} deps/luvit-up/luvi-binaries/${PLATFORM}/luvi test
 
 .PHONY: all
