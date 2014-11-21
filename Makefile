@@ -1,9 +1,10 @@
 LUVI_BIN=deps/luvit-up/luvi-binaries/$(shell uname -s)_$(shell uname -m)/luvi
+LUVI_TARGET=virgo-base
 
 all:
-	LUVI_APP=app:deps/luvit-up/app LUVI_TARGET=luvit ${LUVI_BIN}
+	LUVI_APP=app:deps/luvit-up/app LUVI_TARGET=${LUVI_TARGET} ${LUVI_BIN}
 
 test:
-	LUVI_ZIP=${LUVI_ZIP} deps/luvit-up/luvi-binaries/${PLATFORM}/luvi test
+	${LUVIT_TARGET} test
 
 .PHONY: all
