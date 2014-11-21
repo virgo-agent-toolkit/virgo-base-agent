@@ -24,22 +24,9 @@ bundle.register("luvit-require", "modules/require.lua");
 -- Upgrade require system in-place
 _G.require = require('luvit-require')()("bundle:modules/main.lua")
 
-local uv = require('uv')
-local utils = require('utils')
--- Make print go through libuv for windows colors
-_G.print = utils.print
--- Register global 'p' for easy pretty printing
-_G.p = utils.prettyPrint
+local luvit = require('luvit')
+luvit.init()
 
-p(args)
+luvit.run()
 
--- Start the event loop
-uv.run()
-require('hooks'):emit('process.exit')
-uv.run()
-
--- When the loop exits, close all uv handles.
-uv.walk(uv.close)
-uv.run()
-
-return 0
+return process.exitCode
