@@ -41,3 +41,5 @@ uv.run()
 -- When the loop exits, close all uv handles.
 uv.walk(uv.close)
 uv.run()
+
+return 0

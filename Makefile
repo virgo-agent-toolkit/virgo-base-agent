@@ -6,6 +6,6 @@ all:
 	LUVI_APP=${LUVI_APP} LUVI_TARGET=${LUVI_TARGET} ${LUVI_BIN}
 
 test:
-	${LUVIT_TARGET} test
+	./${LUVI_TARGET} test
 
 .PHONY: all
