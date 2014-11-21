@@ -1,15 +1,7 @@
-LUVI_ZIP=app.zip
-
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-	PLATFORM=Linux_x86_64
-endif
-ifeq ($(UNAME_S),Darwin)
-	PLATFORM=Darwin_x86_64
-endif
+LUVI_BIN=deps/luvit-up/luvi-binaries/$(shell uname -s)_$(shell uname -m)/luvi
 
 all:
-	contrib/zip.py ${LUVI_ZIP} deps/luvit-up/app app
+	LUVI_APP=app:deps/luvit-up/app LUVI_TARGET=luvit ${LUVI_BIN}
 
 test:
 	LUVI_ZIP=${LUVI_ZIP} deps/luvit-up/luvi-binaries/${PLATFORM}/luvi test
