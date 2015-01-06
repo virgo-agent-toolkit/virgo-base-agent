@@ -1,6 +1,6 @@
 --[[
 
-Copyright 2014 The Luvit Authors. All Rights Reserved.
+Copyright 2014 Rackspace. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,6 +26,12 @@ _G.require = require('luvit-require')()("bundle:modules/main.lua")
 
 local luvit = require('luvit')
 luvit.init()
+
+_G.virgo = {}
+_G.virgo.virgo_version = '2.0.0'
+_G.virgo.bundle_version = _G.virgo.virgo_version
+
+require('unit-tests/entry').run()
 
 luvit.run()
 

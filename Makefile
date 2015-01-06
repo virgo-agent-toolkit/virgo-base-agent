@@ -3,7 +3,7 @@ TEST_FILES=$(shell find tests -type f)
 LUVIT_APP_FILES=$(shell find deps/luvit-up/app -type f)
 
 LUVI_BIN=deps/luvit-up/luvi-binaries/$(shell uname -s)_$(shell uname -m)/luvi
-LUVI_TARGET=virgo-base
+LUVI_TARGET=base
 LUVI_APP=tests:app:deps/luvit-up/app
 
 all: $(LUVI_TARGET)
