@@ -7,7 +7,7 @@ Create a new logger which is already bound with a message prefix.
 prefix - Message prefix.
 return New logging function.
 --]]
-function makeLogger(prefix)
+local function makeLogger(prefix)
   if not prefix then
     prefix = ''
   end
@@ -17,6 +17,4 @@ function makeLogger(prefix)
   end
 end
 
-local exports = {}
 exports.makeLogger = makeLogger
-return exports

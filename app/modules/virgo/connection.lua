@@ -1,16 +1,16 @@
-local dns = require('dns')
+local Duplex = require('stream_duplex').Duplex
 local JSON = require('json')
+local Split = require('split-stream')
+local Transform = require('stream_transform').Transform
+local dns = require('dns')
+local fmt = require('string').format
 local logging = require('logging')
 local loggingUtil = require('virgo/util/logging')
 local misc = require('virgo/util/misc')
---local request = require('/base/modules/request')
-local Split = require('split-stream')
-local Duplex = require('stream_duplex').Duplex
-local Transform = require('stream_transform').Transform
+--local request = require('request')
 local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
-local fmt = require('string').format
 
 local CXN_STATES = {
   INITIAL = 'INITIAL',
@@ -136,20 +136,21 @@ end
 function Connection:_proxy()
   if self.proxy then
     self._log(logging.DEBUG, fmt('Using PROXY %s', self.proxy))
-    local upstream_host = fmt('%s:%s', self.host, self.port)
-    request.proxy(self.proxy, upstream_host, function(err, proxysock)
-      if err then
-        self:_error(err)
-        return
-      end
+--    local upstream_host = fmt('%s:%s', self.host, self.port)
+    -- TODO reenable request proxy support
+    --request.proxy(self.proxy, upstream_host, function(err, proxysock)
+    --  if err then
+    --    self:_error(err)
+    --    return
+    --  end
 
-      self._log(logging.DEBUG, '... connected to proxy')
-      self._tls_options.socket = proxysock
-      self._tls_options.host = self.host
+    --  self._log(logging.DEBUG, '... connected to proxy')
+    --  self._tls_options.socket = proxysock
+    --  self._tls_options.host = self.host
 
-      self._log(logging.DEBUG, '... upgrading socket to TLS')
-      self:_changeState(CXN_STATES.PROXIED)
-    end)
+    --  self._log(logging.DEBUG, '... upgrading socket to TLS')
+    --  self:_changeState(CXN_STATES.PROXIED)
+    --end)
   else
     self:_changeState(CXN_STATES.PROXIED)
   end
@@ -171,6 +172,7 @@ end
 -- construct JSON parser/encoding on top of the TLS connection
 function Connection:_ready()
   local msg_id = 0
+  local success, err
 
   local jsonify = Transform:new({
     objectMode = false,
@@ -278,8 +280,7 @@ end
 function Connection:_write(chunk, encoding, callback)
   -- since it's the Connecter rather than self.writable that is piped into from
   -- upstream stream, we call write() instead of _write() here.
-  self.writable:write(chunk, encoding)
-  callback()
+  self.writable:write(chunk, encoding, callback)
 end
 
 return Connection

@@ -21,7 +21,7 @@ local path = require('path')
 local table = require('table')
 
 local delta = 0
-local delay = 0
+local delay
 
 local function gmtNow()
   return math.floor(virgo.gmtnow() + delta)
@@ -70,7 +70,7 @@ local function timesync(T1, T2, T3, T4)
   return
 end
 
-function tableGetBoolean(tt, key, default)
+local function tableGetBoolean(tt, key, default)
   local value = tt[key] or default
   if type(value) == 'string' then
     if value:lower() == 'false' then
@@ -85,7 +85,7 @@ function tableGetBoolean(tt, key, default)
   return value
 end
 
-function getCrashPath()
+local function getCrashPath()
   if process.env.VIRGO_PATH_CRASH then
     return process.env.VIRGO_PATH_CRASH
   end
@@ -124,15 +124,14 @@ local function windowsConvertCmd(cmd, pparams)
         end
       end
     else
-      self._log(logging.WARNING, fmt('error getting associated executable for "%s": %s', ext, err))
+      logging.warningf('error getting associated executable for "%s": %s', ext, err)
     end
   end
 
   return cmd, params, closeStdin
 end
 
-
-local exports = {}
+exports.delay = delay
 exports.setDelta = setDelta
 exports.getDelta = getDelta
 exports.gmtNow = gmtNow
@@ -143,4 +142,3 @@ exports.crash = virgo.force_crash
 exports.trim = trim
 exports.tableGetBoolean = tableGetBoolean
 exports.windowsConvertCmd = windowsConvertCmd
-return exports

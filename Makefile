@@ -17,4 +17,7 @@ test: $(LUVIT_TARGET)
 clean:
 	rm -f $(LUVI_TARGET)
 
+lint:
+	find app -name "*.lua" | xargs luacheck
+
 .PHONY: all

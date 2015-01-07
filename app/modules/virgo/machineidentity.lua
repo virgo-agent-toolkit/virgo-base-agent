@@ -16,7 +16,6 @@ limitations under the License.
 
 local Error = require('core').Error
 local Object = require('core').Object
-local async = require('async')
 local childprocess = require('childprocess')
 local os = require('os')
 local fs = require('fs')
@@ -86,30 +85,26 @@ function MachineIdentity:get(callback)
     return callback()
   end
 
-  function handle_id(instanceId)
+  local function handle_id(instanceId)
     callback(nil, {id = instanceId})
   end
 
   cloudInitAdapter(function(err, instanceId)
     if err ~= nil then
       xenAdapter(function(err, instanceId)
-        if err ~= nil then
+        if err then
           callback(err)
           return
         end
-
-          handle_id(instanceId)
-          return
+        handle_id(instanceId)
+        return
       end)
       return
     end
-
     handle_id(instanceId)
     return
   end)
 
 end
 
-local exports = {}
 exports.MachineIdentity = MachineIdentity
-return exports

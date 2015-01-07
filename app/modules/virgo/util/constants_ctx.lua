@@ -1,5 +1,3 @@
-local os = require('os')
-local misc = require('./misc')
 local path = require('path')
 local Object = require('core').Object
 local fmt = require('string').format
@@ -67,25 +65,23 @@ globalCtx:set('SHUTDOWN_UPGRADE', 1)
 globalCtx:set('SHUTDOWN_RATE_LIMIT', 2)
 globalCtx:set('SHUTDOWN_RESTART', 3)
 
-local PERSISTENT_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_PERSISTENT_DIR)
-local EXE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR)
-local CONFIG_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_CONFIG_DIR)
-local LIBRARY_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_LIBRARY_DIR)
-local RUNTIME_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_RUNTIME_DIR)
-local BUNDLE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_BUNDLE_DIR)
+exports.PERSISTENT_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_PERSISTENT_DIR)
+exports.EXE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR)
+exports.CONFIG_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_CONFIG_DIR)
+exports.LIBRARY_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_LIBRARY_DIR)
+exports.RUNTIME_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_RUNTIME_DIR)
+exports.BUNDLE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_BUNDLE_DIR)
 
-globalCtx:set('DEFAULT_PERSISTENT_VARIABLE_PATH', path.join(PERSISTENT_DIR, 'variables'))
-globalCtx:set('DEFAULT_CONFIG_PATH', path.join(CONFIG_DIR, fmt('%s.cfg', virgo.pkg_name)))
-globalCtx:set('DEFAULT_STATE_PATH', path.join(RUNTIME_DIR, 'states'))
-globalCtx:set('DEFAULT_DOWNLOAD_PATH', path.join(RUNTIME_DIR, 'downloads'))
-globalCtx:set('DEFAULT_RUNTIME_PATH', RUNTIME_DIR)
+globalCtx:set('DEFAULT_PERSISTENT_VARIABLE_PATH', path.join(exports.PERSISTENT_DIR, 'variables'))
+globalCtx:set('DEFAULT_CONFIG_PATH', path.join(exports.CONFIG_DIR, fmt('%s.cfg', virgo.pkg_name)))
+globalCtx:set('DEFAULT_STATE_PATH', path.join(exports.RUNTIME_DIR, 'states'))
+globalCtx:set('DEFAULT_DOWNLOAD_PATH', path.join(exports.RUNTIME_DIR, 'downloads'))
+globalCtx:set('DEFAULT_RUNTIME_PATH', exports.RUNTIME_DIR)
 
-globalCtx:set('DEFAULT_VERIFIED_EXE_PATH', EXE_DIR)
+globalCtx:set('DEFAULT_VERIFIED_EXE_PATH', exports.EXE_DIR)
 globalCtx:set('DEFAULT_UNVERIFIED_EXE_PATH', path.join(globalCtx:get('DEFAULT_DOWNLOAD_PATH'), 'unverified'))
 globalCtx:set('DEFAULT_PID_FILE_PATH', fmt('/var/run/%s.pid', virgo.pkg_name))
 
 globalCtx:set('CRASH_REPORT_URL', '')
 
-local exports = {}
 exports.ConstantsCtx = ConstantsCtx
-return exports

@@ -357,7 +357,7 @@ end
 function Underscore.funcs.compose(...)
   local function call_funcs(funcs, ...)
     if #funcs > 1 then
-      return funcs[1](call_funcs(_.rest(funcs), ...))
+      return funcs[1](call_funcs(Underscore.rest(funcs), ...))
     else
       return funcs[1](...)
     end

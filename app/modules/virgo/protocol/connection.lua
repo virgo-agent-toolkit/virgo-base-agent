@@ -14,22 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-local os = require('os')
 local timer = require('timer')
 local Emitter = require('core').Emitter
-local Error = require('core').Error
 local errors = require('./errors')
 local ResponseTimeoutError = require('../errors').ResponseTimeoutError
 local JSON = require('json')
 local fmt = require('string').format
-local http = require('http')
 local stream = require('/base/modules/stream')
 
 local logging = require('logging')
 local msg = require ('./messages')
-local table = require('table')
-local utils = require('utils')
-local vutils = require('virgo_utils')
 
 -- Response timeouts in ms
 local HANDSHAKE_TIMEOUT = 30000
@@ -153,8 +147,7 @@ arg[2] - msgid if source provided
 ]]--
 function AgentProtocolConnection:_completionKey(...)
   local args = {...}
-  local msgid = nil
-  local source = nil
+  local source, msgid
 
   if #args == 1 then
     source = self._guid
@@ -189,8 +182,6 @@ function AgentProtocolConnection:_send(msg, callback, timeout)
     if callback then callback() end
   else
     self._completions[key] = function(err, resp)
-      local result = nil
-
       if self._timeoutIds[key] ~= nil then
         timer.clearTimer(self._timeoutIds[key])
       end

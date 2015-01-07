@@ -1,6 +1,3 @@
-[submodule "app/modules/tape"]
-	path = app/modules/tape
-	url = https://github.com/virgo-agent-toolkit/luvit-tape.git
 [submodule "app/modules/split-stream"]
 	path = app/modules/split-stream
 	url = https://github.com/virgo-agent-toolkit/luvit-split-stream.git

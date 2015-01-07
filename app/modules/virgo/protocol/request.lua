@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-local table = require('table')
 local https = require('https')
 local fs = require('fs')
 
 local logging = require('logging')
-local errors = require('../errors')
 local Error = require('core').Error
 local misc = require('/base/util/misc')
 
@@ -27,8 +25,6 @@ local dns = require('dns')
 
 local fmt = require('string').format
 local Object = require('core').Object
-
-local exports = {}
 
 local Request = Object:extend()
 
@@ -134,8 +130,7 @@ function Request:request()
 end
 
 function Request:_cycle_endpoint()
-  local position, endpoint
-
+  local position
   while self.attempts > 0 do
     position = #self.endpoints % self.attempts
     self.endpoint = self.endpoints[position+1]
@@ -146,7 +141,6 @@ function Request:_cycle_endpoint()
 end
 
 function Request:set_headers(callback)
-  local method = self.options.method:upper()
   local headers = {}
 
   -- set defaults
@@ -236,6 +230,5 @@ function Request:_handle_response(res)
   end)
 end
 
-local exports = {makeRequest=makeRequest, Request=Request}
-
-return exports
+exports.makeRequest = makeRequest
+exports.Request = Request

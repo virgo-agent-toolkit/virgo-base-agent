@@ -16,11 +16,9 @@ limitations under the License.
 
 local async = require('async')
 local math = require('math')
-local timer = require('timer')
 local table = require('table')
 local string = require('string')
 local fs = require('fs')
-local logging = require('logging')
 
 --[[
 Split an address.
@@ -28,13 +26,13 @@ Split an address.
 address - Address in ip:port format.
 return [ip, port]
 ]]--
-function splitAddress(address)
+local function splitAddress(address)
   -- TODO: Split on last colon (ipv6)
-  local start, result
+  local start, result, _
   start, _ = address:find(':')
 
   if not start then
-    return null
+    return nil
   end
 
   result = {}
@@ -44,7 +42,7 @@ function splitAddress(address)
 end
 
 -- See Also: http://lua-users.org/wiki/SplitJoin
-function split(str, pattern)
+local function split(str, pattern)
   pattern = pattern or "[^%s]+"
   if pattern:len() == 0 then pattern = "[^%s]+" end
   local parts = {__index = table.insert}
@@ -55,7 +53,7 @@ function split(str, pattern)
   return parts
 end
 
-function tablePrint(tt, indent, done)
+local function tablePrint(tt, indent, done)
   done = done or {}
   indent = indent or 0
   if type(tt) == "table" then
@@ -81,7 +79,7 @@ function tablePrint(tt, indent, done)
   end
 end
 
-function toString(tbl)
+local function toString(tbl)
   if  "nil"       == type( tbl ) then
     return tostring(nil)
   elseif  "table" == type( tbl ) then
@@ -93,18 +91,18 @@ function toString(tbl)
   end
 end
 
-function calcJitter(n, jitter)
+local function calcJitter(n, jitter)
   return math.floor(n + (jitter * math.random()))
 end
 
-function calcJitterMultiplier(n, multiplier)
+local function calcJitterMultiplier(n, multiplier)
   local sig = math.floor(math.log10(n)) - 1
   local jitter = multiplier * math.pow(10, sig)
   return math.floor(n + (jitter * math.random()))
 end
 
-function randstr(length)
-  local chars, r, x
+local function randstr(length)
+  local chars, r
 
   chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   r = {}
@@ -118,7 +116,7 @@ function randstr(length)
 end
 
 -- merge tables
-function merge(...)
+local function merge(...)
   local args = {...}
   local first = args[1] or {}
   for i,t in pairs(args) do
@@ -136,7 +134,7 @@ end
 -- f - function which is called on every item and should return true if the item
 -- matches, false otherwise
 -- t - table
-function tableContains(f, t)
+local function tableContains(f, t)
   for _, v in ipairs(t) do
     if f(v) then
       return true
@@ -146,18 +144,17 @@ function tableContains(f, t)
   return false
 end
 
-function trim(s)
+local function trim(s)
   return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
 
 -- Return start index of last occurance of a pattern in a string
-function lastIndexOf(str, pat)
-  local startIndex, endIndex
+local function lastIndexOf(str, pat)
+  local startIndex, _
   local lastIndex = -1
-  local found = false
 
   while 1 do
-    startIndex, endIndex = string.find(str, pat, lastIndex + 1)
+    startIndex, _ = string.find(str, pat, lastIndex + 1)
     if not startIndex then
       break
     else
@@ -172,7 +169,7 @@ function lastIndexOf(str, pat)
   return lastIndex
 end
 
-function fireOnce(callback)
+local function fireOnce(callback)
   local called = false
 
   return function(...)
@@ -183,7 +180,7 @@ function fireOnce(callback)
   end
 end
 
-function nCallbacks(callback, count)
+local function nCallbacks(callback, count)
   local n, triggered = 0, false
   return function()
     if triggered then
@@ -197,7 +194,7 @@ function nCallbacks(callback, count)
   end
 end
 
-function isNaN(a)
+local function isNaN(a)
   return tonumber(a) == nil
 end
 
@@ -205,7 +202,7 @@ end
 Compare version strings.
 Returns: -1, 0, or 1, if a < b, a == b, or a > b
 ]]
-function compareVersions(a, b)
+local function compareVersions(a, b)
   local aParts, bParts, pattern, aItem, bItem
 
   if a == b then
@@ -259,7 +256,7 @@ function compareVersions(a, b)
 end
 
 
-function propagateEvents(fromClass, toClass, eventNames)
+local function propagateEvents(fromClass, toClass, eventNames)
   for _, v in pairs(eventNames) do
     fromClass:on(v, function(...)
       toClass:emit(v, ...)
@@ -268,7 +265,7 @@ function propagateEvents(fromClass, toClass, eventNames)
 end
 
 
-function copyFile(fromFile, toFile, callback)
+local function copyFile(fromFile, toFile, callback)
   callback = fireOnce(callback)
   local writeStream = fs.createWriteStream(toFile)
   local readStream = fs.createReadStream(fromFile)
@@ -279,7 +276,7 @@ function copyFile(fromFile, toFile, callback)
   readStream:pipe(writeStream)
 end
 
-function copyFileAndRemove(fromFile, toFile, callback)
+local function copyFileAndRemove(fromFile, toFile, callback)
   async.series({
     function(callback)
       copyFile(fromFile, toFile, callback)
@@ -290,7 +287,7 @@ function copyFileAndRemove(fromFile, toFile, callback)
   }, callback)
 end
 
-function parseCSVLine (line,sep)
+local function parseCSVLine (line,sep)
   local res = {}
   local pos = 1
   sep = sep or ','
@@ -331,7 +328,7 @@ function parseCSVLine (line,sep)
 end
 
 
-function deepCopyTable(orig)
+local function deepCopyTable(orig)
   local orig_type = type(orig)
   local copy
   if orig_type == 'table' then
@@ -348,7 +345,7 @@ end
 
 local tableToString
 
-function tableValueToStr( v )
+local function tableValueToStr( v )
   if "string" == type( v ) then
     v = string.gsub( v, "\n", "\\n" )
     if string.match( string.gsub(v,"[^'\"]",""), '^"+$' ) then
@@ -360,7 +357,7 @@ function tableValueToStr( v )
   end
 end
 
-function tableKeyToStr( k )
+local function tableKeyToStr( k )
   if "string" == type( k ) and string.match( k, "^[_%a][_%a%d]*$" ) then
     return k
   else
@@ -394,7 +391,6 @@ tableToString = function(tbl, delim)
 end
 
 --[[ Exports ]]--
-local exports = {}
 exports.copyFile = copyFile
 exports.calcJitter = calcJitter
 exports.calcJitterMultiplier = calcJitterMultiplier
@@ -407,7 +403,6 @@ exports.split = split
 exports.toString = toString
 exports.tableContains = tableContains
 exports.trim = trim
-exports.writePid = writePid
 exports.lastIndexOf = lastIndexOf
 exports.fireOnce = fireOnce
 exports.nCallbacks = nCallbacks
@@ -415,4 +410,3 @@ exports.compareVersions = compareVersions
 exports.propagateEvents = propagateEvents
 exports.parseCSVLine = parseCSVLine
 exports.randstr = randstr
-return exports

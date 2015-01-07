@@ -9,10 +9,10 @@ params -
 - question (string) - The question for the user.
 - callback (function)(err, response) - The response.
 ]]--
-function ask(question, callback)
+local function ask(question, callback)
   local resp = ''
 
-  function try(question, callback)
+  local function try(question, callback)
     local response = ''
     process.stdin:resume()
     process.stdout:write(question .. ' ')
@@ -26,11 +26,11 @@ function ask(question, callback)
     end)
   end
 
-  function test()
+  local function test()
     return #resp == 0
   end
 
-  function iter(callback)
+  local function iter(callback)
     try(question, function(err, data)
       resp = data
       callback(err, data)
@@ -42,6 +42,4 @@ function ask(question, callback)
   end)
 end
 
-local exports = {}
 exports.ask = ask
-return exports

@@ -32,7 +32,7 @@ math.randomseed(os.time())
 local Uuid = Object:extend()
 
 -- performs the bitwise operation specified by truth matrix on two numbers.
-function BITWISE(x, y, matrix)
+local function BITWISE(x, y, matrix)
   local z = 0
   local pow = 1
   while x > 0 or y > 0 do
@@ -43,11 +43,12 @@ function BITWISE(x, y, matrix)
   end
   return z
 end
-MATRIX_AND = {{0,0},{0,1} }
-MATRIX_OR = {{0,1},{1,1}}
+local MATRIX_AND = {{0,0},{0,1} }
+local MATRIX_OR = {{0,1},{1,1}}
+local HEXES = '0123456789abcdef'
 
-function INT2HEX(x)
-  local s,base,pow = '',16,0
+local function INT2HEX(x)
+  local s, base = '',16
   local d
   while x > 0 do
     d = x % base + 1
@@ -57,10 +58,6 @@ function INT2HEX(x)
   if #s == 1 then s = "0" .. s end
   return s
 end
-function HEX2INT(s)
-  
-end
-HEXES = '0123456789abcdef'
 
 -- hwaddr is a string: hexes delimited by colons. e.g.: 00:0c:29:69:41:c6
 function Uuid:initialize(hwaddr)

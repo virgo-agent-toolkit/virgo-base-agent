@@ -22,7 +22,7 @@ local LineEmitter = require('line-emitter').LineEmitter
 
 -- Simple test TCP servers which responds to commands with a pre-defined
 -- response.
-function runTestTCPServer(port, host, commandMap, callback)
+local function runTestTCPServer(port, host, commandMap, callback)
   local server
 
   server = net.createServer(function(client)
@@ -53,7 +53,7 @@ function runTestTCPServer(port, host, commandMap, callback)
 end
 
 -- Simple test HTTP Server
-function runTestHTTPServer(port, host, reqCallback, callback)
+local function runTestHTTPServer(port, host, reqCallback, callback)
   local server
   server = http.createServer(function(req, res)
     reqCallback(req, res)
@@ -63,7 +63,5 @@ function runTestHTTPServer(port, host, reqCallback, callback)
   end)
 end
 
-local exports = {}
 exports.runTestTCPServer = runTestTCPServer
 exports.runTestHTTPServer = runTestHTTPServer
-return exports

@@ -4,12 +4,10 @@ local table = require('table')
 local async = require('async')
 local os = require('os')
 
-local sigarutil = require('/base/util/sigar')
-
 local exports = {}
 
 -- TODO: move to utils
-function reverse ( t )
+local function reverse ( t )
   local tout = {}
 
   for i = #t, 1, -1 do
@@ -19,11 +17,11 @@ function reverse ( t )
   return tout
 end
 
-function mkdirp(lpath, mode, callback)
+local function mkdirp(lpath, mode, callback)
   lpath = path.normalize(lpath)
   local tocreate = {lpath}
-  local last = nil
   local current = lpath
+  local last
 
   while 1 do
     last = current
@@ -78,5 +76,4 @@ function mkdirp(lpath, mode, callback)
   end, callback)
 end
 
-exports['mkdirp'] = mkdirp
-return exports
+exports.mkdirp = mkdirp

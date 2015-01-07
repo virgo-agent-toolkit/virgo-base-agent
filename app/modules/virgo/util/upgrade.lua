@@ -19,7 +19,7 @@ local fs = require('fs')
 local crypto = require('_crypto')
 local errors = require('/base/errors')
 
-function verify(path, sig_path, kpub_data, callback)
+local function verify(path, sig_path, kpub_data, callback)
   local parallel = {
     hash = function(callback)
       local hash = crypto.verify.new('sha256')
