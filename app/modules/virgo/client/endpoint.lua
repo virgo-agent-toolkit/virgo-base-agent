@@ -1,6 +1,5 @@
 local Object = require('core').Object
 local async = require('async')
-local constants = require('/constants')
 local dns = require('dns')
 local fmt = require('string').format
 local logging = require('logging')

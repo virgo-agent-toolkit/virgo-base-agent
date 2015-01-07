@@ -1,24 +1,10 @@
 local bind = require('utils').bind
 local timer = require('timer')
 local Emitter = require('core').Emitter
-local path = require('path')
-local Object = require('core').Object
-local table = require('table')
 local os = require('os')
-local https = require('https')
-local fs = require('fs')
-local instanceof = require('core').instanceof
-local string = require('string')
-local sigar = require('sigar')
 
-local misc = require('/base/util/misc')
 local logging = require('logging')
-local consts = require('/base/util/constants')
-local async = require('async')
 local fmt = require('string').format
-local fsutil = require('/base/util/fs')
-local errors = require('/base/errors')
-local request = require('/base/protocol/request')
 
 
 -- Connection Messages
@@ -109,6 +95,4 @@ function ConnectionMessages:onMessage(client, msg)
   client.protocol:respond(method, msg, callback)
 end
 
-local exports = {}
 exports.ConnectionMessages = ConnectionMessages
-return exports

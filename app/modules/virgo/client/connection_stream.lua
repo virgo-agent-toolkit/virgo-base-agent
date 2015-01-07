@@ -20,7 +20,6 @@ local timer = require('timer')
 local fmt = require('string').format
 
 local async = require('async')
-local dns = require('dns')
 
 local ConnectionMessages = require('./connection_messages').ConnectionMessages
 
@@ -28,10 +27,7 @@ local AgentClient = require('./client').AgentClient
 local consts = require('/base/util/constants')
 local logging = require('logging')
 local misc = require('/base/util/misc')
-local path = require('path')
-local request = require('/base/protocol/request')
 local upgrade = require('/base/client/upgrade')
-local utils = require('utils')
 local vutils = require('virgo_utils')
 
 local ConnectionStream = Emitter:extend()

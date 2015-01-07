@@ -25,7 +25,6 @@ local utilUpgrade = require('/base/util/upgrade')
 local Error = require('core').Error
 local fs = require('fs')
 local string = require('string')
-local Object = require('core').Object
 local async = require('async')
 local fmt = require('string').format
 local logging = require('logging')
@@ -72,7 +71,7 @@ end
 -- Read the MSI to get the version string
 local function getVersionFromMSI(msi_path, callback)
   local version = nil
-  local status, err = pcall(function()
+  local _, err = pcall(function()
     version = virgo.fetch_msi_version(msi_path)
   end)
   callback(err, version)
@@ -87,7 +86,7 @@ local function installMSI(msi_path)
     log(logging.DEBUG, fmt("msiexec %s ; EXIT CODE %d", JSON.stringify(params), code))
   end)
   child:on('error', function(err)
-    log(logging.ERROR, fmt("msiexec %s ; ERR %s", JSON.stringify(params), tostring(code)))
+    log(logging.ERROR, fmt("msiexec %s ; ERR %s", JSON.stringify(params), tostring(err)))
   end)
 end
 
@@ -151,8 +150,7 @@ local function getPaths(options)
 end
 
 local function createArgs(exe, args)
-  local newArgs = {}
-  local _, i
+  local newArgs = {}, _
   table.insert(newArgs, exe)
   for i, v in pairs(args) do
     if i ~= 0 then
@@ -261,7 +259,7 @@ local function attempt(options, callback)
   end)
 end
 
-function downloadUpgradeUnix(streams, version, callback)
+local function downloadUpgradeUnix(streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
@@ -382,7 +380,7 @@ function downloadUpgradeUnix(streams, version, callback)
   end)
 end
 
-function downloadUpgradeWin(streams, version, callback)
+local function downloadUpgradeWin(streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
@@ -394,16 +392,14 @@ function downloadUpgradeWin(streams, version, callback)
   callback = callback or function() end
 
   local function download_iter(item, callback)
-    local options = {
+    local options, opts
+    options = {
       method = 'GET',
       host = client._host,
       port = client._port,
       tls = client._tls_options,
     }
-
-    local filename = path.join(unverified_binary_dir, item.payload)
-
-    local opts = misc.merge({
+    opts = misc.merge({
       path = fmt('/upgrades/%s/%s', channel, item.payload),
       download = path.join(unverified_binary_dir, item.payload)
     }, options)
@@ -443,9 +439,7 @@ function downloadUpgradeWin(streams, version, callback)
   end)
 end
 
-function checkForUpgrade(options, streams, callback)
-  options = options or {}
-
+local function checkForUpgrade(options, streams, callback)
   local client = streams:getClient()
   if client == nil then
     return
@@ -453,7 +447,7 @@ function checkForUpgrade(options, streams, callback)
 
   local channel = streams:getChannel()
   local bundleVersion = virgo.bundle_version
-  local uri_path, options
+  local uri_path
 
   options = {
     method = 'GET',

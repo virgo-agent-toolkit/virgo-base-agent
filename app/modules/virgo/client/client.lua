@@ -16,17 +16,13 @@ limitations under the License.
 
 local Timer = require('uv').Timer
 local consts = require('/base/util/constants')
-local tls = require('tls')
 local JSON = require('json')
 local timer = require('timer')
-local Error = require('core').Error
-local Object = require('core').Object
 local Emitter = require('core').Emitter
 local logging = require('logging')
 local misc = require('/base/util/misc')
 local loggingUtil = require ('/base/util/logging')
 local ProtocolConnection = require('/base/protocol/connection')
-local table = require('table')
 local caCerts = require('/certs').caCerts
 local utils = require('utils')
 local vutils = require('virgo_utils')
@@ -280,6 +276,4 @@ function AgentClient:destroy()
   self._connection:destroy()
 end
 
-local exports = {}
 exports.AgentClient = AgentClient
-return exports
