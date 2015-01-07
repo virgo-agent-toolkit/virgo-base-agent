@@ -9,6 +9,7 @@ local Writable = require('stream_writable').Writable
 
 local mock_server = function(data)
   local onClient, options
+
   function onClient(c)
     c:on('data', function(dat)
       if type(data) == 'string' then
@@ -130,10 +131,12 @@ require('tap')(function(test)
     })
 
     function onSuccess()
-      connection:connect(function()
+      local onConnect
+      function onConnect()
         connection:destroy()
         server:close()
-      end)
+      end
+      connection:connect(onConnect)
     end
 
     function onError(err)
@@ -214,9 +217,9 @@ require('tap')(function(test)
         rejectUnauthorized = false,
       }
     })
+
     fixture = fixtures['handshake.hello.response'] .. '\n'
     server = mock_server(fixture .. fixture)
-
     sink = Writable:new({objectMode = true})
     function sink._write(this, data, encoding, callback)
       callback()
@@ -235,6 +238,7 @@ require('tap')(function(test)
         connection:destroy()
         server:close()
       end
+
       connection:connect(onSuccess, onError)
     end
 
