@@ -3,11 +3,11 @@ local Duplex = require('stream_duplex').Duplex
 local JSON = require('json')
 local core = require('core')
 local Emitter = core.Emitter
-local path = require('luvi').path
+local fixtures = require('fixtures')
 local pem = require('unit-tests/pem')
-local spawn = require('childprocess').spawn
 local timer = require('timer')
 local tls = require('tls')
+local Writable = require('stream_writable').Writable
 
 local mock_server = function(data)
   local onClient, options
@@ -35,7 +35,9 @@ local mock_server = function(data)
 end
 
 local test_hello_response_error_handling = function(fixture, checkErr)
-  local connection = Connection:new(nil, {
+  local connection, server, onListen
+
+  connection = Connection:new(nil, {
     endpoint = {
       host = '127.0.0.1',
       port = 50041,
@@ -48,8 +50,8 @@ local test_hello_response_error_handling = function(fixture, checkErr)
       rejectUnauthorized = false 
     }
   })
-  local server = mock_server(fixture .. '\n')
-  server:listen(50041, function()
+
+  function onListen()
     local onSuccess, onError
     function onSuccess() end
     function onError(err)
@@ -58,7 +60,10 @@ local test_hello_response_error_handling = function(fixture, checkErr)
       server:destroy()
     end
     connection:connect(onSuccess, onError)
-  end)
+  end
+
+  server = mock_server(fixture .. '\n')
+  server:listen(50041, onListen)
 end
 
 require('tap')(function(test)
@@ -80,137 +85,161 @@ require('tap')(function(test)
   end)
 
   test('bad version hello gives err', function()
-    test_hello_response_error_handling('{ "v": "2147483647", "id": 0, "source": "endpoint", "target": "agentA", "result": { "heartbeat_interval": 1000 } }', function(err)
-      assert('Version mismatch: message_version=1 response_version=2147483647')
+    test_hello_response_error_handling(fixtures['invalid-version']['handshake.hello.response'], function(err)
+      assert(err == 'Version mismatch: message_version=1 response_version=2147483647')
     end)
   end)
-end)
 
---
---test('test bad process version hello fails', nil, function(t)
---  test_hello_response_error_handling(t, fixtures['invalid-process-version']['handshake.hello.response'], function(err)
---    t:not_nil(err:find('Agent version [%w%p]* is too old, please upgrade to'))
---  end)
---end)
---
---test('test bad bundle version hello fails', nil, function(t)
---  test_hello_response_error_handling(t, fixtures['invalid-bundle-version']['handshake.hello.response'], function(err)
---    t:not_nil(err:find('Agent bundle version [%w%p]* is too old, please upgrade to'))
---  end)
---end)
---
---test('unexpected response and hello timeout', nil, function(t)
---  local data = JSON.parse(fixtures['invalid-version']['handshake.hello.response'])
---  data.id = 4
---  test_hello_response_error_handling(t, JSON.stringify(data):gsub('\n', " "), function(err)
---    t:not_nil(err:find('Handshake timeout, haven\'t received response in'))
---  end)
---end)
---
---test('fragmented message', nil, function(t)
---  local connection = Connection:new(nil, {
---    endpoint = {
---      host = '127.0.0.1',
---      port = 50041,
---    },
---    agent = {
---      token = 'this_is_a_token',
---      id = 'agentA',
---    },
---    tls_options = {
---      rejectUnauthorized = false,
---    },
---  })
---  local fixture = fixtures['handshake.hello.response']
---  local server = mock_server({fixture:sub(1, 4), fixture:sub(5, #fixture) .. '\n'})
---  server:listen(50041, function()
---    connection:connect(function()
---      connection:destroy()
---      server:close()
---      t:finish()
---    end,
---    function(err)
---      t:equal(true, false, 'error encounter in Connection Handshake')
---      connection:destroy()
---      server:close()
---      t:finish()
---    end)
---  end)
---end)
---
---test('multiple messages in a single chunk', nil, function(t)
---  local connection = Connection:new(nil, {
---    endpoint = {
---      host = '127.0.0.1',
---      port = 50041,
---    },
---    agent = {
---      token = 'this_is_a_token',
---      id = 'agentA',
---    },
---    tls_options = {
---      rejectUnauthorized = false,
---    },
---    features = {
---      'TEST_FEATURE_1'
---    }
---  })
---  local fixture = fixtures['handshake.hello.response'] .. '\n'
---  local server = mock_server(fixture .. fixture)
---  local sink = stream.Writable:new({objectMode = true})
---  sink._write = function(this, data, encoding, callback)
---    callback()
---    connection:destroy()
---    server:close()
---    t:finish()
---  end
---  server:listen(50041, function()
---    connection:connect(function()
---      connection:pipe(sink)
---    end,
---    function(err)
---      t:equal('TEST_FEATURE_1', connection.features[1])
---      t:equal(true, false, 'error encounter in Connection Handshake')
---      connection:destroy()
---      server:close()
---      t:finish()
---    end)
---  end)
---end)
---
---test('test no features', nil, function(t)
---  local connection = Connection:new(nil, {
---    endpoint = {
---      host = '127.0.0.1',
---      port = 50041,
---    },
---    agent = {
---      token = 'this_is_a_token',
---      id = 'agentA',
---    },
---    tls_options = {
---      rejectUnauthorized = false,
---    }
---  })
---  local fixture = fixtures['handshake.hello.response'] .. '\n'
---  local server = mock_server(fixture .. fixture)
---  local sink = stream.Writable:new({objectMode = true})
---  sink._write = function(this, data, encoding, callback)
---    callback()
---    connection:destroy()
---    server:close()
---    t:finish()
---  end
---  server:listen(50041, function()
---    connection:connect(function()
---      connection:pipe(sink)
---    end,
---    function(err)
---      t:equal(nil, connection.features[1])
---      t:equal(true, false, 'error encounter in Connection Handshake')
---      connection:destroy()
---      server:close()
---      t:finish()
---    end)
---  end)
---end)
+  test('test bad process version hello fails', function(t)
+    test_hello_response_error_handling(fixtures['invalid-process-version']['handshake.hello.response'], function(err)
+      assert(err:find('Agent version [%w%p]* is too old, please upgrade to'))
+    end)
+  end)
+
+  test('test bad bundle version hello fails', function(t)
+    test_hello_response_error_handling(fixtures['invalid-bundle-version']['handshake.hello.response'], function(err)
+      assert(err:find('Agent bundle version [%w%p]* is too old, please upgrade to'))
+    end)
+  end)
+
+  -- TODO
+  -- test('unexpected response and hello timeout', function()
+  --   local data
+  --   data = JSON.parse(fixtures['invalid-version']['handshake.hello.response'])
+  --   data.id = 4
+  --   data = JSON.stringify(data):gsub('\n', " ")
+  --   test_hello_response_error_handling(data, function(err)
+  --     assert(err:find('Handshake timeout, haven\'t received response in'))
+  --   end)
+  -- end)
+
+  test('fragmented message', function()
+    local connection, fixture, server
+    local onSuccess, onError
+
+    connection = Connection:new(nil, {
+      endpoint = {
+        host = '127.0.0.1',
+        port = 50041,
+      },
+      agent = {
+        token = 'this_is_a_token',
+        id = 'agentA',
+      },
+      tls_options = {
+        rejectUnauthorized = false,
+      },
+    })
+
+    function onSuccess()
+      connection:connect(function()
+        connection:destroy()
+        server:close()
+      end)
+    end
+
+    function onError(err)
+      assert(false, 'error encounter in connection handshake')
+      connection:destroy()
+      server:close()
+    end
+
+    fixture = fixtures['handshake.hello.response']
+    server = mock_server({fixture:sub(1, 4), fixture:sub(5, #fixture) .. '\n'})
+    server:listen(50041, onSuccess, onError)
+  end)
+
+  test('multiple messages in a single chunk', function()
+    local connection, fixture, server, sink
+    local onListen
+
+    connection = Connection:new(nil, {
+      endpoint = {
+        host = '127.0.0.1',
+        port = 50041,
+      },
+      agent = {
+        token = 'this_is_a_token',
+        id = 'agentA',
+      },
+      tls_options = {
+        rejectUnauthorized = false,
+      },
+      features = {
+        'TEST_FEATURE_1'
+      }
+    })
+
+    fixture = fixtures['handshake.hello.response'] .. '\n'
+    server = mock_server(fixture .. fixture)
+
+    sink = Writable:new({objectMode = true})
+    function sink._write(this, data, encoding, callback)
+      callback()
+      connection:destroy()
+      server:close()
+    end
+
+    function onListen()
+      local onSuccess, onError
+      
+      function onSuccess()
+        connection:pipe(sink)
+      end
+
+      function onError(err)
+        assert(false)
+        connection:destroy()
+        server:close()
+      end
+
+      connection:connect(onSuccess, onError)
+    end
+
+    server:listen(50041, onListen)
+  end)
+
+  test('test no features', function(t)
+    local connection, fixture, sink, server
+    local onListen
+
+    connection = Connection:new(nil, {
+      endpoint = {
+        host = '127.0.0.1',
+        port = 50041,
+      },
+      agent = {
+        token = 'this_is_a_token',
+        id = 'agentA',
+      },
+      tls_options = {
+        rejectUnauthorized = false,
+      }
+    })
+    fixture = fixtures['handshake.hello.response'] .. '\n'
+    server = mock_server(fixture .. fixture)
+
+    sink = Writable:new({objectMode = true})
+    function sink._write(this, data, encoding, callback)
+      callback()
+      connection:destroy()
+      server:close()
+    end
+
+    function onListen()
+      local onSuccess, onError
+
+      function onSuccess()
+        connection:pipe(sink)
+      end
+
+      function onError(err)
+        connection:destroy()
+        server:close()
+      end
+      connection:connect(onSuccess, onError)
+    end
+
+    server:listen(50041, onListen)
+  end)
+end)

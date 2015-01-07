@@ -160,7 +160,6 @@ function Connection:_connect()
   for _,k in pairs({'host', 'port'}) do
     self._tls_options[k] = self[k]
   end
-  p(self._tls_options)
   self._tls_connection = tls.connect(self._tls_options, function()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
@@ -199,7 +198,6 @@ function Connection:_ready()
     objectMode = true, 
     -- \n is the default separator
     mapper = function(chunk)
-      p(chunk)
       local obj = nil
       success, err = pcall(function()
         obj = JSON.parse(chunk)
@@ -211,7 +209,6 @@ function Connection:_ready()
     end,
   })
 
-  p(self._tls_connection)
   self.readable = self._tls_connection:pipe(dejsonify)
   self.writable = jsonify
   self.writable:pipe(self._tls_connection)
