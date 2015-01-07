@@ -1,5 +1,3 @@
-local exports = {}
-
 exports.keyPem = [[
 -----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDx3wdzpq2rvwm3Ucun1qAD/ClB+wW+RhR1nVix286QvaNqePAd
@@ -40,5 +38,3 @@ e7yPcpz0+O0ZDDrxR9chAiZ7fmdBBX1Tr+pIuCrG/Ud49SBqeS5aMJGVwiSd7o1n
 dhU2Sz3Q60DwJEL1VenQHiVYlWWtqXBThe9ggqRPnCfsCRTP8qifKkjk45zWPcpN
 -----END CERTIFICATE-----
 ]]
-
-return exports
