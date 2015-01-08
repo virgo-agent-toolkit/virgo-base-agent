@@ -3,7 +3,7 @@ local fs = require('fs')
 local string = require('string')
 local JSON = require('json')
 
-local fixtures = nil
+local fixtures
 
 local strip_newlines = function(str)
   return str:gsub("\n", " ")

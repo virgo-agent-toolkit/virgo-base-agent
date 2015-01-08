@@ -2,7 +2,6 @@ local bundle = require('luvi').bundle
 local fs = require('fs')
 local los = require('los')
 local path = require('luvi').path
-local string = require('string')
 
 function fs.extname(filename)
   return filename:match('%.[^./]+$') or ''
@@ -13,7 +12,7 @@ function fs.basename(filename)
 end
 
 local function load_fixtures(dir, is_json)
-  local files, filePath, fileData, finder, tbl
+  local files, filePath, fileData, tbl
 
   tbl = {}
 

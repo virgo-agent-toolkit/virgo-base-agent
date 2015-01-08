@@ -18,6 +18,6 @@ clean:
 	rm -f $(LUVI_TARGET)
 
 lint:
-	find app -name "*.lua" | xargs luacheck
+	find app tests -name "*.lua" | xargs luacheck
 
 .PHONY: all

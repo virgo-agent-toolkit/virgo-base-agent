@@ -1,20 +1,16 @@
-local net = require('net')
 local JSON = require('json')
 local fixtures = require('./')
 local LineEmitter = require('line-emitter').LineEmitter
-local table = require('table')
 local tls = require('tls')
 local timer = require('timer')
 local string = require('string')
 local math = require('math')
 local table = require('table')
 local http = require("http")
-local url = require('url')
 local utils = require('utils')
 local fs = require('fs')
 local path = require('path')
 local fmt = require('string').format
-local os = require('os')
 
 local ports = {50041, 50051, 50061}
 
@@ -109,7 +105,7 @@ end
 local http_responder = function(log, client, server)
 
   http.onClient(server, client, function(req, res)
-    local part, parts, file_path
+    local parts, file_path
 
     local _reply_http = function(status, data)
       status = status or 200
