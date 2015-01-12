@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-local logging = require('logging')
+local logging = require('rphillips/logging')
 local Error = require('core').Error
 local math = require('math')
 local path = require('luvi').path

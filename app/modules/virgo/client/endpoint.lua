@@ -1,10 +1,10 @@
 local Object = require('core').Object
-local async = require('async')
+local async = require('rphillips/async')
 local dns = require('dns')
 local fmt = require('string').format
-local logging = require('logging')
+local logging = require('rphillips/logging')
 local math = require('math')
-local misc = require('/base/util/misc')
+local misc = require('virgo/util/misc')
 
 local Endpoint = Object:extend()
 

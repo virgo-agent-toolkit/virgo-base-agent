@@ -1,6 +1,7 @@
-local path = require('path')
 local Object = require('core').Object
 local fmt = require('string').format
+local path = require('path')
+local virgo_paths = require('virgo/paths')
 
 local ConstantsCtx = Object:extend()
 
@@ -65,12 +66,12 @@ globalCtx:set('SHUTDOWN_UPGRADE', 1)
 globalCtx:set('SHUTDOWN_RATE_LIMIT', 2)
 globalCtx:set('SHUTDOWN_RESTART', 3)
 
-exports.PERSISTENT_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_PERSISTENT_DIR)
-exports.EXE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR)
-exports.CONFIG_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_CONFIG_DIR)
-exports.LIBRARY_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_LIBRARY_DIR)
-exports.RUNTIME_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_RUNTIME_DIR)
-exports.BUNDLE_DIR = virgo_paths.get(virgo_paths.VIRGO_PATH_BUNDLE_DIR)
+exports.PERSISTENT_DIR = virgo_paths.VIRGO_PATH_PERSISTENT_DIR
+exports.EXE_DIR = virgo_paths.VIRGO_PATH_EXE_DIR
+exports.CONFIG_DIR = virgo_paths.VIRGO_PATH_CONFIG_DIR
+exports.LIBRARY_DIR = virgo_paths.VIRGO_PATH_LIBRARY_DIR
+exports.RUNTIME_DIR = virgo_paths.VIRGO_PATH_RUNTIME_DIR
+exports.BUNDLE_DIR = virgo_paths.VIRGO_PATH_BUNDLE_DIR
 
 globalCtx:set('DEFAULT_PERSISTENT_VARIABLE_PATH', path.join(exports.PERSISTENT_DIR, 'variables'))
 globalCtx:set('DEFAULT_CONFIG_PATH', path.join(exports.CONFIG_DIR, fmt('%s.cfg', virgo.pkg_name)))

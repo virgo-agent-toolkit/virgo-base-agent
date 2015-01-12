@@ -1,8 +1,9 @@
-local path = require('path')
+local async = require('rphillips/async')
+
 local fs = require('fs')
-local table = require('table')
-local async = require('async')
 local os = require('os')
+local path = require('path')
+local table = require('table')
 
 local exports = {}
 

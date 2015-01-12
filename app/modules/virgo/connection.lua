@@ -1,10 +1,11 @@
+local logging = require('rphillips/logging')
+local Split = require('rphillips/split-stream')
+
 local Duplex = require('stream_duplex').Duplex
 local JSON = require('json')
-local Split = require('split-stream')
 local Transform = require('stream_transform').Transform
 local dns = require('dns')
 local fmt = require('string').format
-local logging = require('logging')
 local loggingUtil = require('virgo/util/logging')
 local misc = require('virgo/util/misc')
 --local request = require('request')

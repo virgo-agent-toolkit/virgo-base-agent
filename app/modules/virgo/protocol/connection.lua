@@ -1,5 +1,5 @@
 --[[
-Copyright 2012 Rackspace
+Copyright 2014 Rackspace
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-local timer = require('timer')
 local Emitter = require('core').Emitter
-local errors = require('./errors')
-local ResponseTimeoutError = require('../errors').ResponseTimeoutError
 local JSON = require('json')
+local ResponseTimeoutError = require('virgo/errors').ResponseTimeoutError
+local Writable = require('stream_writable').Writable
+local errors = require('virgo/protocol/errors')
 local fmt = require('string').format
-local stream = require('/base/modules/stream')
+local timer = require('timer')
 
-local logging = require('logging')
-local msg = require ('./messages')
+local logging = require('rphillips/logging')
+local msg = require ('virgo/protocol/messages')
 
 -- Response timeouts in ms
 local HANDSHAKE_TIMEOUT = 30000
