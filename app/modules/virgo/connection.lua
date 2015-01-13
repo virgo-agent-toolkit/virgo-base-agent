@@ -2,8 +2,9 @@ local logging = require('rphillips/logging')
 local Split = require('rphillips/split-stream')
 
 local Duplex = require('stream_duplex').Duplex
-local JSON = require('json')
 local Transform = require('stream_transform').Transform
+
+local JSON = require('json')
 local dns = require('dns')
 local fmt = require('string').format
 local loggingUtil = require('virgo/util/logging')
@@ -90,7 +91,6 @@ end
 function Connection:connect(callback, callback_error)
   self:once(CXN_STATES.AUTHENTICATED, callback)
   self:once(CXN_STATES.ERROR, callback_error)
-
   self:emit(self._state)
 end
 

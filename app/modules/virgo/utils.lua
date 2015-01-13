@@ -32,7 +32,7 @@ local function trim(s)
 end
 
 local function gmtRaw()
-  return math.floor(virgo.gmtnow())
+  return math.floor(os.time(os.date("!*t", os.time())))
 end
 
 local function setDelta(_delta)

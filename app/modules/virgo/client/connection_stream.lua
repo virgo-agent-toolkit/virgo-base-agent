@@ -338,6 +338,4 @@ function ConnectionStream:getEntityId()
   return self:getClient()._entity_id
 end
 
-local exports = {}
 exports.ConnectionStream = ConnectionStream
-return exports
