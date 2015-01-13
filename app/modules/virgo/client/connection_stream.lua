@@ -19,16 +19,16 @@ local math = require('math')
 local timer = require('timer')
 local fmt = require('string').format
 
-local async = require('async')
+local async = require('rphillips/async')
 
 local ConnectionMessages = require('./connection_messages').ConnectionMessages
 
 local AgentClient = require('./client').AgentClient
-local consts = require('/base/util/constants')
-local logging = require('logging')
-local misc = require('/base/util/misc')
-local upgrade = require('/base/client/upgrade')
-local vutils = require('virgo_utils')
+local consts = require('virgo/util/constants')
+local logging = require('rphillips/logging')
+local misc = require('virgo/util/misc')
+local upgrade = require('virgo/client/upgrade')
+local vutils = require('virgo/utils')
 
 local ConnectionStream = Emitter:extend()
 function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, types, features)
@@ -338,6 +338,4 @@ function ConnectionStream:getEntityId()
   return self:getClient()._entity_id
 end
 
-local exports = {}
 exports.ConnectionStream = ConnectionStream
-return exports

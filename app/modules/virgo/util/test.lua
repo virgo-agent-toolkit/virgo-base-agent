@@ -16,7 +16,7 @@ limitations under the License.
 
 local net = require('net')
 local timer = require('timer')
-local http = require('http')
+--local http = require('http')
 
 local LineEmitter = require('line-emitter').LineEmitter
 

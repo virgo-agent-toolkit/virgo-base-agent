@@ -13,27 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --]]
-local compareVersions = require('/base/util/misc').compareVersions
-local consts = require('/base/util/constants')
-local fsutil = require('/base/util/fs')
-local loggingUtil = require ('/base/util/logging')
-local misc = require('/base/util/misc')
-local request = require('/base/protocol/request')
-local trim = require('/base/util/misc').trim
-local utilUpgrade = require('/base/util/upgrade')
+local compareVersions = require('virgo/util/misc').compareVersions
+local consts = require('virgo/util/constants')
+local fsutil = require('virgo/util/fs')
+local loggingUtil = require ('virgo/util/logging')
+local misc = require('virgo/util/misc')
+--local request = require('virgo/protocol/request')
+local utilUpgrade = require('virgo/util/upgrade')
 
 local Error = require('core').Error
-local fs = require('fs')
-local string = require('string')
-local async = require('async')
+local JSON = require('json')
+local async = require('rphillips/async')
 local fmt = require('string').format
-local logging = require('logging')
+local fs = require('fs')
+local logging = require('rphillips/logging')
+local los = require('los')
 local path = require('path')
 local spawn = require('childprocess').spawn
+local string = require('string')
 local table = require('table')
-local windowsConvertCmd = require('virgo_utils').windowsConvertCmd
-local os = require('os')
-local JSON = require('json')
+local windowsConvertCmd = require('virgo/utils').windowsConvertCmd
+
+local trim = misc.trim
 
 local exports = {}
 
@@ -477,7 +478,7 @@ local function checkForUpgrade(options, streams, callback)
 end
 
 exports.attempt = attempt
-if os.type() == "win32" then
+if los.type() == "win32" then
   exports.downloadUpgrade = downloadUpgradeWin
 else
   exports.downloadUpgrade = downloadUpgradeUnix

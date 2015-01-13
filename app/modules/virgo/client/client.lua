@@ -14,21 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-local Timer = require('uv').Timer
-local consts = require('/base/util/constants')
-local JSON = require('json')
-local timer = require('timer')
+local uv = require('uv')
 local Emitter = require('core').Emitter
-local logging = require('logging')
-local misc = require('/base/util/misc')
-local loggingUtil = require ('/base/util/logging')
-local ProtocolConnection = require('/base/protocol/connection')
-local caCerts = require('/certs').caCerts
+local JSON = require('json')
+local ProtocolConnection = require('virgo/protocol/connection')
+--local caCerts = require('/certs').caCerts
+local consts = require('virgo/util/constants')
+local logging = require('rphillips/logging')
+local loggingUtil = require ('virgo/util/logging')
+local misc = require('virgo/util/misc')
+local timer = require('timer')
 local utils = require('utils')
-local vutils = require('virgo_utils')
+local vutils = require('virgo/utils')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
-local Connection = require('/base/libs/connection')
+local Connection = require('virgo/connection')
 
 local fmt = require('string').format
 
@@ -39,7 +39,6 @@ local HEARTBEAT_INTERVAL = 5 * 60 * 1000 -- ms
 local DATACENTER_COUNT = {}
 
 function AgentClient:initialize(options, connectionStream, types)
-
   self.protocol = nil
   self._connectionStream = connectionStream
   self._types = types or {}
@@ -55,32 +54,25 @@ function AgentClient:initialize(options, connectionStream, types)
   self._host = options.host
   self._proxy = options.proxy
   self._features = options.features
-
   self._timeout = options.timeout or 5000
-
   self._machine = ConnectionStateMachine:new(connectionStream)
-  self._machine:on('respawn', function()
-    self:emit('respawn')
-  end)
-
+  self._machine:on('respawn', utils.bind(self._onRespawn, self))
   self:_incrementDatacenterCount()
-
-  self._tls_options = options.tls or {
-    rejectUnauthorized = true,
-    ca = caCerts
-  }
-
   self._heartbeat_interval = nil
   self._sent_heartbeat_count = 0
   self._got_pong_count = 0
   self._latency = nil
-
+  self._tls_options = options.tls or {rejectUnauthorized = true, ca = options.ca}
   self._log = loggingUtil.makeLogger(fmt('%s:%s (hostname=%s connID=%d)',
                                      self._ip,
                                      self._port,
                                      self._host,
                                      DATACENTER_COUNT[options.datacenter]))
                                     
+end
+
+function AgentClient:_onRespawn()
+  self:emit('respawn')
 end
 
 function AgentClient:_incrementDatacenterCount()
@@ -117,6 +109,7 @@ end
 
 function AgentClient:connect()
   local options = {}
+  local onSuccess, onError
   options.tls_options = self._tls_options
   options.endpoint = {}
   options.endpoint.host = self._ip
@@ -129,15 +122,13 @@ function AgentClient:connect()
   options.proxy = self._proxy
   options.features = self._features
 
-  self._connection = Connection:new({}, options)
-  self._log(logging.DEBUG, 'Connecting...')
-  self._connection:connect(function()
-
+  function onSuccess()
     self._log(logging.INFO, 'Connected')
     self:emit('connect')
 
     local protocolType = self._types.ProtocolConnection or ProtocolConnection
-    self.protocol = protocolType:new(self._log, self._id, self._token, self._guid, self._connection, self._features)
+    self.protocol = protocolType:new(self._log, self._id, self._token, self._guid,
+                                     self._connection, self._features)
     self.protocol:on('upgrade.request', utils.bind(AgentClient.onUpgradeRequest, self))
     self.protocol:on('error', function(err)
       -- set self.rateLimitReached so reconnect logic stops
@@ -161,16 +152,22 @@ function AgentClient:connect()
 
     self._log(logging.DEBUG, fmt('Using timeout %sms', self:_socketTimeout()))
     -- hack: should be handled in Connection class
-    self._connection._tls_connection.socket:setTimeout(self:_socketTimeout(), function()
+    self._connection._tls_connection:setTimeout(self:_socketTimeout(), function()
       self:emit('timeout')
     end)
     --  TODO: make this work: self._connection.readable:on('end', function()
     self._connection._tls_connection:on('end', function()
       self:emit('end')
     end)
-  end, function(err)
+  end
+
+  function onError(err)
     self:emit('error', err)
-  end)
+  end
+
+  self._log(logging.DEBUG, 'Connecting...')
+  self._connection = Connection:new({}, options)
+  self._connection:connect(onSuccess, onError)
 end
 
 function AgentClient:_attachSocketHandlers()
@@ -209,17 +206,15 @@ function AgentClient:startHeartbeatInterval()
     this._log(logging.DEBUG, fmt('Starting heartbeat interval, interval=%dms', this._heartbeat_interval))
 
     local function timerCb()
-      local timestamp = Timer.now()
       local send_timestamp = vutils.gmtRaw()
+      local timestamp = send_timestamp
+      local onHeartBeatResponse
 
       if this:isDestroyed() then
         return
       end
 
-      this._log(logging.DEBUG, fmt('Sending heartbeat (timestamp=%d,sent_heartbeat_count=%d,got_pong_count=%d)',
-                               send_timestamp, this._sent_heartbeat_count, this._got_pong_count))
-      this._sent_heartbeat_count = this._sent_heartbeat_count + 1
-      this.protocol:request('heartbeat.post', send_timestamp, function(err, msg)
+      function onHeartBeatResponse(err, msg)
         if this:isDestroyed() then
           return
         end
@@ -231,7 +226,7 @@ function AgentClient:startHeartbeatInterval()
         end
 
         local recv_timestamp = vutils.gmtRaw()
-        this._latency = Timer.now() - timestamp
+        this._latency = vutils.gmtRaw() - timestamp
         if msg.result.timestamp then
           local timeObj = {}
           timeObj.agent_send_timestamp = send_timestamp
@@ -250,7 +245,12 @@ function AgentClient:startHeartbeatInterval()
         end
 
         startInterval(this)
-      end)
+      end
+
+      this._log(logging.DEBUG, fmt('Sending heartbeat (timestamp=%d,sent_heartbeat_count=%d,got_pong_count=%d)',
+                               send_timestamp, this._sent_heartbeat_count, this._got_pong_count))
+      this._sent_heartbeat_count = this._sent_heartbeat_count + 1
+      this.protocol:request('heartbeat.post', send_timestamp, onHeartBeatResponse)
     end
 
     this._heartbeatTimeout = timer.setTimeout(timeout, timerCb)

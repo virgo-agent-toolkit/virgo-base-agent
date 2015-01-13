@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-local async = require('async')
+local async = require('rphillips/async')
 local fs = require('fs')
-local crypto = require('_crypto')
-local errors = require('/base/errors')
+-- TODO CRYPTO
+local errors = require('virgo/errors')
 
 local function verify(path, sig_path, kpub_data, callback)
   local parallel = {

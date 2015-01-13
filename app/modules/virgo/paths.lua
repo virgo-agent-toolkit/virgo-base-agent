@@ -1,5 +1,6 @@
 --[[
-Copyright 2013-2015 Rackspace
+
+Copyright 2015 The Virgo Agent Toolkit Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,12 +13,15 @@ distributed under the License is distributed on an "AS-IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
---]]
-local MachineIdentity = require('virgo/machineidentity').MachineIdentity
 
-require('tap')(function(test)
-  test('MachineIdentity callback', function(expect)
-    local function onGet() end
-    MachineIdentity:new({}):get(expect(onGet))
-  end)
-end)
+--]]
+
+exports.init = function(options)
+end
+
+exports.VIRGO_PATH_PERSISTENT_DIR = ''
+exports.VIRGO_PATH_EXE_DIR = ''
+exports.VIRGO_PATH_CONFIG_DIR = ''
+exports.VIRGO_PATH_LIBRARY_DIR = ''
+exports.VIRGO_PATH_RUNTIME_DIR = ''
+exports.VIRGO_PATH_BUNDLE_DIR = ''
