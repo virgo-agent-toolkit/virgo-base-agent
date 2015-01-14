@@ -121,6 +121,7 @@ function Server:initialize(options)
   self.server = tls.createServer(self.options, utils.bind(self._onClient, self))
   self.log = utils.bind(self._defaultLog, self)()
   self.clients = {}
+  self.timers = {}
 end
 
 function Server:_defaultLog()
@@ -223,13 +224,12 @@ function Server:_onLineProtocol(client, line)
 end
 
 function Server:_enableJSONResponder(client)
-  local timers = {}
   local le = LineEmitter:new()
 
   client.rate_limit = opts.rate_limit
 
   client:once('end', function()
-    clear_timers(self.log, timers)
+    clear_timers(self.log, self.timers)
   end)
 
   client:once('error', function(err)
@@ -242,11 +242,11 @@ function Server:_enableJSONResponder(client)
 
   if self.options.includeTimeouts then
     for timeout, f in pairs(TIMEOUTS) do
-      table.insert(timers, timer.setTimeout(timeout, utils.bind(f, self.log, client)))
+      table.insert(self.timers, timer.setTimeout(timeout, utils.bind(f, self.log, client)))
     end
 
     for timeout, f in pairs(INTERVALS) do
-      table.insert(timers, timer.setInterval(timeout, utils.bind(f, self.log, client)))
+      table.insert(self.timers, timer.setInterval(timeout, utils.bind(f, self.log, client)))
     end
   end
 
@@ -256,7 +256,7 @@ function Server:_enableJSONResponder(client)
     local disconnect_time = opts.destroy_connection_base +
       math.floor(math.random() * opts.destroy_connection_jitter)
     self.log("Destroying connection after " .. disconnect_time .. "ms")
-    table.insert(timers, timer.setTimeout(disconnect_time, function()
+    table.insert(self.timers, timer.setTimeout(disconnect_time, function()
       self.log("Destroyed connection after " .. disconnect_time .. "ms")
       client:destroy()
     end))
@@ -292,6 +292,7 @@ function Server:close()
   for _, client in pairs(self.clients) do
     client:destroy()
   end
+  clear_timers(self.log, self.timers)
   self.server:close()
 end
 
