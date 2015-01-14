@@ -6,6 +6,7 @@ local Transform = require('stream_transform').Transform
 
 local JSON = require('json')
 local dns = require('dns')
+local consts = require('virgo/util/constants')
 local fmt = require('string').format
 local loggingUtil = require('virgo/util/logging')
 local misc = require('virgo/util/misc')
@@ -24,8 +25,6 @@ local CXN_STATES = {
   ERROR = 'ERROR',
   DESTROYED = 'DESTROYED',
 }
-
-local HANDSHAKE_TIMEOUT = 30000
 
 --[[
 -- Connection is a class that initiates TLS connection to other parties,
@@ -50,6 +49,7 @@ function Connection:initialize(manifest, options)
   self.options = options or {}
   self.proxy = self.options.proxy
   self.features = options.features or {}
+  self._handshake_timeout = consts:get("DEFAULT_HANDSHAKE_TIMEOUT", 30000)
 
   self.timers = {}
 
@@ -244,9 +244,9 @@ function Connection:_handshake()
   -- using on() instead of once() and let the handler removes itself because
   -- incoming message might be non-handshake messages.
   self.readable:on('data', onDataClient)
-  table.insert(self.timers, timer.setTimeout(HANDSHAKE_TIMEOUT, function()
+  table.insert(self.timers, timer.setTimeout(self._handshake_timeout, function()
     if self._state ~= CXN_STATES.AUTHENTICATED then
-      self:_error(string.format("Handshake timeout, haven't received response in %d ms", HANDSHAKE_TIMEOUT))
+      self:_error(string.format("Handshake timeout, haven't received response in %d ms", self._handshake_timeout))
     end
   end))
   self.writable:write(msg)

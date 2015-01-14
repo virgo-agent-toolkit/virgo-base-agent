@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS-IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
---]]
+]]--
 
 local Emitter = require('core').Emitter
 local math = require('math')
@@ -129,7 +129,7 @@ function ConnectionStream:_createConnection(options)
     err.datacenter = options.datacenter
     err.message = errorMessage
     client:log(logging.DEBUG, fmt('client error: %s', err.message))
-    client:destroy()
+    client:destroy(err)
   end)
 
   client:on('respawn', function()
@@ -194,18 +194,28 @@ callback - Callback called with (err)
 function ConnectionStream:reconnect(options)
   local datacenter = options.datacenter
   local delay = self:_setDelay(datacenter)
+  local onTimer
+
+  if self._shutdown then return end
 
   logging.infof('%s -> Retrying connection in %dms',
                 datacenter, delay)
-  self:emit('reconnect', options)
-  timer.setTimeout(delay, function()
-    self:createConnection(options, function(err)
+
+  function onTimer()
+    local onCreate
+
+    function onCreate(err)
       if err then
         logging.errorf('%s -> Error reconnecting (%s)',
           datacenter, tostring(err))
       end
-    end)
-  end)
+    end
+
+    self:createConnection(options, onCreate)
+  end
+
+  self:emit('reconnect', options)
+  self._reconnect_timer = timer.setTimeout(delay, onTimer)
 end
 
 --[[
@@ -226,6 +236,8 @@ function ConnectionStream:_restart(client, options, callback)
 end
 
 function ConnectionStream:shutdown()
+  if self._reconnect_timer then timer.clearTimeout(self._reconnect_timer) end
+  self._shutdown = true
   self:done()
 end
 

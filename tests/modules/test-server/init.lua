@@ -43,9 +43,9 @@ local function set_option(options, name, default)
 end
 
 set_option(opts, "send_schedule_changed_initial", 2000)
-set_option(opts, "send_schedule_changed_interval", 60000)
-set_option(opts, "destroy_connection_jitter", 60000)
-set_option(opts, "destroy_connection_base", 60000)
+set_option(opts, "send_schedule_changed_interval", 2000)
+set_option(opts, "destroy_connection_jitter", 5000)
+set_option(opts, "destroy_connection_base", 5000)
 set_option(opts, "listen_ip", '127.0.0.1')
 set_option(opts, "perform_client_disconnect", 'true')
 set_option(opts, "send_download_upgrade", 1000)
@@ -120,6 +120,7 @@ function Server:initialize(options)
   }, options)
   self.server = tls.createServer(self.options, utils.bind(self._onClient, self))
   self.log = utils.bind(self._defaultLog, self)()
+  self.clients = {}
 end
 
 function Server:_defaultLog()
@@ -233,8 +234,7 @@ function Server:_enableJSONResponder(client)
 
   client:once('error', function(err)
     self.log('got error: ')
-    p(err)
-    client:destroy()
+    client:destroy(err)
   end)
 
   client:pipe(le)
@@ -255,19 +255,19 @@ function Server:_enableJSONResponder(client)
   if opts.perform_client_disconnect == 'true' then
     local disconnect_time = opts.destroy_connection_base +
       math.floor(math.random() * opts.destroy_connection_jitter)
-    self.log("Destroying connection after " .. disconnect_time .. "ms connected")
+    self.log("Destroying connection after " .. disconnect_time .. "ms")
     table.insert(timers, timer.setTimeout(disconnect_time, function()
-      self.log("Destroyed connection after " .. disconnect_time .. "ms connected")
+      self.log("Destroyed connection after " .. disconnect_time .. "ms")
       client:destroy()
     end))
   end
 end
 
 function Server:_onClient(client)
-  client:once('data', function(data)
-    local char = data:sub(0,1):lower()
+  self.clients[client._handle] = client
 
-    self.log(data)
+  local function onData(data)
+    local char = data:sub(0,1):lower()
 
     if char == "{" then
       self:_enableJSONResponder(client)
@@ -275,18 +275,23 @@ function Server:_onClient(client)
       self:_enableHTTPResponder(client)
     end
 
-    -- the server hadn't set up listeners when we got the request, so we have to reemit it
+    -- the server hadn't set up listeners when we got the request, so
+    -- we have to reemit it
     client:emit('data', data)
-  end)
+  end
+  client:once('data', onData)
 end
 
 function Server:listen(port, ip, callback)
   self.port = port
   self.ip = ip
-  self.server:listen(self.port, ip, callback)
+  self.server:listen(port, ip, callback)
 end
 
 function Server:close()
+  for _, client in pairs(self.clients) do
+    client:destroy()
+  end
   self.server:close()
 end
 
