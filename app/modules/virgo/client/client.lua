@@ -268,9 +268,7 @@ function AgentClient:clearHeartbeatInterval()
 end
 
 function AgentClient:destroy()
-  if self:isDestroyed() then
-    return
-  end
+  if self:isDestroyed() then return end
   self:getMachine():react(self, 'done')
   self:setDestroyed()
   self._connection:destroy()
