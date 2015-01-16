@@ -2,12 +2,11 @@ language: erlang
 
 before_install:
   - git submodule update --init
-  - ./configure
-  - make -C out
+  - make
 
 script:
-  - python tools/build.py test
+  - make test
 
 notifications:
-  email:
-    - tomaz+travisci@tomaz.me
+  irc:
+    - chat.freenode.net#virgo
