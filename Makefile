@@ -1,12 +1,17 @@
 APP_FILES=$(shell find app -type f)
 TEST_FILES=$(shell find tests -type f)
 LUVIT_APP_FILES=$(shell find deps/luvit-up/app -type f)
+TOP_LEVEL=$(shell pwd)
 
 LUVI_BIN=deps/luvit-up/luvi-binaries/$(shell uname -s)_$(shell uname -m)/luvi
 LUVI_TARGET=base
 LUVI_APP=tests:app:deps/luvit-up/app
+LIT_APP=LUVI_APP=$(TOP_LEVEL)/deps/lit/app $(TOP_LEVEL)/$(LUVI_BIN)
 
-all: $(LUVI_TARGET)
+all: deps $(LUVI_TARGET)
+
+deps:
+	cd app && $(LIT_APP) install
 
 $(LUVI_TARGET): $(APP_FILES) $(LUVIT_APP_FILES) $(TEST_FILES)
 	LUVI_APP=${LUVI_APP} LUVI_TARGET=${LUVI_TARGET} ${LUVI_BIN}
@@ -20,4 +25,4 @@ clean:
 lint:
 	find app tests -name "*.lua" | xargs luacheck
 
-.PHONY: all
+.PHONY: all deps
