@@ -427,9 +427,7 @@ function downloadUpgradeWin(streams, version, callback)
     end,
     function(callback)
       local files = {
-        payload = payload,
-        path = dlpath,
-        permissions = tonumber('755', 8)
+        payload = payload
       }
       download_iter(files, callback)
     end
