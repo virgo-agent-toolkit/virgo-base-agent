@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/virgo-agent-toolkit/virgo-base-agent.svg?branch=luvi-up)](https://travis-ci.org/virgo-agent-toolkit/virgo-base-agent)
+
 Transition to Luvi
 ==================
 
