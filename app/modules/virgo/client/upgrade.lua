@@ -13,28 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --]]
-local compareVersions = require('/base/util/misc').compareVersions
-local consts = require('/base/util/constants')
-local fsutil = require('/base/util/fs')
-local loggingUtil = require ('/base/util/logging')
-local misc = require('/base/util/misc')
-local request = require('/base/protocol/request')
-local trim = require('/base/util/misc').trim
-local utilUpgrade = require('/base/util/upgrade')
+local compareVersions = require('virgo/util/misc').compareVersions
+local consts = require('virgo/util/constants')
+local fsutil = require('virgo/util/fs')
+local loggingUtil = require ('virgo/util/logging')
+local misc = require('virgo/util/misc')
+--local request = require('virgo/protocol/request')
+local utilUpgrade = require('virgo/util/upgrade')
 
 local Error = require('core').Error
-local fs = require('fs')
-local string = require('string')
-local Object = require('core').Object
-local async = require('async')
+local JSON = require('json')
+local async = require('rphillips/async')
 local fmt = require('string').format
-local logging = require('logging')
+local fs = require('fs')
+local logging = require('rphillips/logging')
+local los = require('los')
 local path = require('path')
 local spawn = require('childprocess').spawn
+local string = require('string')
 local table = require('table')
-local windowsConvertCmd = require('virgo_utils').windowsConvertCmd
-local os = require('os')
-local JSON = require('json')
+local windowsConvertCmd = require('virgo/utils').windowsConvertCmd
+
+local trim = misc.trim
 
 local exports = {}
 
@@ -72,7 +72,7 @@ end
 -- Read the MSI to get the version string
 local function getVersionFromMSI(msi_path, callback)
   local version = nil
-  local status, err = pcall(function()
+  local _, err = pcall(function()
     version = virgo.fetch_msi_version(msi_path)
   end)
   callback(err, version)
@@ -87,7 +87,7 @@ local function installMSI(msi_path)
     log(logging.DEBUG, fmt("msiexec %s ; EXIT CODE %d", JSON.stringify(params), code))
   end)
   child:on('error', function(err)
-    log(logging.ERROR, fmt("msiexec %s ; ERR %s", JSON.stringify(params), tostring(code)))
+    log(logging.ERROR, fmt("msiexec %s ; ERR %s", JSON.stringify(params), tostring(err)))
   end)
 end
 
@@ -151,8 +151,7 @@ local function getPaths(options)
 end
 
 local function createArgs(exe, args)
-  local newArgs = {}
-  local _, i
+  local newArgs = {}, _
   table.insert(newArgs, exe)
   for i, v in pairs(args) do
     if i ~= 0 then
@@ -261,7 +260,7 @@ local function attempt(options, callback)
   end)
 end
 
-function downloadUpgradeUnix(streams, version, callback)
+local function downloadUpgradeUnix(streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
@@ -346,28 +345,13 @@ function downloadUpgradeUnix(streams, version, callback)
   end
 
   if s.name == "Linux" then
-    local semver_match = "^(%d+)%.?(%d*)%.?(%d*)(.-)$"
-    local major, minor, patch = s.vendor_version:match(semver_match)
     if s.vendor == "Debian" then
-      local mapping = {
-        [6] = "squeeze",
-        [7] = "wheezy"
-      }
-      s.vendor_version = mapping[tonumber(major)] or 'unknown'
-    elseif s.vendor == "CentOS" or s.vendor == "Fedora" then
-      local major = s.vendor_version:match(semver_match)
-      if not major then
-        return callback(Error:new('could not extract major version of operating system.'))
+      if s.vendor_version:find("6%.%d+%.%d+") then
+        s.vendor_version = "squeeze"
       end
-      s.vendor_version = major
-    elseif s.vendor == "Red Hat" then
-      local semver_match = "^Enterprise Linux (%d*)$"
-      local major = s.vendor_version:match(semver_match)
-      if not major then
-        return callback(Error:new('could not extract major version of operating system.'))
+      if s.vendor_version:find("7%.%d+%.%d+") then
+        s.vendor_version = "wheezy"
       end
-      s.vendor_version = major
-      s.vendor = "redhat"
     end
   end
 
@@ -397,7 +381,7 @@ function downloadUpgradeUnix(streams, version, callback)
   end)
 end
 
-function downloadUpgradeWin(streams, version, callback)
+local function downloadUpgradeWin(streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
@@ -409,16 +393,14 @@ function downloadUpgradeWin(streams, version, callback)
   callback = callback or function() end
 
   local function download_iter(item, callback)
-    local options = {
+    local options, opts
+    options = {
       method = 'GET',
       host = client._host,
       port = client._port,
       tls = client._tls_options,
     }
-
-    local filename = path.join(unverified_binary_dir, item.payload)
-
-    local opts = misc.merge({
+    opts = misc.merge({
       path = fmt('/upgrades/%s/%s', channel, item.payload),
       download = path.join(unverified_binary_dir, item.payload)
     }, options)
@@ -442,7 +424,9 @@ function downloadUpgradeWin(streams, version, callback)
     end,
     function(callback)
       local files = {
-        payload = payload
+        payload = payload,
+        path = dlpath,
+        permissions = tonumber('755', 8)
       }
       download_iter(files, callback)
     end
@@ -456,9 +440,7 @@ function downloadUpgradeWin(streams, version, callback)
   end)
 end
 
-function checkForUpgrade(options, streams, callback)
-  options = options or {}
-
+local function checkForUpgrade(options, streams, callback)
   local client = streams:getClient()
   if client == nil then
     return
@@ -466,7 +448,7 @@ function checkForUpgrade(options, streams, callback)
 
   local channel = streams:getChannel()
   local bundleVersion = virgo.bundle_version
-  local uri_path, options
+  local uri_path
 
   options = {
     method = 'GET',
@@ -496,7 +478,7 @@ function checkForUpgrade(options, streams, callback)
 end
 
 exports.attempt = attempt
-if os.type() == "win32" then
+if los.type() == "win32" then
   exports.downloadUpgrade = downloadUpgradeWin
 else
   exports.downloadUpgrade = downloadUpgradeUnix
