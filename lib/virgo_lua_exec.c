@@ -46,6 +46,7 @@ char *basename(char *path)
 #endif
 
 int virgo__lua_perform_upgrade(lua_State *L) {
+  virgo_t* v = virgo__lua_context(L);
   char *args[MAX_CMDLINE_PARAMETERS + 1], *exe = NULL;
   int arg_length, i, rc;
 
@@ -70,6 +71,10 @@ int virgo__lua_perform_upgrade(lua_State *L) {
   }
 
   args[arg_length] = NULL;
+
+  if (v->log_fp != NULL && v->log_fp != stdout) {
+    fclose(v->log_fp);
+  }
 
   rc = execve(exe, args, environ);
 
