@@ -1,6 +1,6 @@
 return {
   name = "rphillips/virgo-base",
-  version = "0.1.0",
+  version = "0.1.1",
   dependencies = {
     "rphillips/async@0.0.2",
     "rphillips/hsm@0.0.2",
