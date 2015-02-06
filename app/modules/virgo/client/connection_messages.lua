@@ -3,7 +3,7 @@ local timer = require('timer')
 local Emitter = require('core').Emitter
 local os = require('os')
 
-local logging = require('rphillips/logging')
+local logging = require('logging')
 local fmt = require('string').format
 
 

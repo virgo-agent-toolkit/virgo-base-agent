@@ -15,10 +15,10 @@ limitations under the License.
 --]]
 local uv = require('uv')
 local Object = require('core').Object
-local async = require('rphillips/async')
+local async = require('async')
 local dns = require('dns')
 local fmt = require('string').format
-local logging = require('rphillips/logging')
+local logging = require('logging')
 local math = require('math')
 local misc = require('virgo/util/misc')
 

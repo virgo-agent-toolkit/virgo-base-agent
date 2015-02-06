@@ -3,7 +3,7 @@ local table = require('table')
 local timer = require('timer')
 local uv = require('uv')
 
-local async = require('rphillips/async')
+local async = require('async')
 local constants = require('virgo/util/constants_ctx').ConstantsCtx:new()
 local ConnectionStream = require('virgo/client/connection_stream').ConnectionStream
 local Endpoint = require('virgo/client/endpoint').Endpoint

@@ -1,5 +1,5 @@
 local trim = require('./misc').trim
-local async = require('rphillips/async')
+local async = require('async')
 
 --[[
 Ask a question and provide the reponse within the callback.

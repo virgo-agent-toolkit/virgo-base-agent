@@ -23,10 +23,10 @@ local utilUpgrade = require('virgo/util/upgrade')
 
 local Error = require('core').Error
 local JSON = require('json')
-local async = require('rphillips/async')
+local async = require('async')
 local fmt = require('string').format
 local fs = require('fs')
-local logging = require('rphillips/logging')
+local logging = require('logging')
 local los = require('los')
 local path = require('path')
 local spawn = require('childprocess').spawn

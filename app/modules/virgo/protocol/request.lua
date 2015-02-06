@@ -17,9 +17,9 @@ limitations under the License.
 local https = require('https')
 local fs = require('fs')
 
-local logging = require('rphillips/logging')
+local logging = require('logging')
 local Error = require('core').Error
-local misc = require('/base/util/misc')
+local misc = require('virgo/util/misc')
 
 local dns = require('dns')
 

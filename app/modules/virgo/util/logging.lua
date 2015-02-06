@@ -1,4 +1,4 @@
-local logging = require('rphillips/logging')
+local logging = require('logging')
 
 
 --[[

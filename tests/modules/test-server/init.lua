@@ -2,7 +2,7 @@ local string = require('string')
 local math = require('math')
 local table = require('table')
 
-local LineEmitter = require('rphillips/line-emitter').LineEmitter
+local LineEmitter = require('line-emitter').LineEmitter
 
 local JSON = require('json')
 local tls = require('tls')

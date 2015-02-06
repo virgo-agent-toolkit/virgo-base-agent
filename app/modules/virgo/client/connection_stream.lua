@@ -19,13 +19,13 @@ local math = require('math')
 local timer = require('timer')
 local fmt = require('string').format
 
-local async = require('rphillips/async')
+local async = require('async')
 
 local ConnectionMessages = require('./connection_messages').ConnectionMessages
 
 local AgentClient = require('./client').AgentClient
 local consts = require('virgo/util/constants')
-local logging = require('rphillips/logging')
+local logging = require('logging')
 local misc = require('virgo/util/misc')
 local upgrade = require('virgo/client/upgrade')
 local vutils = require('virgo/utils')

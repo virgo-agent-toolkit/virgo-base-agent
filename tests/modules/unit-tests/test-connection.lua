@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 local Connection = require('virgo/connection')
-local Duplex = require('stream_duplex').Duplex
+local Duplex = require('stream').Duplex
 local core = require('core')
 local fixtures = require('fixtures')
 local pem = require('unit-tests/pem')
 local timer = require('timer')
 local tls = require('tls')
-local Writable = require('stream_writable').Writable
+local Writable = require('stream').Writable
 
 local mock_server = function(data)
   local onClient, options

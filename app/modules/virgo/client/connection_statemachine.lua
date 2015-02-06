@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --]]
-local hsm = require('rphillips/hsm')
-local logging = require('rphillips/logging')
+local hsm = require('hsm')
+local logging = require('logging')
 local fmt = require('string').format
 
 --[[

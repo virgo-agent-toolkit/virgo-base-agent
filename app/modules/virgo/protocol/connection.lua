@@ -17,12 +17,12 @@ limitations under the License.
 local Emitter = require('core').Emitter
 local JSON = require('json')
 local ResponseTimeoutError = require('virgo/errors').ResponseTimeoutError
-local Writable = require('stream_writable').Writable
+local Writable = require('stream').Writable
 local errors = require('virgo/protocol/errors')
 local fmt = require('string').format
 local timer = require('timer')
 
-local logging = require('rphillips/logging')
+local logging = require('logging')
 local msg = require ('virgo/protocol/messages')
 
 -- Response timeouts in ms

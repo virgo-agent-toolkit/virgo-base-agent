@@ -1,8 +1,8 @@
-local logging = require('rphillips/logging')
-local Split = require('rphillips/split-stream')
+local logging = require('logging')
+local Split = require('split-stream')
 
-local Duplex = require('stream_duplex').Duplex
-local Transform = require('stream_transform').Transform
+local Duplex = require('stream').Duplex
+local Transform = require('stream').Transform
 
 local JSON = require('json')
 local dns = require('dns')

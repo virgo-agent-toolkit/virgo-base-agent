@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-local async = require('rphillips/async')
+local async = require('async')
 local math = require('math')
 local table = require('table')
 local string = require('string')

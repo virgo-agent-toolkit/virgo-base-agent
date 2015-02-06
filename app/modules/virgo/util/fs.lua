@@ -1,4 +1,4 @@
-local async = require('rphillips/async')
+local async = require('async')
 
 local fs = require('fs')
 local os = require('os')
