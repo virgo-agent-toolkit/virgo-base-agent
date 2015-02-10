@@ -5,9 +5,7 @@ IF NOT "x%1" == "x" GOTO :%1
 :virgo-base
 ECHO "Building virgo-base"
 IF NOT EXIST lit.exe CALL Make.bat lit
-SET LUVI_TARGET=virgo-base.exe
 lit.exe make app
-SET "LUVI_TARGET="
 GOTO :end
 
 :lit
