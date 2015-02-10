@@ -4,10 +4,9 @@ IF NOT "x%1" == "x" GOTO :%1
 
 :virgo-base
 ECHO "Building virgo-base"
-SET "LUVI_APP="
+IF NOT EXIST lit.exe CALL Make.bat lit
 SET LUVI_TARGET=virgo-base.exe
 lit.exe make app
-SET "LUVI_APP="
 SET "LUVI_TARGET="
 GOTO :end
 
@@ -30,6 +29,10 @@ virgo-base.exe tests\run.lua
 GOTO :end
 
 :clean
-IF EXIST luvit.exe DEL /F /Q luvit.exe
+IF EXIST virgo-base.exe DEL /F /Q virgo-base.exe
+IF EXIST lit.exe DEL /F /Q lit.exe
+IF EXIST lit RMDIR /S /Q lit
+IF EXIST luvi-binaries RMDIR /S /Q luvi-binaries
 
 :end
+
