@@ -1,28 +1,24 @@
-APP_FILES=$(shell find app -type f)
-TEST_FILES=$(shell find tests -type f)
-LUVIT_APP_FILES=$(shell find deps/luvit-up/app -type f)
-TOP_LEVEL=$(shell pwd)
+APP_FILES=$(shell find app tests -type f)
 
-LUVI_BIN=deps/luvit-up/luvi-binaries/$(shell uname -s)_$(shell uname -m)/luvi
-LUVI_TARGET=base
-LUVI_APP=tests:app:deps/luvit-up/app
-LIT_APP=LUVI_APP=$(TOP_LEVEL)/deps/lit/app $(TOP_LEVEL)/$(LUVI_BIN)
+virgo-base: lit $(APP_FILES)
+	./lit make app
 
-all: deps $(LUVI_TARGET)
+luvi-binaries:
+	git clone --depth 1 https://github.com/luvit/luvi-binaries.git
 
-deps:
-	cd app && $(LIT_APP) install
+lit-app:
+	git clone --depth 1 https://github.com/luvit/lit.git lit-app
 
-$(LUVI_TARGET): $(APP_FILES) $(LUVIT_APP_FILES) $(TEST_FILES)
-	LUVI_APP=${LUVI_APP} LUVI_TARGET=${LUVI_TARGET} ${LUVI_BIN}
-
-test: $(LUVIT_TARGET)
-	./${LUVI_TARGET} test
+lit: luvi-binaries lit-app
+	LUVI_APP=lit-app/app LUVI_TARGET=$@ luvi-binaries/$(shell uname -s)_$(shell uname -m)/luvi
 
 clean:
-	rm -f $(LUVI_TARGET)
+	rm -rf luvit lit lit-app luvi-binaries
 
 lint:
 	find app tests -name "*.lua" | xargs luacheck
 
-.PHONY: all deps
+test:
+	LUVI_APP=app ./lit tests/run.lua
+
+.PHONY: clean lint 

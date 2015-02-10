@@ -51,37 +51,7 @@ local function run()
 end
 
 init()
-
-local combo = nil
-local script = nil
-local extra = {}
-
-for i = 1, #args do
-  local arg = args[i]
-  if script then
-    extra[#extra + 1] = arg
-  elseif combo then
-    combo(arg)
-    combo = nil
-  elseif string.sub(arg, 1, 1) == "-" then
-    local flag
-    if (string.sub(arg, 2, 2) == "-") then
-      flag = string.sub(arg, 3)
-    else
-      arg = string.sub(arg, 2)
-      flag = shorts[arg] or arg
-    end
-    local fn = flags[flag] or usage
-    fn()
-  else
-    script = arg
-  end
-end
-
-if script then
-  require(luvi.path.join(uv.cwd(), script))
-end
-
+require('./entry').run()
 run()
 
 return process.exitCode

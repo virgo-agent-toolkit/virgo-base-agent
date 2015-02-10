@@ -7,7 +7,7 @@ local async = require('async')
 local constants = require('virgo/util/constants_ctx').ConstantsCtx:new()
 local ConnectionStream = require('virgo/client/connection_stream').ConnectionStream
 local Endpoint = require('virgo/client/endpoint').Endpoint
-local Server = require('test-server').Server
+local Server = require('server').Server
 local misc = require('virgo/util/misc')
 
 constants:setGlobal("DEFAULT_HANDSHAKE_TIMEOUT", 10000)
