@@ -1,6 +1,0 @@
-[submodule "deps/luvit-up"]
-	path = deps/luvit-up
-	url = https://github.com/luvit/luvit.git
-[submodule "deps/lit"]
-	path = deps/lit
-	url = https://github.com/luvit/lit.git

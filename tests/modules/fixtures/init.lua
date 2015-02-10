@@ -20,10 +20,10 @@ local function load_fixtures(dir, is_json)
   if los.type() == 'win32' then
     dir = dir:gsub("\\", "/")
   end
-  files = bundle.readdir(dir)
+  files = fs.readdirSync(dir)
   for _, v in ipairs(files) do
     filePath = path.join(dir, v)
-    fileData = bundle.readfile(filePath)
+    fileData = fs.readFileSync(filePath)
     if fileData then
       if is_json then fileData = fileData:gsub("\n", " ") end
       tbl[fs.basename(filePath)] = fileData
@@ -32,7 +32,7 @@ local function load_fixtures(dir, is_json)
   return tbl
 end
 
-local base = path.join('/', 'modules', 'fixtures', 'protocol')
+local base = path.join('tests', 'modules', 'fixtures', 'protocol')
 
 for k, v in pairs(load_fixtures(base, true)) do
   exports[k] = v
