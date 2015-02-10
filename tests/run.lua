@@ -16,42 +16,6 @@ limitations under the License.
 
 --]]
 
-local luvi = require('luvi')
-local bundle = luvi.bundle
+require('./entry')
 
--- Manually register the require replacement system to bootstrap things
-bundle.register("luvit-require", "modules/require.lua");
--- Upgrade require system in-place
-_G.require = require('luvit-require')()("bundle:modules/main.lua")
-
-local utils = require('utils')
-local uv = require('uv')
-
-_G.virgo = {}
-_G.virgo.virgo_version = '2.0.0'
-_G.virgo.bundle_version = _G.virgo.virgo_version
-
-local function init()
-  -- Make print go through libuv for windows colors
-  _G.print = utils.print
-  -- Register global 'p' for easy pretty printing
-  _G.p = utils.prettyPrint
-  _G.process = require('process').globalProcess()
-end
-
-local function run()
-  -- Start the event loop
-  uv.run()
-  require('hooks'):emit('process.exit')
-  uv.run()
-
-  -- When the loop exits, close all uv handles.
-  uv.walk(uv.close)
-  uv.run()
-end
-
-init()
-require('./entry').run()
-run()
-
-return process.exitCode
+return 0
