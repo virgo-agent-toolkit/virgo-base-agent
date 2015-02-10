@@ -345,13 +345,28 @@ local function downloadUpgradeUnix(streams, version, callback)
   end
 
   if s.name == "Linux" then
+    local semver_match = "^(%d+)%.?(%d*)%.?(%d*)(.-)$"
+    local major, minor, patch = s.vendor_version:match(semver_match)
     if s.vendor == "Debian" then
-      if s.vendor_version:find("6%.%d+%.%d+") then
-        s.vendor_version = "squeeze"
+      local mapping = {
+        [6] = "squeeze",
+        [7] = "wheezy"
+      }
+      s.vendor_version = mapping[tonumber(major)] or 'unknown'
+    elseif s.vendor == "CentOS" or s.vendor == "Fedora" then
+      local major = s.vendor_version:match(semver_match)
+      if not major then
+        return callback(Error:new('could not extract major version of operating system.'))
       end
-      if s.vendor_version:find("7%.%d+%.%d+") then
-        s.vendor_version = "wheezy"
+      s.vendor_version = major
+    elseif s.vendor == "Red Hat" then
+      local semver_match = "^Enterprise Linux (%d*)$"
+      local major = s.vendor_version:match(semver_match)
+      if not major then
+        return callback(Error:new('could not extract major version of operating system.'))
       end
+      s.vendor_version = major
+      s.vendor = "redhat"
     end
   end
 
@@ -424,9 +439,7 @@ local function downloadUpgradeWin(streams, version, callback)
     end,
     function(callback)
       local files = {
-        payload = payload,
-        path = dlpath,
-        permissions = tonumber('755', 8)
+        payload = payload
       }
       download_iter(files, callback)
     end

@@ -206,7 +206,7 @@ VIRGO_API(void)  virgo_log_debugf(virgo_t *v, const char *fmt, ...) VIRGO_ATTR_F
 #endif
 
 /* Version number of OpenSSL that we hard link into */
-#define VIRGO_OPENSSL_VERSION_NUMBER 0x1000109fL
+#define VIRGO_OPENSSL_VERSION_NUMBER 0x100010cfL
 
 #ifdef __cplusplus
 }
