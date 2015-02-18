@@ -9,12 +9,11 @@ virgo: lit $(APP_FILES)
 
 lit:
 	curl $(LIT_ZIP) | tar -xzv
-	curl $(LUVI_URL) > luvi
-	chmod +x luvi
-	LUVI_APP=lit-cleanup ./luvi make
+	curl $(LUVI_URL) > luvi && chmod +x luvi
+	LUVI_APP=lit-cleanup ./luvi make lit-cleanup
 
 clean:
-	rm -rf virgo lit-cleanup
+	rm -rf virgo lit-cleanup lit luvi
 
 lint:
 	find . tests -name "*.lua" | xargs luacheck
@@ -22,4 +21,4 @@ lint:
 test: virgo
 	./virgo tests/run.lua
 
-.PHONY: clean lint lit
+.PHONY: clean lint
