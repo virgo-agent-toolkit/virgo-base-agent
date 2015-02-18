@@ -1,19 +1,15 @@
 APP_FILES=$(shell find . tests -type f)
-LUVI_URL=https://raw.githubusercontent.com/luvit/luvi-binaries/master/`uname -s`_`uname -m`/luvi
-LIT_ZIP=https://codeload.github.com/luvit/lit/tar.gz/cleanup
 
 all: virgo
 
 virgo: lit $(APP_FILES)
-	LUVI_APP=lit-cleanup ./luvi make
+	./lit make
 
 lit:
-	curl $(LIT_ZIP) | tar -xzv
-	curl $(LUVI_URL) > luvi && chmod +x luvi
-	LUVI_APP=lit-cleanup ./luvi make lit-cleanup
+	curl -L https://github.com/luvit/lit/raw/0.9.1/web-install.sh | sh
 
 clean:
-	rm -rf virgo lit-cleanup lit luvi
+	rm -rf virgo lit
 
 lint:
 	find . tests -name "*.lua" | xargs luacheck
