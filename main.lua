@@ -28,7 +28,7 @@ bundle.register("require", "modules/require.lua");
 -- Upgrade require system in-place
 _G.require = require('require')()("bundle:main.lua")
 
-local app = require('./init')
+local app = require('..')
 app.init()
 
 local uv = require('uv')

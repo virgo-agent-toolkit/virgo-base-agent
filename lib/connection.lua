@@ -6,10 +6,10 @@ local Transform = require('stream').Transform
 
 local JSON = require('json')
 local dns = require('dns')
-local consts = require('virgo/util/constants')
+local consts = require('./util/constants')
+local loggingUtil = require('./util/logging')
+local misc = require('./util/misc')
 local fmt = require('string').format
-local loggingUtil = require('virgo/util/logging')
-local misc = require('virgo/util/misc')
 --local request = require('request')
 local timer = require('timer')
 local tls = require('tls')

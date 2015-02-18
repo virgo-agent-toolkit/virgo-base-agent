@@ -17,7 +17,7 @@ limitations under the License.
 local async = require('async')
 local fs = require('fs')
 -- TODO CRYPTO
-local errors = require('virgo/errors')
+local errors = require('../errors')
 
 local function verify(path, sig_path, kpub_data, callback)
   local parallel = {

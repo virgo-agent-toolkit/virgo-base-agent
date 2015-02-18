@@ -13,13 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --]]
-local compareVersions = require('virgo/util/misc').compareVersions
-local consts = require('virgo/util/constants')
-local fsutil = require('virgo/util/fs')
-local loggingUtil = require ('virgo/util/logging')
-local misc = require('virgo/util/misc')
+local compareVersions = require('../util/misc').compareVersions
+local consts = require('../util/constants')
+local fsutil = require('../util/fs')
+local loggingUtil = require ('../util/logging')
+local misc = require('../util/misc')
 --local request = require('virgo/protocol/request')
-local utilUpgrade = require('virgo/util/upgrade')
+local utilUpgrade = require('../util/upgrade')
 
 local Error = require('core').Error
 local JSON = require('json')
@@ -32,7 +32,7 @@ local path = require('path')
 local spawn = require('childprocess').spawn
 local string = require('string')
 local table = require('table')
-local windowsConvertCmd = require('virgo/utils').windowsConvertCmd
+local windowsConvertCmd = require('../utils').windowsConvertCmd
 
 local trim = misc.trim
 

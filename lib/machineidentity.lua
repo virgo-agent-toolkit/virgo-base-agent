@@ -19,7 +19,7 @@ local Object = require('core').Object
 local childprocess = require('childprocess')
 local los = require('los')
 local fs = require('fs')
-local utils = require('virgo/utils')
+local utils = require('../lib/utils')
 local fmt = require('string').format
 
 local MachineIdentity = Object:extend()

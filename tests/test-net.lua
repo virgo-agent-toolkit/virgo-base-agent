@@ -1,14 +1,10 @@
-local path = require('path')
-local table = require('table')
 local timer = require('timer')
-local uv = require('uv')
 
 local async = require('async')
-local constants = require('virgo/util/constants_ctx').ConstantsCtx:new()
-local ConnectionStream = require('virgo/client/connection_stream').ConnectionStream
-local Endpoint = require('virgo/client/endpoint').Endpoint
+local constants = require('../lib/util/constants_ctx').ConstantsCtx:new()
+local ConnectionStream = require('../lib/client/connection_stream').ConnectionStream
+local Endpoint = require('../lib/client/endpoint').Endpoint
 local Server = require('server').Server
-local misc = require('virgo/util/misc')
 
 constants:setGlobal("DEFAULT_HANDSHAKE_TIMEOUT", 10000)
 constants:setGlobal("DATACENTER_FIRST_RECONNECT_DELAY", 500)

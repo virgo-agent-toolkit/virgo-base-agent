@@ -17,18 +17,18 @@ limitations under the License.
 local uv = require('uv')
 local Emitter = require('core').Emitter
 local JSON = require('json')
-local ProtocolConnection = require('virgo/protocol/connection')
+local ProtocolConnection = require('../protocol/connection')
 --local caCerts = require('/certs').caCerts
-local consts = require('virgo/util/constants')
+local consts = require('../util/constants')
 local logging = require('logging')
-local loggingUtil = require ('virgo/util/logging')
-local misc = require('virgo/util/misc')
+local loggingUtil = require ('../util/logging')
+local misc = require('../util/misc')
 local timer = require('timer')
 local utils = require('utils')
-local vutils = require('virgo/utils')
+local vutils = require('../utils')
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
-local Connection = require('virgo/connection')
+local Connection = require('../connection')
 
 local fmt = require('string').format
 

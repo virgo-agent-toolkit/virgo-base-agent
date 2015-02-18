@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --]]
-local Connection = require('virgo/connection')
+local Connection = require('../lib/connection')
 local Duplex = require('stream').Duplex
+local Writable = require('stream').Writable
 local core = require('core')
 local fixtures = require('fixtures')
 local pem = require('pem')
 local timer = require('timer')
 local tls = require('tls')
-local Writable = require('stream').Writable
 
 local mock_server = function(data)
   local onClient, options

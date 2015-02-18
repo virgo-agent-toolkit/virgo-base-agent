@@ -24,11 +24,11 @@ local async = require('async')
 local ConnectionMessages = require('./connection_messages').ConnectionMessages
 
 local AgentClient = require('./client').AgentClient
-local consts = require('virgo/util/constants')
+local consts = require('../util/constants')
 local logging = require('logging')
-local misc = require('virgo/util/misc')
-local upgrade = require('virgo/client/upgrade')
-local vutils = require('virgo/utils')
+local misc = require('../util/misc')
+local upgrade = require('../client/upgrade')
+local vutils = require('../utils')
 
 local ConnectionStream = Emitter:extend()
 function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, types, features)

@@ -17,7 +17,7 @@ limitations under the License.
 local Object = require('core').Object
 local fmt = require('string').format
 local path = require('path')
-local virgo_paths = require('virgo/paths')
+local virgo_paths = require('../paths')
 
 local ConstantsCtx = Object:extend()
 local globalCtx

@@ -20,7 +20,7 @@ local dns = require('dns')
 local fmt = require('string').format
 local logging = require('logging')
 local math = require('math')
-local misc = require('virgo/util/misc')
+local misc = require('../util/misc')
 
 local Endpoint = Object:extend()
 
