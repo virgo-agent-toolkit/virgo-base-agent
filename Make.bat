@@ -5,7 +5,7 @@ IF NOT "x%1" == "x" GOTO :%1
 :virgo
 ECHO "Building virgo"
 IF NOT EXIST lit.exe CALL Make.bat lit
-lit.exe make app
+lit.exe make
 GOTO :end
 
 :lit
