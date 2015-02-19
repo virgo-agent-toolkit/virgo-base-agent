@@ -10,19 +10,11 @@ GOTO :end
 
 :lit
 ECHO "Building lit"
-git clone --recursive --depth 1 https://github.com/luvit/lit.git lit
-SET LUVI_APP=lit/
-SET LUVI_TARGET=lit.exe
-lit\luvi-binaries\Windows\luvi.exe
-SET "LUVI_APP="
-SET "LUVI_TARGET="
-GOTO :end
+@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/luvit/lit/a1bef9c234cf2569ded3b5c7516277c0f5746f70/web-install.ps1'))"
 
 :test
-SET "LUVI_APP="
-SET "LUVI_TARGET="
 CALL Make.bat virgo
-virgo.exe tests\run.lua
+virgo.exe
 GOTO :end
 
 :clean
@@ -32,4 +24,5 @@ IF EXIST lit RMDIR /S /Q lit
 IF EXIST luvi-binaries RMDIR /S /Q luvi-binaries
 
 :end
+
 
