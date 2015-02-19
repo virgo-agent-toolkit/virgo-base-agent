@@ -19,7 +19,7 @@ local fs = require('fs')
 
 local logging = require('logging')
 local Error = require('core').Error
-local misc = require('virgo/util/misc')
+local misc = require('../util/misc')
 
 local dns = require('dns')
 
