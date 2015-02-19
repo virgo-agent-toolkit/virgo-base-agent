@@ -1,8 +1,16 @@
 language: erlang
 
+before_script:
+  - ulimit -c unlimited -S  
+
 before_install:
+  - sudo apt-get install -y gdb
   - git submodule update --init --recursive
   - make
+
+after_failure:
+  - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1) # find core file
+  - if [[ -f "$COREFILE"  ]]; then gdb -c "$COREFILE" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
 
 script:
   - make test
