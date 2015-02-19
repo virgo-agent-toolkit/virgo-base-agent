@@ -3,7 +3,6 @@ language: erlang
 before_install:
   - ulimit -c unlimited -S  
   - sudo apt-get install -y gdb
-  - git submodule update --init --recursive
   - make
 
 after_failure:
