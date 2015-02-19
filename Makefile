@@ -9,7 +9,7 @@ lit:
 	curl -L https://github.com/luvit/lit/raw/0.9.1/web-install.sh | sh
 
 clean:
-	rm -rf virgo lit
+	rm -rf virgo lit-* luvi
 
 lint:
 	find . tests -name "*.lua" | xargs luacheck
