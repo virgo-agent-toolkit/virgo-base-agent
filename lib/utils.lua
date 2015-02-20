@@ -24,7 +24,9 @@ local delta = 0
 local delay
 
 local function gmtNow()
-  return math.floor(virgo.gmtnow() + delta)
+  local t_secs = os.time() -- get seconds if t was in local time.
+  local t_UTC = os.date("!*t", t_secs) -- find out what UTC t was converted to.
+  return os.time(t_UTC) -- find out the converted time in seconds.
 end
 
 local function trim(s)
