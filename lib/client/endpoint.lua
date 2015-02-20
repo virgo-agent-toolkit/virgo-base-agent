@@ -49,15 +49,14 @@ function Endpoint:getHostInfo(callback)
   async.series({
     function (callback)
       if self.srv_query then
-        dns.resolve(self.srv_query, 'SRV', function(err, results)
+        dns.resolveSrv(self.srv_query, function(err, results)
           if err then
             logging.errorf('Could not lookup SRV record for %s', self.srv_query)
             callback(err)
             return
           end
-          local r = results[ math.random(#results) ]
-          host = r.name
-          port = r.port
+          host = results[1].target
+          port = results[1].port
           logging.debugf('SRV:%s -> %s:%d', self.srv_query, host, port)
           callback()
         end)
