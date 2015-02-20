@@ -11,7 +11,7 @@ return {
     "rphillips/split-stream@0.4.0",
   },
   files = {
-    "*.lua",
+    "**.lua",
     "!lit*",
     "!test*"
   }
