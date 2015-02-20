@@ -28,5 +28,4 @@ return function(options)
   _G.virgo_paths.VIRGO_PATH_LIBRARY_DIR = options.paths.library_dir
   _G.virgo_paths.VIRGO_PATH_RUNTIME_DIR = options.paths.runtime_dir
   _G.virgo_paths.get = function() end
-  return require('./lib')
 end

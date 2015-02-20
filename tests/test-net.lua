@@ -1,9 +1,9 @@
 local timer = require('timer')
 
 local async = require('async')
-local constants = require('../lib/util/constants_ctx').ConstantsCtx:new()
-local ConnectionStream = require('../lib/client/connection_stream').ConnectionStream
-local Endpoint = require('../lib/client/endpoint').Endpoint
+local constants = require('../util/constants_ctx').ConstantsCtx:new()
+local ConnectionStream = require('../client/connection_stream').ConnectionStream
+local Endpoint = require('../client/endpoint').Endpoint
 local Server = require('server').Server
 
 constants:setGlobal("DEFAULT_HANDSHAKE_TIMEOUT", 10000)

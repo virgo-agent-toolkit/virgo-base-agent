@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --]]
-local Connection = require('../lib/connection')
+local Connection = require('../connection')
 local Duplex = require('stream').Duplex
 local Writable = require('stream').Writable
 local core = require('core')
