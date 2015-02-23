@@ -17,7 +17,7 @@ limitations under the License.
 local exports = {}
 
 local sigar = require('sigar')
-local os = require('os')
+local los = require('los')
 local table = require('table')
 
 exports.diskTargets = function(sigarCtx)
@@ -31,7 +31,7 @@ exports.diskTargets = function(sigarCtx)
   for i=1, #disks do
     local name = disks[i]:name()
 
-    if os.type() == "win32" then
+    if los.type() == "win32" then
       table.insert(targets, disks[i])
     else
       -- Only target real Unix disks for now
