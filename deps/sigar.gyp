@@ -125,7 +125,6 @@
         'sigar/bindings/lua/sigar-cpu.c',
         'sigar/bindings/lua/sigar-disk.c',
         'sigar/bindings/lua/sigar-fs.c',
-        'sigar/bindings/lua/sigar-load.c',
         'sigar/bindings/lua/sigar-mem.c',
         'sigar/bindings/lua/sigar-netif.c',
         'sigar/bindings/lua/sigar-proc.c',
