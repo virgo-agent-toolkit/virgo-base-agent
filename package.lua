@@ -1,6 +1,6 @@
 return {
   name = "virgo-agent-toolkit/virgo",
-  version = "0.10.3",
+  version = "0.10.4",
   dependencies = {
     "luvit/luvit@1.9.3",
     "rphillips/async@0.0.2",
@@ -11,7 +11,7 @@ return {
     "rphillips/split-stream@0.4.0",
   },
   files = {
-    "*.lua",
+    "**.lua",
     "!lit*",
     "!test*"
   }
