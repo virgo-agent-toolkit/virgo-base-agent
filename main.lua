@@ -18,8 +18,8 @@ limitations under the License.
 
 local luvi = require('luvi')
 local uv = require('uv')
-luvi.bundle.register('require', "modules/require.lua")
-local require = require('require')()("bundle:main.lua")
+luvi.bundle.register('require', "deps/require.lua")
+local require = require('require')("bundle:main.lua")
 
 local options = {}
 options.version = require('./package').version
@@ -33,5 +33,5 @@ options.paths.runtime_dir = "/var/run/virgo"
 
 return require('luvit')(function (...)
   require('./init')(options)
-  require(luvi.path.join(uv.cwd(), 'tests/entry.lua'))
+  require(luvi.path.join(uv.cwd(), 'tests/run.lua'))
 end)

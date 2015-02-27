@@ -6,7 +6,7 @@ virgo: lit $(APP_FILES)
 	./lit make
 
 lit:
-	curl -L https://github.com/luvit/lit/raw/0.9.7/web-install.sh | sh
+	curl -L https://github.com/luvit/lit/raw/0.10.4/get-lit.sh | sh
 
 clean:
 	rm -rf virgo lit-* luvi lit
