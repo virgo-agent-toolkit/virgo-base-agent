@@ -32,7 +32,7 @@ local function load_fixtures(dir, is_json)
   return tbl
 end
 
-local base = path.join('tests', 'modules', 'fixtures', 'protocol')
+local base = path.join('tests', 'deps', 'fixtures', 'protocol')
 
 for k, v in pairs(load_fixtures(base, true)) do
   exports[k] = v
