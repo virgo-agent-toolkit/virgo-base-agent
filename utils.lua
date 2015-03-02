@@ -17,7 +17,7 @@ limitations under the License.
 local logging = require('logging')
 local Error = require('core').Error
 local math = require('math')
-local path = require('luvi').path
+local path = require('path')
 local table = require('table')
 
 local delta = 0
