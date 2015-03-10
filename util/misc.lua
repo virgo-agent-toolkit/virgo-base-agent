@@ -18,6 +18,7 @@ local async = require('async')
 local math = require('math')
 local table = require('table')
 local string = require('string')
+local ffi = require('ffi')
 local fs = require('fs')
 
 --[[
@@ -390,6 +391,21 @@ tableToString = function(tbl, delim)
   return table.concat(result, delim)
 end
 
+ffi.cdef([[
+int gethostname(char *name, size_t len);
+]])
+
+local function gethostname(maxlen)
+  maxlen = maxlen or 255
+  assert(maxlen > 0)
+  local buf = ffi.new("char[?]", maxlen)
+  local ret = ffi.C.gethostname(buf, maxlen)
+  if ret == 0 then
+    return ffi.string(buf), false
+  end
+  return nil, true
+end
+
 --[[ Exports ]]--
 exports.copyFile = copyFile
 exports.calcJitter = calcJitter
@@ -410,3 +426,4 @@ exports.compareVersions = compareVersions
 exports.propagateEvents = propagateEvents
 exports.parseCSVLine = parseCSVLine
 exports.randstr = randstr
+exports.gethostname = gethostname

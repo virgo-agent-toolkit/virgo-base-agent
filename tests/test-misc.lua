@@ -1,0 +1,10 @@
+local misc = require('../util/misc')
+
+require('tap')(function(test)
+  test('gethostname', function()
+    local name, err = misc.gethostname()
+    assert(name)
+    assert(not err)
+    p(name)
+  end)
+end)
