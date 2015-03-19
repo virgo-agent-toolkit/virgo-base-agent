@@ -20,6 +20,7 @@ local childprocess = require('childprocess')
 local los = require('los')
 local fs = require('fs')
 local utils = require('./utils')
+local fireOnce = require('./util/misc').fireOnce
 local fmt = require('string').format
 
 local MachineIdentity = Object:extend()
@@ -27,6 +28,7 @@ local MachineIdentity = Object:extend()
 local function xenAdapter(callback)
   local exePath, exeArgs, onExit, onStdout
   local buffer, child
+  callback = fireOnce(callback)
 
   buffer = ''
 
