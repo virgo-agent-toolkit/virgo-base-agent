@@ -1,15 +1,7 @@
-language: erlang
-
-before_install:
-  - ulimit -c unlimited -S  
-  - sudo apt-get install -y gdb
-  - make
-
-after_failure:
-  - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1) # find core file
-  - if [[ -f "$COREFILE"  ]]; then gdb -c "$COREFILE" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
+language: c
 
 script:
+  - make
   - make test
 
 notifications:

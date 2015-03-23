@@ -16,22 +16,16 @@ limitations under the License.
 
 --]]
 
-local luvi = require('luvi')
-local uv = require('uv')
-luvi.bundle.register('require', "deps/require.lua")
-local require = require('require')("bundle:main.lua")
-
-local options = {}
-options.version = require('./package').version
-options.pkg_name = "virgo"
-options.paths = {}
-options.paths.persistent_dir = "/var/lib/virgo"
-options.paths.exe_dir = "/var/lib/virgo"
-options.paths.config_dir = "/etc"
-options.paths.library_dir = "/usr/lib/virgo"
-options.paths.runtime_dir = "/var/run/virgo"
-
 return require('luvit')(function (...)
-  require('./init')(options)
-  require(luvi.path.join(uv.cwd(), 'tests/run.lua'))
+  local options = {}
+  options.version = require('./package').version
+  options.pkg_name = "virgo"
+  options.paths = {}
+  options.paths.persistent_dir = "/var/lib/virgo"
+  options.paths.exe_dir = "/var/lib/virgo"
+  options.paths.config_dir = "/etc"
+  options.paths.library_dir = "/usr/lib/virgo"
+  options.paths.runtime_dir = "/var/run/virgo"
+  require('../init')(options)
+  require('./run.lua')
 end)
