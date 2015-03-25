@@ -623,13 +623,12 @@ function seedRNG()
   math.randomseed(os.time())
 end
 
-seedRNG()
+-- GC steps
+local prepareGc = native.newPrepare()
+native.prepareStart(prepareGc, function() collectgarbage('step') end)
+native.unref(prepareGc)
 
--- Setup GC
-local GC_INTERVAL = 5 * 1000 -- milliseconds
-local gcInterval = timer.setInterval(GC_INTERVAL, gc)
--- Unref the interval timer. We don't want it to keep the eventloop blocked
-gcInterval:unref()
+seedRNG()
 
 _G.virgo_entry = function(mod)
   _G.virgo_entry = nil
