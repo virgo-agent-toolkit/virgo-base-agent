@@ -7,7 +7,7 @@ return {
     "rphillips/hsm@0.0.2",
     "rphillips/line-emitter@0.3.3",
     "rphillips/logging@0.1.3",
-    "rphillips/split-stream@0.4.0",
+    "virgo-agent-toolkit/split-stream@0.5.3",
     "virgo-agent-toolkit/request@0.2.3",
   },
   files = {
