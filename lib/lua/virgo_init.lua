@@ -572,7 +572,8 @@ function require(filepath, dirname)
 end
 
 function gc()
-  collectgarbage('collect')
+  collectgarbage()
+  collectgarbage() -- PIL says this needs to be done twice
 end
 
 function onUSR1()
