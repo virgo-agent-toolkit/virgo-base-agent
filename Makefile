@@ -6,7 +6,7 @@ lit:
 	[ -x lit ] || curl -L https://github.com/luvit/lit/raw/1.0.2/get-lit.sh | sh
 
 clean:
-	rm -rf virgo lit-* luvi lit
+	rm -rf lit
 
 lint:
 	find . tests -name "*.lua" | xargs luacheck
