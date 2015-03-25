@@ -195,8 +195,8 @@ function Connection:_ready()
     chunk.target = 'endpoint'
     chunk.source = self.options.agent.id
 
-    success, err = pcall(function()
-      this:push(JSON.stringify(chunk) .. '\n') -- \n delimited JSON
+    local success, err = pcall(function()
+      this:push(table.concat({JSON.stringify(chunk), '\n'})) -- \n delimited JSON
     end)
     if not success then
       self._log(logging.ERROR, err)
@@ -209,7 +209,7 @@ function Connection:_ready()
     -- \n is the default separator
     mapper = function(chunk)
       local obj = nil
-      success, err = pcall(function()
+      local success, err = pcall(function()
         obj = JSON.parse(chunk)
       end)
       if not success then
