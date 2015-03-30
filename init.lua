@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
-return function(options)
+return function(options, callback)
   assert(type(options) == "table", "options must be a table")
   assert(options.version, "version is missing")
   _G.virgo = {}
@@ -28,4 +28,5 @@ return function(options)
   _G.virgo_paths.VIRGO_PATH_LIBRARY_DIR = options.paths.library_dir
   _G.virgo_paths.VIRGO_PATH_RUNTIME_DIR = options.paths.runtime_dir
   _G.virgo_paths.get = function() end
+  if callback then callback() end
 end
