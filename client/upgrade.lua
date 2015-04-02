@@ -199,7 +199,7 @@ local function attempt(options, callback)
 
   potential = paths[paths.other_exe].exe
 
-  if os.type() ~= 'win32' then
+  if los.type() ~= 'win32' then
     getVersion = getVersionFromProcess
   else
     getVersion = getVersionFromMSI
@@ -236,7 +236,7 @@ local function attempt(options, callback)
       elseif upgrade_status == UPGRADE_PERFORM then
         log(logging.DEBUG, fmt("upgrading (%s, %s)", my_version, other_version))
         if not options.pretend then
-          if os.type() == 'win32' then
+          if los.type() == 'win32' then
             installMSI(potential)
           else
             virgo.perform_upgrade(createArgs(potential, process.argv))            
