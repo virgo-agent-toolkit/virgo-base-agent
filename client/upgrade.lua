@@ -18,7 +18,7 @@ local consts = require('../util/constants')
 local fsutil = require('../util/fs')
 local loggingUtil = require ('../util/logging')
 local misc = require('../util/misc')
---local request = require('virgo/protocol/request')
+local request = require('../protocol/request')
 local utilUpgrade = require('../util/upgrade')
 
 local Error = require('core').Error
@@ -35,16 +35,6 @@ local table = require('table')
 local windowsConvertCmd = require('../utils').windowsConvertCmd
 
 local trim = misc.trim
-
-local exports = {}
-
-local _, code_cert
-if _G.TESTING_CERTS then
-  code_cert = _G.TESTING_CERTS
-else
-  _, code_cert = pcall(require, '/code_cert.prod.lua')
-end
-_ = nil
 
 local UPGRADE_EQUAL = 0
 local UPGRADE_PERFORM = 1
@@ -260,7 +250,7 @@ local function attempt(options, callback)
   end)
 end
 
-local function downloadUpgradeUnix(streams, version, callback)
+local function downloadUpgradeUnix(codeCert, streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
@@ -305,7 +295,7 @@ local function downloadUpgradeUnix(streams, version, callback)
         return callback(err)
       end
 
-      utilUpgrade.verify(filename, filename_sig, code_cert.codeCert, function(err)
+      utilUpgrade.verify(filename, filename_sig, codeCert, function(err)
         if err then
           return callback(err)
         end
@@ -396,7 +386,7 @@ local function downloadUpgradeUnix(streams, version, callback)
   end)
 end
 
-local function downloadUpgradeWin(streams, version, callback)
+local function downloadUpgradeWin(codeCert, streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
@@ -474,8 +464,7 @@ local function checkForUpgrade(options, streams, callback)
   options = misc.merge({ path = uri_path, }, options)
   request.makeRequest(options, function(err, result, version)
     if err then
-      callback(err)
-      return
+      return callback(err)
     end
     version = misc.trim(version)
     client:log(logging.DEBUG, fmt('(upgrade) -> Current Version: %s', bundleVersion))
@@ -491,14 +480,9 @@ local function checkForUpgrade(options, streams, callback)
 end
 
 exports.attempt = attempt
-if los.type() == "win32" then
-  exports.downloadUpgrade = downloadUpgradeWin
-else
-  exports.downloadUpgrade = downloadUpgradeUnix
-end
+exports.downloadUpgrade = los.type() == "win32" and downloadUpgradeWin or downloadUpgradeUnix
 exports.checkForUpgrade = checkForUpgrade
 exports.UPGRADE_EQUAL = UPGRADE_EQUAL
 exports.UPGRADE_PERFORM = UPGRADE_PERFORM
 exports.UPGRADE_DOWNGRADE = UPGRADE_DOWNGRADE
 exports.getPaths = getPaths
-return exports
