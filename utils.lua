@@ -16,9 +16,10 @@ limitations under the License.
 
 local logging = require('logging')
 local Error = require('core').Error
-local math = require('math')
+local los = require('los')
 local path = require('path')
 local table = require('table')
+local ffi = require('ffi')
 
 local delta = 0
 local delay
@@ -33,8 +34,41 @@ local function trim(s)
   return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
 
-local function gmtRaw()
-  return math.floor(os.time(os.date("!*t", os.time())))
+local gmtRaw
+
+if los.type() == 'win32' then
+  ffi.cdef[[
+    typedef unsigned long DWORD, *PDWORD, *LPDWORD;
+    typedef struct _FILETIME {
+      DWORD dwLowDateTime;
+      DWORD dwHighDateTime;
+
+    } FILETIME, *PFILETIME;
+
+    void GetSystemTimeAsFileTime(FILETIME*);
+  ]]
+  function gmtRaw()
+    local ft = ffi.new("FILETIME[1]")
+    ffi.C.GetSystemTimeAsFileTime(ft)
+    local t = tonumber(ft[0].dwLowDateTime)/1e7 + tonumber(ft[0].dwHighDateTime) * (4294967296.0/1.0e7)
+    return math.floor(t - 11644473600.0) * 1000
+  end
+else
+  ffi.cdef[[
+    typedef long time_t;
+    typedef struct timeval {
+      time_t tv_sec;
+      time_t tv_usec;
+    
+    } timeval;
+    
+    int gettimeofday(struct timeval* t, void* tzp);
+  ]]
+  function gmtRaw()
+    local t = ffi.new("timeval")
+    ffi.C.gettimeofday(t, nil)
+    return tonumber(t.tv_sec * 1000) + tonumber(t.tv_usec / 1000)
+  end
 end
 
 local function setDelta(_delta)
