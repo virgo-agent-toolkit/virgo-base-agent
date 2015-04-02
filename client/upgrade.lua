@@ -44,13 +44,13 @@ local UPGRADE_DOWNGRADE = 2
 local function getVersionFromProcess(exe_path, callback)
   local cmd, arg = windowsConvertCmd(exe_path, {"-v", "-o"})
   local child = spawn(cmd, arg)
-  local data = ''
+  local data = {}
   callback = misc.fireOnce(callback)
   child.stdout:on('data', function(_data)
-    data = data .. _data
+    table.insert(data, _data)
   end)
   child.stdout:on('end', function()
-    callback(nil, trim(data))
+    callback(nil, trim(table.concat(data)))
   end)
   child:on('exit', function(code)
     if code ~= 0 then
@@ -97,9 +97,9 @@ local function getAPaths(options)
   if options.a and options.a.exe then
     paths.exe = options.a.exe
   else
-    paths.exe = virgo_paths.get(virgo_paths.VIRGO_PATH_CURRENT_EXECUTABLE_PATH)
+    paths.exe = virgo_paths.VIRGO_PATH_CURRENT_EXECUTABLE_PATH
   end
-  return paths;
+  return paths
 end
 
 local function getBPaths(options)
@@ -107,8 +107,8 @@ local function getBPaths(options)
   if options.b and options.b.exe then
     paths.exe = options.b.exe
   else
-    local other_exe_path = virgo_paths.get(virgo_paths.VIRGO_PATH_EXE_DIR)
-    paths.exe = path.join(other_exe_path, virgo.default_name)
+    local other_exe_path = virgo_paths.VIRGO_PATH_EXE_DIR
+    paths.exe = path.join(other_exe_path, virgo.pkg_name)
   end
   return paths
 end
@@ -123,7 +123,7 @@ local function getPaths(options)
   if options.current_exe then
     current_exe = options.current_exe
   else
-    current_exe = virgo_paths.get(virgo_paths.VIRGO_PATH_CURRENT_EXECUTABLE_PATH)
+    current_exe = virgo_paths.VIRGO_PATH_CURRENT_EXECUTABLE_PATH
   end
 
   if paths.a.exe == current_exe then
@@ -141,7 +141,7 @@ local function getPaths(options)
 end
 
 local function createArgs(exe, args)
-  local newArgs = {}, _
+  local newArgs = {}
   table.insert(newArgs, exe)
   for i, v in pairs(args) do
     if i ~= 0 then
@@ -199,18 +199,20 @@ local function attempt(options, callback)
 
   potential = paths[paths.other_exe].exe
 
-  if los.type() ~= 'win32' then
-    getVersion = getVersionFromProcess
-  else
+  if los.type() == 'win32' then
     getVersion = getVersionFromMSI
+  else
+    getVersion = getVersionFromProcess
   end
 
   async.series({
     function(callback)
-      fs.exists(potential, function(err, y)
-        log(logging.DEBUG, fmt('potential upgrade: %s, exists: %s', potential, tostring(y)))
-        callback(err)
-      end)
+      local _ , err = fs.statSync(potential)
+      if err then
+        return callback(Error:new('no upgrade executable exists'))
+      end
+      log(logging.DEBUG, fmt('potential upgrade: %s, exists', potential))
+      callback()
     end,
     function(callback)
       log(logging.DEBUG, fmt('check version of potential upgrade: %s', potential))
@@ -272,8 +274,8 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
 
     local filename = path.join(unverified_binary_dir, item.payload)
     local filename_sig = path.join(unverified_binary_dir, item.signature)
-    local filename_verified = path.join(item.path, virgo.default_name)
-    local filename_verified_sig = path.join(item.path, virgo.default_name .. '.sig')
+    local filename_verified = path.join(item.path, virgo.pkg_name)
+    local filename_verified_sig = path.join(item.path, virgo.pkg_name .. '.sig')
 
     async.parallel({
       payload = function(callback)
@@ -310,9 +312,7 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
             misc.copyFileAndRemove(filename_sig, filename_verified_sig, callback)
           end
         }, function(err)
-          if err then
-            return callback(err)
-          end
+          if err then return callback(err) end
           fs.chmod(filename_verified, string.format('%o', item.permissions), callback)
         end)
       end)
@@ -360,7 +360,7 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
     end
   end
 
-  local binary_name = fmt('%s-%s-%s-%s-%s', s.vendor, s.vendor_version, s.arch, virgo.default_name, version):lower()
+  local binary_name = fmt('%s-%s-%s-%s-%s', s.vendor, s.vendor_version, s.arch, virgo.pkg_name, version):lower()
   local binary_name_sig = fmt('%s.sig', binary_name)
 
   async.waterfall({
@@ -421,7 +421,7 @@ local function downloadUpgradeWin(codeCert, streams, version, callback)
   end
 
   local s = sigar:new():sysinfo()
-  local payload = fmt('%s-%s.msi', virgo.default_name, s.arch):lower()
+  local payload = fmt('%s-%s.msi', virgo.pkg_name, s.arch):lower()
 
   async.waterfall({
     function(callback)

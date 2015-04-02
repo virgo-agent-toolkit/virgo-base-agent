@@ -27,6 +27,7 @@ return function(options, callback)
   _G.virgo_paths.VIRGO_PATH_CONFIG_DIR = options.paths.config_dir
   _G.virgo_paths.VIRGO_PATH_LIBRARY_DIR = options.paths.library_dir
   _G.virgo_paths.VIRGO_PATH_RUNTIME_DIR = options.paths.runtime_dir
+  _G.virgo_paths.VIRGO_PATH_CURRENT_EXECUTABLE_PATH = options.paths.current_exe
   _G.virgo_paths.get = function() end
   if callback then callback() end
 end
