@@ -1,8 +1,9 @@
 return {
   name = "virgo-agent-toolkit/virgo",
-  version = "0.12.7",
+  version = "0.12.8",
   dependencies = {
     "luvit/luvit@2.0.3",
+    "creationix/semver@1.0.1",
     "rphillips/async@0.0.2",
     "rphillips/hsm@0.0.2",
     "rphillips/logging@0.1.4",

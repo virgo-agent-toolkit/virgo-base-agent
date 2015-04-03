@@ -194,68 +194,6 @@ local function nCallbacks(callback, count)
   end
 end
 
-local function isNaN(a)
-  return tonumber(a) == nil
-end
-
---[[
-Compare version strings.
-Returns: -1, 0, or 1, if a < b, a == b, or a > b
-]]
-local function compareVersions(a, b)
-  local aParts, bParts, pattern, aItem, bItem
-
-  if a == b then
-    return 0
-  end
-
-  if not a then
-    return -1
-  end
-
-  if not b then
-    return 1
-  end
-
-  pattern = '[0-9a-zA-Z]+'
-  aParts = split(a, pattern)
-  bParts = split(b, pattern)
-
-  aItem = table.remove(aParts, 1)
-  bItem = table.remove(bParts, 1)
-
-  while aItem and bItem do
-    aItem = tonumber(aItem)
-    bItem = tonumber(bItem)
-    if not isNaN(aItem) and not isNaN(bItem) then
-      if aItem < bItem then
-        return -1
-      end
-      if aItem > bItem then
-        return 1
-      end
-    else
-      if isNaN(aItem) then
-        return -1
-      end
-      if isNaN(bItem) then
-        return 1
-      end
-    end
-    aItem = table.remove(aParts, 1)
-    bItem = table.remove(bParts, 1)
-  end
-
-  if aItem then
-    return 1
-  elseif bItem then
-    return -1
-  end
-
-  return 0
-end
-
-
 local function propagateEvents(fromClass, toClass, eventNames)
   for _, v in pairs(eventNames) do
     fromClass:on(v, function(...)
@@ -263,7 +201,6 @@ local function propagateEvents(fromClass, toClass, eventNames)
     end)
   end
 end
-
 
 local function copyFile(fromFile, toFile, callback)
   callback = fireOnce(callback)
@@ -406,7 +343,6 @@ exports.trim = trim
 exports.lastIndexOf = lastIndexOf
 exports.fireOnce = fireOnce
 exports.nCallbacks = nCallbacks
-exports.compareVersions = compareVersions
 exports.propagateEvents = propagateEvents
 exports.parseCSVLine = parseCSVLine
 exports.randstr = randstr

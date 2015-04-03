@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --]]
-local compareVersions = require('../util/misc').compareVersions
 local consts = require('../util/constants')
 local fsutil = require('../util/fs')
 local loggingUtil = require ('../util/logging')
@@ -29,6 +28,7 @@ local fs = require('fs')
 local logging = require('logging')
 local los = require('los')
 local path = require('path')
+local semver = require('semver')
 local spawn = require('childprocess').spawn
 local string = require('string')
 local table = require('table')
@@ -82,13 +82,15 @@ local function installMSI(msi_path)
 end
 
 local function versionCheck(my_version, other_version, callback)
-  local cmp = compareVersions(my_version, other_version)
-  if cmp == 0 then
-    callback(nil, UPGRADE_EQUAL)
-  elseif cmp > 0 then
+  local cmp = semver.gte(other_version, my_version)
+  if cmp then
+    if other_version == my_version then
+      callback(nil, UPGRADE_EQUAL)
+    else
+      callback(nil, UPGRADE_PERFORM)
+    end
+  else
     callback(nil, UPGRADE_DOWNGRADE)
-  elseif cmp < 0 then
-    callback(nil, UPGRADE_PERFORM)
   end
 end
 
