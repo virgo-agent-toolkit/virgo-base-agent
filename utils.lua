@@ -101,7 +101,7 @@ local function timesync(T1, T2, T3, T4)
   delta = ((T2 - T1) + (T3 - T4)) / 2
   delay = ((T4 - T1) + (T3 - T2))
 
-  logging.infof('Setting time delta to %.0fms based on server time %.0fms', delta, T2)
+  logging.debugf('Setting time delta to %.0fms based on server time %.0fms', delta, T2)
 
   return
 end
