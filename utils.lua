@@ -56,13 +56,12 @@ if los.type() == 'win32' then
 else
   ffi.cdef[[
     typedef long time_t;
-    typedef struct timeval {
+    typedef struct {
       time_t tv_sec;
       time_t tv_usec;
-    
     } timeval;
     
-    int gettimeofday(struct timeval* t, void* tzp);
+    int gettimeofday(timeval* t, void* tzp);
   ]]
   function gmtRaw()
     local t = ffi.new("timeval")
