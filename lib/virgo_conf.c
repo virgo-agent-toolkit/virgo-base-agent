@@ -197,11 +197,11 @@ conf_parse(virgo_t *v, FILE *fp)
     /* calculate key/value pairs */
     key = next_chunk(&p);
     p = key;
-    while(!isspace(p[0])) { p++;};
+    while(*p && !isspace(*p)) { p++;};
     *p = '\0'; /* null terminate key */
     node->key = strdup(key);
     p++;
-    while(isspace(p[0])) { p++;};
+    while(*p && isspace(*p)) { p++;};
     node->value = strdup(p);
 
     free(key);
