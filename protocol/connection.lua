@@ -71,7 +71,7 @@ function AgentProtocolConnection:initialize(log, myid, token, guid, conn, featur
   local sink = Writable:new({objectMode = true})
   sink._write = function(sink, data, encoding, callback)
     self:_processMessage(data)
-    callback()
+    process.nextTick(callback)
   end
   self._conn:pipe(sink)
   
@@ -245,19 +245,17 @@ function AgentProtocolConnection:setState(state)
 end
 
 function AgentProtocolConnection:startHandshake(callback)
-  assert(false) -- should not use this anymore
-  self:setState(STATES.HANDSHAKE)
-  self:request('handshake.hello', self._myid, self._token, self._features, function(err, msg)
+  local function onHello(err, msg)
     if err then
       self._log(logging.ERR, fmt('handshake failed (message=%s)', err.message))
-      callback(err, msg)
-      return
+      return callback(err, msg)
     end
-
     self:setState(STATES.RUNNING)
     self._log(logging.DEBUG, fmt('handshake successful (heartbeat_interval=%dms)', msg.result.heartbeat_interval))
     callback(nil, msg)
-  end)
+  end
+  self:setState(STATES.HANDSHAKE)
+  self:request('handshake.hello', self._myid, self._token, self._features, onHello)
 end
 
 return AgentProtocolConnection
