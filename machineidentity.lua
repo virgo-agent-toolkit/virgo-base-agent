@@ -22,6 +22,7 @@ local fs = require('fs')
 local utils = require('./utils')
 local fireOnce = require('./util/misc').fireOnce
 local fmt = require('string').format
+local table = require('table')
 
 local MachineIdentity = Object:extend()
 
@@ -30,21 +31,27 @@ local function xenAdapter(callback)
   local buffer, child
   callback = fireOnce(callback)
 
-  buffer = ''
+  buffer = {}
 
   if los.type() == 'win32' then
     exePath = 'c:\\Program Files\\Citrix\\XenTools\\xenstore_client.exe'
-    exeArgs = { 'read', 'name' }
+    if fs.statSync(exePath) then
+      exeArgs = { 'read', 'name' }
+    else
+      exePath = 'powershell'
+      exeArgs = { '-Command', '& {$sid = ((Get-WmiObject -Class CitrixXenStoreBase -Namespace root\\wmi).AddSession("Temp").SessionId) ; $s = (Get-WmiObject -Namespace root\\wmi -Query "select * from CitrixXenStoreSession where SessionId=$sid") ; $v = $s.GetValue("name").value ; $s.EndSession() ; $v}' }
+    end
   else
     exePath = 'xenstore-read'
     exeArgs = { 'name' }
   end
 
   function onStdout(chunk)
-    buffer = buffer .. chunk
+    table.insert(buffer, chunk)
   end
 
   function onExit(code)
+    buffer = table.concat(buffer)
     if code == 0 and buffer:len() > 10 then
       callback(nil, utils.trim(buffer:sub(10)))
     else
