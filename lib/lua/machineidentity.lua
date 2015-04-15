@@ -16,7 +16,6 @@ limitations under the License.
 
 local Error = require('core').Error
 local Object = require('core').Object
-local async = require('async')
 local childprocess = require('childprocess')
 local os = require('os')
 local fs = require('fs')
@@ -26,8 +25,7 @@ local fmt = require('string').format
 local MachineIdentity = Object:extend()
 
 local function xenAdapter(callback)
-  local exePath
-  local exeArgs
+  local exePath, exeArgs
 
   if os.type() == 'win32' then
     exePath = 'c:\\Program Files\\Citrix\\XenTools\\xenstore_client.exe'
@@ -35,21 +33,22 @@ local function xenAdapter(callback)
       exeArgs = { 'read', 'name' }
     else
       exePath = 'powershell'
-      exeArgs = { '-Command', '{$sid = ((Get-WmiObject -Class CitrixXenStoreBase -Namespace root\\wmi).AddSession("Temp").SessionId) ; $s = (Get-WmiObject -Namespace root\\wmi -Query "select * from CitrixXenStoreSession where SessionId=$sid") ; $v = $s.GetValue("name").value ; $s.EndSession() ; $v}' }
+      exeArgs = { '-Command', '& {$sid = ((Get-WmiObject -Class CitrixXenStoreBase -Namespace root\\wmi).AddSession("Temp").SessionId) ; $s = (Get-WmiObject -Namespace root\\wmi -Query "select * from CitrixXenStoreSession where SessionId=$sid") ; $v = $s.GetValue("name").value ; $s.EndSession() ; $v}' }
     end
   else
     exePath = 'xenstore-read'
     exeArgs = { 'name' }
   end
 
-  local buffer = ''
+  local buffer = {}
   local child = childprocess.spawn(exePath, exeArgs)
 
   child.stdout:on('data', function(chunk)
-    buffer = buffer .. chunk
+    table.insert(buffer, chunk)
   end)
 
   child:on('exit', function(code)
+    buffer = table.concat(buffer)
     if code == 0 and buffer:len() > 10 then
       callback(nil, utils.trim(buffer:sub(10)))
     else
