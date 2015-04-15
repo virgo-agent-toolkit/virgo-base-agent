@@ -18,6 +18,7 @@ local Error = require('core').Error
 local Object = require('core').Object
 local childprocess = require('childprocess')
 local os = require('os')
+local table = require('table')
 local fs = require('fs')
 local utils = require('virgo_utils')
 local fmt = require('string').format
