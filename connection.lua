@@ -179,7 +179,7 @@ function Connection:_ready()
     objectMode = false,
     writableObjectMode = true
   })
-  jsonify._transform = function(this, chunk, encoding, callback)
+  jsonify._transform = function(this, chunk, callback)
     if not chunk.id then
       chunk.id = msg_id
       msg_id = msg_id + 1
@@ -278,10 +278,10 @@ function Connection:_read(n)
   return self.readable:_read(n)
 end
 
-function Connection:_write(chunk, encoding, callback)
+function Connection:_write(chunk, callback)
   -- since it's the Connecter rather than self.writable that is piped into from
   -- upstream stream, we call write() instead of _write() here.
-  self.writable:write(chunk, encoding, callback)
+  self.writable:write(chunk, callback)
 end
 
 return Connection

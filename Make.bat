@@ -10,7 +10,7 @@ GOTO :end
 
 :lit
 ECHO "Building lit"
-@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/luvit/lit/0.10.4/get-lit.ps1'))"
+@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/luvit/lit/1.1.4/get-lit.ps1'))"
 
 :test
 CALL Make.bat virgo

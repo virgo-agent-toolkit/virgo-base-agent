@@ -69,7 +69,7 @@ function AgentProtocolConnection:initialize(log, myid, token, guid, conn, featur
   self._token = token
   self._conn = conn
   local sink = Writable:new({objectMode = true})
-  sink._write = function(sink, data, encoding, callback)
+  sink._write = function(sink, data, callback)
     self:_processMessage(data)
     process.nextTick(callback)
   end
