@@ -1,5 +1,5 @@
 --[[
-Copyright 2012 Rackspace
+Copyright 2015 Rackspace
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -142,28 +142,25 @@ local function windowsConvertCmd(cmd, pparams)
     if assocExe == nil then
       assocExe = winpaths.GetAssociatedExe(ext, 'open')
     end
-
-    if assocExe ~= nil then
+    if assocExe then
       -- If Powershell is the EXE then add a parameter for the exec policy
-      local justExe = path.basename(assocExe)
+      local justExe = assocExe:match("^\"([^\"]*)")
       -- On windows if the associated exe is %1 it references itself
-      if assocExe ~= "%1" then
+      if justExe and justExe ~= "%1" then
         table.insert(params, 1, cmd)
-        cmd = assocExe
+        cmd = justExe
         -- Force Bypass for this child powershell
-        if justExe == "powershell.exe" then
+        if path.basename(justExe) == "powershell.exe" then
           table.insert(params, 1, '-File')
           table.insert(params, 1, 'Bypass')
           table.insert(params, 1, '-ExecutionPolicy')
-          closeStdin = true -- NEEDED for Powershell 2.0 to exit
         end
       end
     else
       logging.warningf('error getting associated executable for "%s"', ext)
     end
   end
-
-  return cmd, params, closeStdin
+  return cmd, params
 end
 
 exports.delay = delay
