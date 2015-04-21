@@ -1,28 +1,21 @@
 @ECHO off
+@SET LIT_VERSION=1.1.4
 
 IF NOT "x%1" == "x" GOTO :%1
 
-:virgo
-ECHO "Building virgo"
-IF NOT EXIST lit.exe CALL Make.bat lit
-lit.exe make
-GOTO :end
-
 :lit
 ECHO "Building lit"
-@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/luvit/lit/1.1.4/get-lit.ps1'))"
+@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/luvit/lit/%LIT_VERSION%/get-lit.ps1'))"
+GOTO :end
 
 :test
-CALL Make.bat virgo
-virgo.exe
+IF NOT EXIST lit.exe CALL Make.bat lit
+CALL lit.exe install
+CALL luvi.exe . -m tests\run.lua
 GOTO :end
 
 :clean
-IF EXIST virgo.exe DEL /F /Q virgo-base.exe
 IF EXIST lit.exe DEL /F /Q lit.exe
-IF EXIST lit RMDIR /S /Q lit
-IF EXIST luvi-binaries RMDIR /S /Q luvi-binaries
+IF EXIST luvi.exe DEL /F /Q luvi.exe
 
 :end
-
-

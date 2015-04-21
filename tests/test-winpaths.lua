@@ -15,10 +15,11 @@ limitations under the License.
 --]]
 local los = require('los')
 
+if los.type() ~= 'win32' then return end
+local win_paths = require('../util/win_paths')
+
 require('tap')(function(test)
   test('Windows Folder Paths', function()
-    if los.type() ~= 'win32' then return end
-    local win_paths = require('../util/win_paths')
     local path
     path = win_paths.GetKnownFolderPath(win_paths.FOLDERID_ProgramData)
     p('FOLDERID_ProgramData', path)
@@ -27,4 +28,9 @@ require('tap')(function(test)
     p('FOLDERID_ProgramFiles', path)
     assert(path ~= nil)
   end)
+
+  test('Windows Executable Assocations', function()
+    assert(win_paths.GetAssociatedExe('.ps1', '0'))
+  end)
 end)
+

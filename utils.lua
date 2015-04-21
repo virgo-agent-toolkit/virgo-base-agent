@@ -20,6 +20,7 @@ local los = require('los')
 local path = require('path')
 local table = require('table')
 local ffi = require('ffi')
+local winpaths = require('./util/win_paths')
 
 local delta = 0
 local delay
@@ -60,7 +61,6 @@ else
       time_t tv_sec;
       time_t tv_usec;
     } timeval;
-    
     int gettimeofday(timeval* t, void* tzp);
   ]]
   function gmtRaw()
@@ -134,13 +134,13 @@ local function windowsConvertCmd(cmd, pparams)
   local ext = path.extname(cmd)
   local params = misc.deepCopyTable(pparams)
 
-  if virgo.win32_get_associated_exe ~= nil and ext ~= "" then
+  if los.type() == 'win32' and ext ~= "" then
     -- If we are on windows, we want to suport custom plugins like "foo.py",
     -- but this means we need to map the .py file ending to the Python Executable,
     -- and mutate our run path to be like: C:/Python27/python.exe custom_plugins_path/foo.py
-    local assocExe, err = virgo.win32_get_associated_exe(ext, '0') -- Try the 0 verb first for Powershell
+    local assocExe = winpaths.GetAssociatedExe(ext, '0')
     if assocExe == nil then
-      assocExe, err = virgo.win32_get_associated_exe(ext, 'open')
+      assocExe = winpaths.GetAssociatedExe(ext, 'open')
     end
 
     if assocExe ~= nil then
@@ -159,7 +159,7 @@ local function windowsConvertCmd(cmd, pparams)
         end
       end
     else
-      logging.warningf('error getting associated executable for "%s": %s', ext, err)
+      logging.warningf('error getting associated executable for "%s"', ext)
     end
   end
 
