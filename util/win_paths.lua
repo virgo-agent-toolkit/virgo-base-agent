@@ -14,20 +14,173 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 local ffi = require("ffi")
+if ffi.os ~= 'Windows' then return end
+ffi.cdef [[
+]]
+if ffi.arch == 'x86' then ffi.cdef[[
+  typedef int32_t* INT_PTR;
+]]
+end
 ffi.cdef[[
-typedef unsigned int UINT;
-typedef int BOOL;
-typedef BOOL *LPBOOL;
-typedef unsigned long DWORD;
-typedef long HRESULT;
-typedef void* HANDLE;
-typedef char CHAR;
-typedef CHAR *NPSTR, *LPSTR, *PSTR;
-typedef const CHAR *LPCSTR, *PCSTR;
+]]
+if ffi.arch == 'x86' then ffi.cdef[[
+  typedef uint32_t* UINT_PTR;
+]]
+end
+ffi.cdef[[
+]]
+if ffi.arch == 'x64' then ffi.cdef[[
+  typedef int64_t* INT_PTR;
+]]
+end
+ffi.cdef[[
+]]
+if ffi.arch == 'x64' then ffi.cdef[[
+  typedef uint64_t* UINT_PTR;
+]]
+end
 
-typedef unsigned short WCHAR;
-typedef WCHAR *NWPSTR, *LPWSTR, *PWSTR;
-typedef const WCHAR *LPCWSTR, *PCWSTR;
+ffi.cdef[[
+  typedef UINT_PTR HANDLE;
+  enum { MAX_PATH = 260 };
+  enum { ANYSIZE_ARRAY = 1 };
+  enum { MAX_PATH_plus_1 = 261 };
+  typedef void* HMODULE;
+  typedef void VOID;
+  typedef VOID *LPVOID; //Pointer
+  typedef LPVOID LPCVOID; //Alias
+  typedef LPVOID PVOID; //Alias
+  typedef LPVOID PCVOID; //Alias
+  typedef uint64_t PVOID64; //Integer
+  typedef uint8_t BYTE; //Integer
+  typedef BYTE *LPBYTE; //Pointer
+  typedef LPBYTE PBYTE; //Alias
+  typedef LPBYTE LPCBYTE; //Alias
+  typedef BYTE byte; //Alias
+  typedef uint8_t UCHAR; //Integer
+  typedef UCHAR *PUCHAR; //Pointer
+  typedef uint8_t UINT8; //Integer
+  typedef UINT8 *PUINT8; //Pointer
+  typedef int8_t INT8; //Integer
+  typedef int16_t INT16; //Integer
+  typedef uint16_t UINT16; //Integer
+  typedef UINT16 WORD; //Alias
+  typedef WORD *PWORD; //Pointer
+  typedef WORD* LPWORD; //Alias
+  typedef UINT16 USHORT; //Alias
+  typedef USHORT *PUSHORT; //Pointer
+  typedef USHORT u_short; //Alias
+  typedef int16_t SHORT; //Integer
+  typedef UINT_PTR *PUINT_PTR; //Pointer
+  typedef UINT_PTR ULONG_PTR; //Alias
+  typedef ULONG_PTR* PULONG_PTR; //Alias
+  typedef ULONG_PTR DWORD_PTR; //Alias
+  typedef DWORD_PTR* PDWORD_PTR; //Alias
+  typedef INT_PTR LONG_PTR; //Alias
+  typedef int32_t BOOL; //Integer
+  static const BOOL BOOL_TRUE = 1;
+  static const BOOL BOOL_FALSE = 0;
+  typedef BOOL *PBOOL; //Pointer
+  typedef PBOOL LPBOOL; //Alias
+  typedef BOOL Bool; //Alias
+  typedef BOOL BOOLAPI; //Alias
+  typedef int8_t BOOLEAN; //Integer
+  static const BOOLEAN BOOLEAN_TRUE = 1;
+  static const BOOLEAN BOOLEAN_FALSE = 0;
+  typedef BOOLEAN *PBOOLEAN; //Pointer
+  typedef uint32_t UINT32; //Integer
+  typedef UINT32 *PUINT32; //Pointer
+  typedef UINT32 u_long; //Alias
+  typedef UINT32 ULONG; //Alias
+  typedef ULONG *PULONG; //Pointer
+  typedef UINT32 Ulong; //Alias
+  typedef UINT32 UINT; //Alias
+  typedef UINT *PUINT; //Pointer
+  typedef PUINT LPUINT; //Alias
+  typedef ULONG ULONG32; //Alias
+  typedef int32_t INT32; //Integer
+  typedef long LONG; //Alias
+  typedef LONG* PLONG; //Alias
+  typedef LONG* LPLONG; //Alias
+  typedef int INT; //Alias
+  typedef INT *PINT; //Pointer
+  typedef PINT LPINT; //Alias
+  typedef int64_t INT64; //Integer
+  typedef INT64 LONGLONG; //Alias
+  typedef LONGLONG *PLONGLONG; //Pointer
+  typedef INT64 LONG64; //Alias
+  typedef LONG64 *PLONG64; //Pointer
+  typedef uint64_t UINT64; //Integer
+  typedef UINT64 *PUINT64; //Pointer
+  typedef UINT64 ULONGLONG; //Alias
+  typedef ULONGLONG *PULONGLONG; //Pointer
+  typedef UINT64 ULONG64; //Alias
+  typedef ULONG64 *PULONG64; //Pointer
+  typedef UINT64 DWORD64; //Alias
+  typedef DWORD64 *PDWORD64; //Pointer
+  typedef ULONGLONG DWORDLONG; //Alias
+  typedef uint32_t DWORD; //Integer
+  typedef DWORD *PDWORD; //Pointer
+  typedef PDWORD LPDWORD; //Alias
+  typedef char CHAR;
+  typedef CHAR *LPSTR; //Pointer
+  typedef LPSTR LPCSTR; //Alias
+  typedef LPSTR PCSTR; //Alias
+  typedef LPSTR PSTR; //Alias
+  typedef LPSTR PCHAR; //Alias
+  typedef wchar_t WCHAR;
+  typedef WCHAR *LPWSTR; //Pointer
+  typedef LPWSTR PWSTR; //Alias
+  typedef PWSTR PCWSTR; //Alias
+  typedef PWSTR LPCWSTR; //Alias
+  typedef PWSTR PWCHAR; //Alias
+  typedef char TCHAR;
+  typedef TCHAR *LPTSTR; //Pointer
+  typedef LPTSTR LPCTSTR; //Alias
+  typedef LPTSTR PTSTR; //Alias
+  typedef LPTSTR PCTSTR; //Alias
+  typedef LPTSTR PCTSTR; //Alias
+  typedef LPTSTR PTCHAR; //Alias
+  typedef LPTSTR LPTCH; //Alias
+  typedef LPTSTR LPCTCH; //Alias
+  typedef size_t SIZE_T; //Alias
+  typedef SIZE_T* PSIZE_T; //Alias
+  typedef INT64 time_t; //Alias
+  typedef float FLOAT; //Alias
+  typedef FLOAT *PFLOAT; //Pointer
+  typedef double DOUBLE; //Alias
+  typedef int32_t HRESULT;
+typedef enum  { 
+  ASSOCF_NONE                  = 0x00000000,
+  ASSOCF_INIT_NOREMAPCLSID     = 0x00000001,
+  ASSOCF_INIT_BYEXENAME        = 0x00000002,
+  ASSOCF_OPEN_BYEXENAME        = 0x00000002,
+  ASSOCF_INIT_DEFAULTTOSTAR    = 0x00000004,
+  ASSOCF_INIT_DEFAULTTOFOLDER  = 0x00000008,
+  ASSOCF_NOUSERSETTINGS        = 0x00000010,
+  ASSOCF_NOTRUNCATE            = 0x00000020,
+  ASSOCF_VERIFY                = 0x00000040,
+  ASSOCF_REMAPRUNDLL           = 0x00000080,
+  ASSOCF_NOFIXUPS              = 0x00000100,
+  ASSOCF_IGNOREBASECLASS       = 0x00000200,
+  ASSOCF_INIT_IGNOREUNKNOWN    = 0x00000400,
+  ASSOCF_INIT_FIXED_PROGID     = 0x00000800,
+  ASSOCF_IS_PROTOCOL           = 0x00001000,
+  ASSOCF_INIT_FOR_FILE         = 0x00002000
+} ASSOCF;
+
+typedef enum {
+  ASSOCSTR_COMMAND,
+  ASSOCSTR_EXECUTABLE,
+  ASSOCSTR_FRIENDLYDOCNAME,
+  ASSOCSTR_FRIENDLYAPPNAME,
+  ASSOCSTR_NOOPEN,
+  ASSOCSTR_SHELLNEWVALUE,
+  ASSOCSTR_DDECOMMAND,
+  ASSOCSTR_DDEIFEXEC,
+  ASSOCSTR_DDEAPPLICATION,
+  ASSOCSTR_DDETOPIC
+} ASSOCSTR;
 
 typedef struct _GUID {
     unsigned long  Data1;
@@ -39,11 +192,13 @@ typedef struct _GUID {
 HRESULT SHGetKnownFolderPath(GUID *rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath);
 int WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWSTR lpWideCharStr, int cchWideChar, LPSTR lpMultiByteStr, int cbMultiByte, LPCSTR lpDefaultChar, LPBOOL lpUsedDefaultChar);
 void CoTaskMemFree(void *pv);
+HRESULT AssocQueryStringA(ASSOCF flags, ASSOCSTR str, LPCTSTR pszAssoc, LPCTSTR pszExtra, LPTSTR pszOut, DWORD* pcchOut);
 
 ]]
 
 Shell32 = ffi.load("Shell32")
 Ole32 = ffi.load("Ole32")
+Shlwapi = ffi.load("Shlwapi")
 
 exports.FOLDERID_NetworkFolder = ffi.new("GUID", {0xD20BEEC4, 0x5CA8, 0x4905, {0xAE, 0x3B, 0xBF, 0x25, 0x1E, 0xA0, 0x9B, 0x53}})
 exports.FOLDERID_ComputerFolder = ffi.new("GUID", {0x0AC0837C, 0xBBF8, 0x452A, {0x85, 0x0D, 0x79, 0xD0, 0x8E, 0x66, 0x7C, 0xA7}})
@@ -151,7 +306,7 @@ exports.FOLDERID_ImplicitAppShortcuts = ffi.new("GUID", {0xbcb5256f, 0x79f6, 0x4
 exports.GetKnownFolderPath = function(guid)
   local pguid = ffi.new("GUID[1]", guid)
   local ppszPath = ffi.new("PWSTR[1]")
-  local buf = ffi.new("CHAR[?]", 260) --[[MAX_PATH--]]
+  local buf = ffi.new("CHAR[?]", ffi.C.MAX_PATH) --[[MAX_PATH--]]
   local result = Shell32.SHGetKnownFolderPath(pguid, 0, nil, ppszPath)
   if result ~= 0 then
     return nil
@@ -159,4 +314,18 @@ exports.GetKnownFolderPath = function(guid)
   ffi.C.WideCharToMultiByte(65001 --[[CP_UTF8--]], 0, ppszPath[0], -1, buf, 260, ffi.cast("LPCSTR", 0), nil);
   Ole32.CoTaskMemFree(ppszPath[0])
   return ffi.string(buf)
+end
+
+exports.GetAssociatedExe = function(extension, verb)
+  verb = verb or 'open'
+  local exePathLen = ffi.new("DWORD[1]", ffi.C.MAX_PATH)
+  local exePath = ffi.new("char[?]", ffi.C.MAX_PATH)
+  local extensionffi = ffi.new("char[?]", #extension)
+  local verbffi = ffi.new("char[?]", #verb)
+  ffi.copy(extensionffi, extension)
+  ffi.copy(verbffi, verb)
+  local rv = Shlwapi.AssocQueryStringA(ffi.C.ASSOCF_INIT_IGNOREUNKNOWN,
+    ffi.C.ASSOCSTR_EXECUTABLE, extensionffi, verbffi, exePath, exePathLen)
+  if rv ~= 0 then return nil end
+  return ffi.string(exePath)
 end
