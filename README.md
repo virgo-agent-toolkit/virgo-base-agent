@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/virgo-agent-toolkit/virgo-base-agent.svg?branch=luvi-up)](https://travis-ci.org/virgo-agent-toolkit/virgo-base-agent)
+[![Build Status](https://travis-ci.org/virgo-agent-toolkit/virgo-base-agent.svg?branch=luvi-up)](https://travis-ci.org/virgo-agent-toolkit/virgo-base-agent) [![Build status](https://ci.appveyor.com/api/projects/status/k7jglhodjrubcw0y/branch/luvi-up?svg=true)](https://ci.appveyor.com/project/racker-buildbot/virgo-base-agent/branch/luvi-up)
 
 Transition to Luvi
 ==================
