@@ -31,7 +31,7 @@ local upgrade = require('../client/upgrade')
 local vutils = require('../utils')
 
 local ConnectionStream = Emitter:extend()
-function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, types, features)
+function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, types, features, codeCert)
   self._id = id
   self._token = token
   self._guid = guid
@@ -46,6 +46,7 @@ function ConnectionStream:initialize(id, token, guid, upgradeEnabled, options, t
   self._features = features or {}
   self._messages = ConnectionMessages:new(self)
   self._isUpgrading = false
+  self._codeCert = codeCert
 end
 
 function ConnectionStream:getMessages()
@@ -69,7 +70,7 @@ function ConnectionStream:performUpgrade()
   logging.info('Upgrade Request')
   self._isUpgrading = true
 
-  local status, err = pcall(upgrade.checkForUpgrade, {}, self, function(err, status)
+  local status, err = pcall(upgrade.checkForUpgrade, self._codeCert, self, function(err, status)
     self._isUpgrading = false
     if err then
       logging.error('Error on upgrade: ' .. misc.trim(tostring(err)))

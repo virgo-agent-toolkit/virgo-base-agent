@@ -130,7 +130,6 @@ end
 
 local function windowsConvertCmd(cmd, pparams)
   local misc = require('./util/misc')
-  local closeStdin = false
   local ext = path.extname(cmd)
   local params = misc.deepCopyTable(pparams)
 

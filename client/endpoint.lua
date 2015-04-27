@@ -19,7 +19,6 @@ local async = require('async')
 local dns = require('dns')
 local fmt = require('string').format
 local logging = require('logging')
-local math = require('math')
 local misc = require('../util/misc')
 
 local Endpoint = Object:extend()

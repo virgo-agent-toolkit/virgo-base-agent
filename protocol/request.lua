@@ -119,9 +119,7 @@ function Request:request()
 
   if self.endpoint.srv_query then
     dns.resolve(self.endpoint.srv_query, 'SRV', function(err, record)
-      if err then
-        return self.callback(err)
-      end
+      if err then return self.callback(err) end
       run({ host = record[1].name, port = record[1].port })
     end)
   else
@@ -131,13 +129,11 @@ end
 
 function Request:_cycle_endpoint()
   local position
-  while self.attempts > 0 do
-    position = #self.endpoints % self.attempts
-    self.endpoint = self.endpoints[position+1]
-    self.attempts = self.attempts - 1
-    return true
-  end
-  return false
+  if self.attempts == 0 then return false end
+  position = #self.endpoints % self.attempts
+  self.endpoint = self.endpoints[position+1]
+  self.attempts = self.attempts - 1
+  return true
 end
 
 function Request:set_headers(callback)
@@ -200,7 +196,7 @@ function Request:_ensure_retries(err, res, buf)
   local msg = fmt('%s to %s:%s failed for %s with status: %s and error: %s.', (options.method or "?"),
                   options.host, options.port, (self.download or self.upload or "?"), status, tostring(err))
 
-  logging.warn(msg)
+  logging.warning(msg)
 
   if not self:_cycle_endpoint() then
     return self.callback(err)
@@ -216,16 +212,16 @@ function Request:_handle_response(res)
     return self:_write_stream(res)
   end
 
-  local buf = ""
+  local buf = {}
   res:on('data', function(d)
-    buf = buf .. d
+    table.insert(buf, d)
   end)
 
   res:on('end', function()
-    if res.status_code >= 400 then
+    buf = table.concat(buf)
+    if res.statusCode >= 400 then
       return self:_ensure_retries(Error:new(buf), res)
     end
-
     self:_ensure_retries(nil, res, buf)
   end)
 end

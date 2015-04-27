@@ -10,7 +10,7 @@ clean:
 	rm -rf lit luvi
 
 lint:
-	find . tests -name "*.lua" | xargs luacheck
+	find . ! -path './deps/**' ! -path './tests/**' -name '*.lua' | xargs luacheck
 
 test: lit $(APP_FILES)
 	./lit install

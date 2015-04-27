@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 local consts = require('../util/constants')
-local fsutil = require('../util/fs')
 local loggingUtil = require ('../util/logging')
 local misc = require('../util/misc')
 local request = require('../protocol/request')
@@ -32,7 +31,10 @@ local semver = require('semver')
 local spawn = require('childprocess').spawn
 local string = require('string')
 local table = require('table')
+local timer = require('timer')
 local windowsConvertCmd = require('../utils').windowsConvertCmd
+local sigar = pcall(require, 'sigar')
+local uv = require('uv')
 
 local trim = misc.trim
 
@@ -81,17 +83,13 @@ local function installMSI(msi_path)
   end)
 end
 
-local function versionCheck(my_version, other_version, callback)
-  local cmp = semver.gte(other_version, my_version)
+local function versionCheck(my_version, other_version)
+  local cmp = semver.gte(my_version, other_version)
   if cmp then
-    if other_version == my_version then
-      callback(nil, UPGRADE_EQUAL)
-    else
-      callback(nil, UPGRADE_PERFORM)
-    end
-  else
-    callback(nil, UPGRADE_DOWNGRADE)
+    if other_version == my_version then return UPGRADE_EQUAL
+    else return UPGRADE_PERFORM end
   end
+  return UPGRADE_DOWNGRADE
 end
 
 local function getAPaths(options)
@@ -142,19 +140,6 @@ local function getPaths(options)
   return paths
 end
 
-local function createArgs(exe, args)
-  local newArgs = {}
-  table.insert(newArgs, exe)
-  for i, v in pairs(args) do
-    if i ~= 0 then
-      if v ~= '-g' then
-        table.insert(newArgs, v)
-      end
-    end
-  end
-  table.insert(newArgs, "-o") -- skip upgrade on child
-  return newArgs
-end
 
 --[[
 -- Try to upgrade the current binary
@@ -210,29 +195,22 @@ local function attempt(options, callback)
   async.series({
     function(callback)
       local _ , err = fs.statSync(potential)
-      if err then
-        return callback(Error:new('no upgrade executable exists'))
-      end
+      if err then return callback(Error:new('no upgrade executable exists')) end
       log(logging.DEBUG, fmt('potential upgrade: %s, exists', potential))
-      callback()
+      timer.setImmediate(callback)
     end,
     function(callback)
       log(logging.DEBUG, fmt('check version of potential upgrade: %s', potential))
       getVersion(potential, function(err, version)
-        if not err then
-          other_version = version
+        if not err then other_version = version
         end
         callback(err)
       end)
     end,
     function(callback)
       log(logging.DEBUG, fmt('comparing versions (%s, %s)', my_version, other_version))
-      versionCheck(my_version, other_version, function(err, status)
-        if not err then
-          upgrade_status = status
-        end
-        callback(err)
-      end)
+      upgrade_status = versionCheck(my_version, other_version)
+      timer.setImmediate(callback)
     end,
     function(callback)
       if upgrade_status == UPGRADE_EQUAL then
@@ -242,12 +220,10 @@ local function attempt(options, callback)
         if not options.pretend then
           if los.type() == 'win32' then
             installMSI(potential)
-          else
-            virgo.perform_upgrade(createArgs(potential, process.argv))            
           end
         end
       end
-      callback()
+      timer.setImmediate(callback)
     end
   }, function(err)
     callback(err, upgrade_status)
@@ -260,24 +236,39 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
   local verified_binary_dir = consts:get('DEFAULT_VERIFIED_EXE_PATH')
 
-  if not client then
-    return
-  end
-
+  if not client then return callback(Error:new('No client')) end
   callback = callback or function() end
 
   local function download_iter(item, callback)
-    local options = {
+    local options = misc.merge({
       method = 'GET',
       host = client._host,
-      port = client._port,
-      tls = client._tls_options,
-    }
+      port = client._port
+    }, client._tls_options)
 
     local filename = path.join(unverified_binary_dir, item.payload)
     local filename_sig = path.join(unverified_binary_dir, item.signature)
-    local filename_verified = path.join(item.path, virgo.pkg_name)
-    local filename_verified_sig = path.join(item.path, virgo.pkg_name .. '.sig')
+
+    local function onVerify(err)
+      if err then return callback(err) end
+      client:log(logging.INFO, fmt('Signature verified %s (ok)', item.payload))
+      local exepath = uv.exepath()
+      local oldpath = exepath .. '.old'
+      async.parallel({
+        function(callback)
+          uv.fs_rename(exepath, oldpath, callback)
+        end,
+        function(callback)
+          uv.fs_rename(filename, exepath, callback)
+        end,
+        function(callback)
+          uv.fs_unlink(oldpath, callback)
+        end
+      }, function(err)
+        if err then return callback(err) end
+        fs.chmod(exepath, string.format('%o', item.permissions), callback)
+      end)
+    end
 
     async.parallel({
       payload = function(callback)
@@ -295,34 +286,13 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
         request.makeRequest(opts, callback)
       end
     }, function(err)
-      if err then
-        return callback(err)
-      end
-
-      utilUpgrade.verify(filename, filename_sig, codeCert, function(err)
-        if err then
-          return callback(err)
-        end
-        client:log(logging.INFO, fmt('Signature verified %s (ok)', item.payload))
-        async.parallel({
-          function(callback)
-            client:log(logging.INFO, fmt('Moving file to %s', filename_verified))
-            misc.copyFileAndRemove(filename, filename_verified, callback)
-          end,
-          function(callback)
-            client:log(logging.INFO, fmt('Moving file to %s', filename_verified_sig))
-            misc.copyFileAndRemove(filename_sig, filename_verified_sig, callback)
-          end
-        }, function(err)
-          if err then return callback(err) end
-          fs.chmod(filename_verified, string.format('%o', item.permissions), callback)
-        end)
-      end)
+      if err then return callback(err) end
+      utilUpgrade.verify(filename, filename_sig, codeCert, onVerify)
     end)
   end
 
   local function mkdirp(path, callback)
-    fsutil.mkdirp(path, "0755", function(err)
+    fs.mkdirp(path, "0755", function(err)
       if not err then return callback() end
       if err.code == "EEXIST" then return callback() end
       callback(err)
@@ -338,22 +308,23 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
 
   if s.name == "Linux" then
     local semver_match = "^(%d+)%.?(%d*)%.?(%d*)(.-)$"
-    local major, minor, patch = s.vendor_version:match(semver_match)
+    local major = s.vendor_version:match(semver_match)
     if s.vendor == "Debian" then
       local mapping = {
         [6] = "squeeze",
-        [7] = "wheezy"
+        [7] = "wheezy",
+        [8] = "jessie",
       }
       s.vendor_version = mapping[tonumber(major)] or 'unknown'
     elseif s.vendor == "CentOS" or s.vendor == "Fedora" then
-      local major = s.vendor_version:match(semver_match)
+      major = s.vendor_version:match(semver_match)
       if not major then
         return callback(Error:new('could not extract major version of operating system.'))
       end
       s.vendor_version = major
     elseif s.vendor == "Red Hat" then
-      local semver_match = "^Enterprise Linux (%d*)$"
-      local major = s.vendor_version:match(semver_match)
+      semver_match = "^Enterprise Linux (%d*)$"
+      major = s.vendor_version:match(semver_match)
       if not major then
         return callback(Error:new('could not extract major version of operating system.'))
       end
@@ -393,20 +364,16 @@ local function downloadUpgradeWin(codeCert, streams, version, callback)
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
 
-  if not client then
-    return
-  end
-
+  if not client then return end
   callback = callback or function() end
 
   local function download_iter(item, callback)
     local options, opts
-    options = {
+    options = misc.merge({
       method = 'GET',
       host = client._host,
-      port = client._port,
-      tls = client._tls_options,
-    }
+      port = client._port
+    }, client._tls_options)
     opts = misc.merge({
       path = fmt('/upgrades/%s/%s', channel, item.payload),
       download = path.join(unverified_binary_dir, item.payload)
@@ -415,7 +382,7 @@ local function downloadUpgradeWin(codeCert, streams, version, callback)
   end
 
   local function mkdirp(path, callback)
-    fsutil.mkdirp(path, "0755", function(err)
+    fs.mkdirp(path, "0755", function(err)
       if not err then return callback() end
       if err.code == "EEXIST" then return callback() end
       callback(err)
@@ -430,10 +397,7 @@ local function downloadUpgradeWin(codeCert, streams, version, callback)
       mkdirp(unverified_binary_dir, callback)
     end,
     function(callback)
-      local files = {
-        payload = payload
-      }
-      download_iter(files, callback)
+      download_iter({ payload = payload }, callback)
     end
   }, function(err)
     if err then
@@ -441,50 +405,46 @@ local function downloadUpgradeWin(codeCert, streams, version, callback)
       return callback(err)
     end
     client:log(logging.INFO, 'An update to the agent has been downloaded')
-    exports.attempt({['b'] = { ['exe'] = path.join(unverified_binary_dir, payload) }},callback)
+    exports.attempt({['b'] = { ['exe'] = path.join(unverified_binary_dir, payload) }}, callback)
   end)
 end
 
-local function checkForUpgrade(options, streams, callback)
+local function checkForUpgrade(codeCert, streams, callback)
   local client = streams:getClient()
-  if client == nil then
-    return
-  end
+  if not client then return callback(Error:new('No client')) end
 
   local channel = streams:getChannel()
   local bundleVersion = virgo.bundle_version
   local uri_path
 
-  options = {
+  local options = misc.merge({
     method = 'GET',
     host = client._host,
-    port = client._port,
-    tls = client._tls_options
-  }
+    port = client._port
+  }, client._tls_options)
 
   uri_path = fmt('/upgrades/%s/VERSION', channel)
   options = misc.merge({ path = uri_path, }, options)
   request.makeRequest(options, function(err, result, version)
-    if err then
-      return callback(err)
-    end
+    if err then return callback(err) end
     version = misc.trim(version)
     client:log(logging.DEBUG, fmt('(upgrade) -> Current Version: %s', bundleVersion))
     client:log(logging.DEBUG, fmt('(upgrade) -> Upstream Version: %s', version))
     if version == '0.0.0-0' then
       callback(Error:new('Disabled'))
-    elseif misc.compareVersions(version, bundleVersion) > 0 then
-      exports.downloadUpgrade(streams, version, callback)
+    elseif versionCheck(version, bundleVersion) == UPGRADE_PERFORM then
+      exports.downloadUpgrade(codeCert, streams, version, callback)
     else
       callback(Error:new('No upgrade'))
     end
   end)
 end
 
-exports.attempt = attempt
-exports.downloadUpgrade = los.type() == "win32" and downloadUpgradeWin or downloadUpgradeUnix
-exports.checkForUpgrade = checkForUpgrade
 exports.UPGRADE_EQUAL = UPGRADE_EQUAL
 exports.UPGRADE_PERFORM = UPGRADE_PERFORM
 exports.UPGRADE_DOWNGRADE = UPGRADE_DOWNGRADE
+
+exports.attempt = attempt
+exports.downloadUpgrade = los.type() == "win32" and downloadUpgradeWin or downloadUpgradeUnix
+exports.checkForUpgrade = checkForUpgrade
 exports.getPaths = getPaths
