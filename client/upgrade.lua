@@ -33,7 +33,7 @@ local string = require('string')
 local table = require('table')
 local timer = require('timer')
 local windowsConvertCmd = require('../utils').windowsConvertCmd
-local sigar = pcall(require, 'sigar')
+local _, sigar = pcall(require, 'sigar')
 local uv = require('uv')
 
 local trim = misc.trim
