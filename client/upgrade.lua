@@ -65,7 +65,53 @@ end
 local function getVersionFromMSI(msi_path, callback)
   local version = nil
   local _, err = pcall(function()
-    version = virgo.fetch_msi_version(msi_path)
+    local ffi = require('ffi')
+    ffi.cdef[[
+      typedef unsigned long MSIHANDLE;
+      typedef unsigned int UINT;
+      typedef char CHAR;
+      typedef CHAR *NPSTR, *LPSTR, *PSTR;
+      typedef const CHAR *LPCSTR, *PCSTR;
+
+      enum {
+        ERROR_SUCCESS = 0L,
+        ERROR_MORE_DATA = 234L
+      };
+
+      UINT MsiOpenPackageA(const char* szPackagePath, MSIHANDLE *hProduct);
+      UINT MsiGetProductPropertyA(MSIHANDLE hProduct,  LPCTSTR szProperty, LPTSTR lpValueBuf, DWORD *pcchValueBuf);
+      UINT MsiCloseHandle(MSIHANDLE hAny);
+    ]]
+
+    local msilib = ffi.load("Msi")
+
+    local phProduct = ffi.new('MSIHANDLE[1]')
+    local ret = msilib.MsiOpenPackageA(msi_path, phProduct);
+    if ret ~= ffi.C.ERROR_SUCCESS then
+      error(Error:new(fmt("could not get version from %s", msi_path)))
+    end
+
+    local pszVersion = ffi.new('CHAR[1]')
+    local pdwSizeVersion = ffi.new('DWORD[1]')
+    local prop = 'ProductVersion'
+
+    ret = msilib.MsiGetProductPropertyA(phProduct[0], ffi.cast('char *', prop), pszVersion, pdwSizeVersion)
+    if not (ret == ffi.C.ERROR_MORE_DATA or (ret == ffi.C.ERROR_SUCCESS and dwSizeVersion[0] > 0)) then
+      msilib.MsiCloseHandle(phProduct[0])
+      error(Error:new("msi get product property size failed"))
+    end
+
+    pdwSizeVersion[0] = pdwSizeVersion[0] + 1 --add one for the null term
+    pszVersion = ffi.new('CHAR[?]', pdwSizeVersion[0])
+
+    ret = msilib.MsiGetProductPropertyA(phProduct[0], ffi.cast('char *', prop), pszVersion, pdwSizeVersion);
+    msilib.MsiCloseHandle(phProduct[0])
+
+    if ret ~= ffi.C.ERROR_SUCCESS then
+      error(Error:new("msi get product property failed"))
+    end
+
+    version = ffi.string(pszVersion)
   end)
   callback(err, version)
 end
@@ -446,6 +492,7 @@ exports.UPGRADE_PERFORM = UPGRADE_PERFORM
 exports.UPGRADE_DOWNGRADE = UPGRADE_DOWNGRADE
 
 exports.attempt = attempt
+exports.getVersionFromMSI = getVersionFromMSI
 exports.downloadUpgrade = los.type() == "win32" and downloadUpgradeWin or downloadUpgradeUnix
 exports.checkForUpgrade = checkForUpgrade
 exports.getPaths = getPaths
