@@ -33,7 +33,7 @@ local function verify(path, sig_path, kpub_data, callback)
     end,
     sig = function(callback)
       local buffers = {}
-      local stream = fs.createReadStream(path)
+      local stream = fs.createReadStream(sig_path)
       stream:on('data', function(data)
         table.insert(buffers, data)
       end)
