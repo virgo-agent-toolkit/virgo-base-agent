@@ -35,11 +35,11 @@ local function verify(path, sig_path, kpub_data, callback)
     local data = res.data[1]
     local sig = res.sig[1]
     local pub_data = kpub_data
-    local key = openssl.x509.read(pub_data)
+    local key = openssl.pkey.read(pub_data)
     if not key then
       return callback(errors.InvalidSignatureError:new('invalid key file'))
     end
-    local rv = key:pubkey():verify(data, sig, 'sha256') 
+    local rv = key:verify(data, sig, 'sha256') 
     if not rv then
       return callback(errors.InvalidSignatureError:new('invalid sig on file: '.. path))
     end

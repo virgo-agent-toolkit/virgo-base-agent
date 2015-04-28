@@ -149,7 +149,7 @@ function Request:_write_stream(res)
   logging.debugf('writing stream to disk: %s.', self.download)
 
   local ok, stream = pcall(function()
-    return fs.createWriteStream(self.download)
+    return fs.WriteStream:new(self.download)
   end)
 
   if not ok then
@@ -181,7 +181,7 @@ function Request:_ensure_retries(err, res, buf)
     return
   end
 
-  local status = res and res.status_code or "?"
+  local status = res and res.statusCode or "?"
   local options = self.active_req_options
   local action
 
@@ -208,7 +208,7 @@ function Request:_ensure_retries(err, res, buf)
 end
 
 function Request:_handle_response(res)
-  if self.download and res.status_code >= 200 and res.status_code < 300 then
+  if self.download and res.statusCode >= 200 and res.statusCode < 300 then
     return self:_write_stream(res)
   end
 
