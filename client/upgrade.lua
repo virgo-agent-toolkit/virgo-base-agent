@@ -84,10 +84,11 @@ local function installMSI(msi_path)
 end
 
 local function versionCheck(my_version, other_version)
-  local cmp = semver.gte(my_version, other_version)
-  if cmp then
-    if other_version == my_version then return UPGRADE_EQUAL
-    else return UPGRADE_PERFORM end
+  if other_version == my_version then
+    return UPGRADE_EQUAL
+  end
+  if semver.gte(other_version, my_version) then
+    return UPGRADE_PERFORM
   end
   return UPGRADE_DOWNGRADE
 end
