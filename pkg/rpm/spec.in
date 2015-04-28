@@ -64,8 +64,16 @@ mkdir -p /var/lib/rackspace-monitoring-agent
 
 # Restart agent on upgrade
 if [ "$1" = "2" ] ; then
-    /sbin/service $PKG_NAME stop  >/dev/null 2>&1 || :
-    /sbin/service $PKG_NAME start >/dev/null 2>&1 || :
+    if [ -x "/bin/systemctl" ] ; then
+      /bin/systemctl reload $PKG_NAME.service >/dev/null 2>&1 || true
+      /bin/systemctl enable $PKG_NAME.service >/dev/null 2>&1 || true
+      if [ -f "/etc/rackspace-monitoring-agent.cfg" ] ; then
+        /bin/systemctl restart $PKG_NAME.service >/dev/null 2>&1 || true
+      fi
+    else
+      /sbin/service $PKG_NAME stop  >/dev/null 2>&1 || :
+      /sbin/service $PKG_NAME start >/dev/null 2>&1 || :
+    fi
 fi
 
 %preun

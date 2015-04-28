@@ -8,6 +8,7 @@ SHAREDIR=$(DESTDIR)/usr/share/$(NAME)
 INITDIR=$(DESTDIR)/etc/init
 INITDDIR=$(DESTDIR)/etc/init.d
 LOGROTATEDDIR=$(DESTDIR)/etc/logrotate.d
+SYSTEMDDIR=$(DESTDIR)/lib/systemd/system
 
 clean:
 	dh_testdir
@@ -34,6 +35,8 @@ install: build
 	install -o root -g root -m 755 debian/package.init $(INITDDIR)/$(NAME)
 	install -d $(LOGROTATEDDIR)
 	install -o root -g root -m 644 $(CURDIR)/base/pkg/out/script $(LOGROTATEDDIR)/$(NAME)
+	install -d $(SYSTEMDDIR)
+	install -o root -g root -m 644 $(CURDIR)/base/pkg/out/$(NAME).service $(SYSTEMDDIR)/$(NAME).service
 
 binary-arch: build install
 	dh_testdir
