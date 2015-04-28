@@ -22,10 +22,24 @@ local errors = require('../errors')
 local function verify(path, sig_path, kpub_data, callback)
   local parallel = {
     data = function(callback)
-      fs.readFile(path, callback)
+      local buffers = {}
+      local stream = fs.createReadStream(path)
+      stream:on('data', function(data)
+        table.insert(buffers, data)
+      end)
+      stream:on('end', function()
+        callback(nil, table.concat(buffers))
+      end)
     end,
     sig = function(callback)
-      fs.readFile(sig_path, callback)
+      local buffers = {}
+      local stream = fs.createReadStream(path)
+      stream:on('data', function(data)
+        table.insert(buffers, data)
+      end)
+      stream:on('end', function()
+        callback(nil, table.concat(buffers))
+      end)
     end
   }
   async.parallel(parallel, function(err, res)
