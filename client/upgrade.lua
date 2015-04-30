@@ -256,7 +256,7 @@ local function attempt(options, callback)
     end,
     function(callback)
       log(logging.DEBUG, fmt('comparing versions (%s, %s)', my_version, other_version))
-      upgrade_status = versionCheck(my_version, other_version)
+      upgrade_status = versionCheck(other_version, my_version)
       timer.setImmediate(callback)
     end,
     function(callback)
@@ -479,7 +479,7 @@ local function checkForUpgrade(codeCert, streams, callback)
     client:log(logging.DEBUG, fmt('(upgrade) -> Upstream Version: %s', version))
     if version == '0.0.0-0' then
       callback(Error:new('Disabled'))
-    elseif versionCheck(bundleVersion, version) == UPGRADE_PERFORM then
+    elseif versionCheck(version, bundleVersion) == UPGRADE_PERFORM then
       exports.downloadUpgrade(codeCert, streams, version, callback)
     else
       callback(Error:new('No upgrade'))
