@@ -479,7 +479,7 @@ local function checkForUpgrade(codeCert, streams, callback)
     client:log(logging.DEBUG, fmt('(upgrade) -> Upstream Version: %s', version))
     if version == '0.0.0-0' then
       callback(Error:new('Disabled'))
-    elseif versionCheck(version, bundleVersion) == UPGRADE_PERFORM then
+    elseif versionCheck(bundleVersion, version) == UPGRADE_PERFORM then
       exports.downloadUpgrade(codeCert, streams, version, callback)
     else
       callback(Error:new('No upgrade'))
