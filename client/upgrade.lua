@@ -129,7 +129,7 @@ local function installMSI(msi_path)
   end)
 end
 
-local function versionCheck(my_version, other_version)
+local function versionCheck(other_version, my_version)
   if other_version == my_version then
     return UPGRADE_EQUAL
   end
