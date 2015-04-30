@@ -17,6 +17,7 @@ local consts = require('../util/constants')
 local loggingUtil = require ('../util/logging')
 local misc = require('../util/misc')
 local request = require('../protocol/request')
+local v = require('../util/semver')
 local utilUpgrade = require('../util/upgrade')
 
 local Error = require('core').Error
@@ -27,7 +28,6 @@ local fs = require('fs')
 local logging = require('logging')
 local los = require('los')
 local path = require('path')
-local semver = require('semver')
 local spawn = require('childprocess').spawn
 local string = require('string')
 local table = require('table')
@@ -133,7 +133,7 @@ local function versionCheck(my_version, other_version)
   if other_version == my_version then
     return UPGRADE_EQUAL
   end
-  if semver.gte(other_version, my_version) then
+  if v(other_version) > v(my_version) then
     return UPGRADE_PERFORM
   end
   return UPGRADE_DOWNGRADE
