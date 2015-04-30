@@ -196,9 +196,9 @@ HRESULT AssocQueryStringA(ASSOCF flags, ASSOCSTR str, LPCTSTR pszAssoc, LPCTSTR 
 
 ]]
 
-Shell32 = ffi.load("Shell32")
-Ole32 = ffi.load("Ole32")
-Shlwapi = ffi.load("Shlwapi")
+local Shell32 = ffi.load("Shell32")
+local Ole32 = ffi.load("Ole32")
+local Shlwapi = ffi.load("Shlwapi")
 
 exports.FOLDERID_NetworkFolder = ffi.new("GUID", {0xD20BEEC4, 0x5CA8, 0x4905, {0xAE, 0x3B, 0xBF, 0x25, 0x1E, 0xA0, 0x9B, 0x53}})
 exports.FOLDERID_ComputerFolder = ffi.new("GUID", {0x0AC0837C, 0xBBF8, 0x452A, {0x85, 0x0D, 0x79, 0xD0, 0x8E, 0x66, 0x7C, 0xA7}})

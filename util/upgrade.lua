@@ -16,47 +16,49 @@ limitations under the License.
 
 local async = require('async')
 local fs = require('fs')
--- TODO CRYPTO
+local openssl = require('openssl')
 local errors = require('../errors')
 
 local function verify(path, sig_path, kpub_data, callback)
   local parallel = {
-    hash = function(callback)
-      local hash = crypto.verify.new('sha256')
+    data = function(callback)
+      local buffers = {}
       local stream = fs.createReadStream(path)
-      stream:on('data', function(d)
-        hash:update(d)
+      stream:on('data', function(data)
+        table.insert(buffers, data)
       end)
       stream:on('end', function()
-        callback(nil, hash)
+        callback(nil, table.concat(buffers))
       end)
-      stream:on('error', callback)
     end,
     sig = function(callback)
-      fs.readFile(sig_path, callback)
+      local buffers = {}
+      local stream = fs.createReadStream(sig_path)
+      stream:on('data', function(data)
+        table.insert(buffers, data)
+      end)
+      stream:on('end', function()
+        callback(nil, table.concat(buffers))
+      end)
     end
   }
   async.parallel(parallel, function(err, res)
     if err then
       return callback(err)
     end
-    local hash = res.hash[1]
+    local data = res.data[1]
     local sig = res.sig[1]
     local pub_data = kpub_data
-    local key = crypto.pkey.from_pem(pub_data)
-
+    local key = openssl.pkey.read(pub_data)
     if not key then
       return callback(errors.InvalidSignatureError:new('invalid key file'))
     end
-
-    if not hash:final(sig, key) then
+    local rv = key:verify(data, sig, 'sha256') 
+    if not rv then
       return callback(errors.InvalidSignatureError:new('invalid sig on file: '.. path))
     end
-
     callback()
   end)
 end
 
-local exports = {}
 exports.verify = verify
-return exports

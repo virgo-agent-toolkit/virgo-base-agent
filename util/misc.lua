@@ -145,7 +145,6 @@ local function tableContains(f, t)
 end
 
 local function trim(s)
-  if not s then return end
   return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
 

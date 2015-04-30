@@ -103,10 +103,6 @@ function ConnectionStateMachine:_reactDeactivate(client, state, msg)
     return self.states.TimeSyncDeactivate
   end
   client:clearHeartbeatInterval()
-  if self._connectionStream:getClient() == nil then
-    -- TODO: Re-enable when we fix the crasher
-    -- self._connectionStream:getUpgrade():stop()
-  end
   self:_autoTransition(client, state, msg)
   return self.states.TimeSyncDeactivate
 end
