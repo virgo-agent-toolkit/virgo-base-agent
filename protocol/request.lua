@@ -168,10 +168,6 @@ function Request:_write_stream(res)
     self:_ensure_retries(err, res)
   end)
 
-  res:on('end', function(d)
-    stream:finish(d)
-  end)
-
   res:pipe(stream)
 end
 

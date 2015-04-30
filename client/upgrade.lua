@@ -338,14 +338,6 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
     end)
   end
 
-  local function mkdirp(path, callback)
-    fs.mkdirp(path, "0755", function(err)
-      if not err then return callback() end
-      if err.code == "EEXIST" then return callback() end
-      callback(err)
-    end)
-  end
-
   local s = sigar:new():sysinfo()
 
   if s.name == 'MacOSX' then
@@ -383,10 +375,9 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
   local binary_name = fmt('%s-%s-%s-%s-%s', s.vendor, s.vendor_version, s.arch, virgo.pkg_name, version):lower()
   local binary_name_sig = fmt('%s.sig', binary_name)
 
+  fs.mkdirp(unverified_binary_dir)
+
   async.waterfall({
-    function(callback)
-      async.forEach({unverified_binary_dir, verified_binary_dir}, mkdirp, callback)
-    end,
     function(callback)
       local files = {
         payload = binary_name,
