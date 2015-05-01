@@ -17,7 +17,7 @@ local consts = require('../util/constants')
 local loggingUtil = require ('../util/logging')
 local misc = require('../util/misc')
 local request = require('../protocol/request')
-local v = require('../util/semver')
+local semver = require('semver')
 local utilUpgrade = require('../util/upgrade')
 
 local Error = require('core').Error
@@ -133,7 +133,7 @@ local function versionCheck(other_version, my_version)
   if other_version == my_version then
     return UPGRADE_EQUAL
   end
-  if v(other_version) > v(my_version) then
+  if semver.gte(other_version, my_version) then
     return UPGRADE_PERFORM
   end
   return UPGRADE_DOWNGRADE
@@ -281,7 +281,6 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
   local client = streams:getClient()
   local channel = streams:getChannel()
   local unverified_binary_dir = consts:get('DEFAULT_UNVERIFIED_EXE_PATH')
-  local verified_binary_dir = consts:get('DEFAULT_VERIFIED_EXE_PATH')
 
   if not client then return callback(Error:new('No client')) end
   callback = callback or function() end
