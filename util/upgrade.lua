@@ -20,16 +20,16 @@ local openssl = require('openssl')
 local errors = require('../errors')
 
 local function verify(path, sig_path, kpub_data, callback)
-  local parallel = {
+  local md = openssl.digest.get('sha256')
+  local vctx = md:verifyInit()
+  local sig
+  local series = {
     data = function(callback)
-      local buffers = {}
       local stream = fs.createReadStream(path)
       stream:on('data', function(data)
-        table.insert(buffers, data)
+        vctx:verifyUpdate(data)
       end)
-      stream:on('end', function()
-        callback(nil, table.concat(buffers))
-      end)
+      stream:on('end', callback)
     end,
     sig = function(callback)
       local buffers = {}
@@ -38,22 +38,20 @@ local function verify(path, sig_path, kpub_data, callback)
         table.insert(buffers, data)
       end)
       stream:on('end', function()
-        callback(nil, table.concat(buffers))
+        sig = table.concat(buffers)
+        callback()
       end)
     end
   }
-  async.parallel(parallel, function(err, res)
+  async.series(series, function(err, res)
     if err then
       return callback(err)
     end
-    local data = res.data[1]
-    local sig = res.sig[1]
-    local pub_data = kpub_data
-    local key = openssl.pkey.read(pub_data)
+    local key = openssl.pkey.read(kpub_data)
     if not key then
       return callback(errors.InvalidSignatureError:new('invalid key file'))
     end
-    local rv = key:verify(data, sig, 'sha256') 
+    local rv = vctx:verifyFinal(sig, key)
     if not rv then
       return callback(errors.InvalidSignatureError:new('invalid sig on file: '.. path))
     end

@@ -1,5 +1,5 @@
 APP_FILES=$(shell find . tests -type f)
-LIT_VERSION=1.1.4
+LIT_VERSION=1.1.5
 
 all: lit $(APP_FILES)
 
