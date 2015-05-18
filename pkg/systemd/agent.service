@@ -1,6 +1,7 @@
 [Unit]
 Description=$SHORT_DESCRIPTION
 Documentation=$DOCUMENTATION_LINK
+Wants=network-online.target
 After=network-online.target
 
 [Service]
