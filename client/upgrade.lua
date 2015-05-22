@@ -374,7 +374,7 @@ local function downloadUpgradeUnix(codeCert, streams, version, callback)
   local binary_name = fmt('%s-%s-%s-%s-%s', s.vendor, s.vendor_version, s.arch, virgo.pkg_name, version):lower()
   local binary_name_sig = fmt('%s.sig', binary_name)
 
-  fs.mkdirp(unverified_binary_dir)
+  fs.mkdirpSync(unverified_binary_dir)
 
   async.waterfall({
     function(callback)
@@ -418,21 +418,10 @@ local function downloadUpgradeWin(codeCert, streams, version, callback)
     request.makeRequest(opts, callback)
   end
 
-  local function mkdirp(path, callback)
-    fs.mkdirp(path, "0755", function(err)
-      if not err then return callback() end
-      if err.code == "EEXIST" then return callback() end
-      callback(err)
-    end)
-  end
-
   local s = sigar:new():sysinfo()
   local payload = fmt('%s-%s.msi', virgo.pkg_name, s.arch):lower()
 
   async.waterfall({
-    function(callback)
-      mkdirp(unverified_binary_dir, callback)
-    end,
     function(callback)
       download_iter({ payload = payload }, callback)
     end
