@@ -111,7 +111,8 @@ function AgentClient:connect()
   local onSuccess, onError
   options.tls_options = self._tls_options
   options.endpoint = {}
-  options.endpoint.host = self._ip
+  options.endpoint.host = self._host
+  options.endpoint.ip = self._ip
   options.endpoint.port = self._port
   options.agent = {}
   options.agent.guid = self._guid
