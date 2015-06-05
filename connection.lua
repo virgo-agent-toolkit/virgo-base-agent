@@ -159,6 +159,9 @@ function Connection:_connect()
   self._tls_options.host = self.host
   self._tls_options.port = self.port
   self._tls_connection = tls.TLSSocket:new(self._tls_options.socket, self._tls_options)
+  if not self._tls_options.socket then
+    self._tls_connection:connect(self.port, self.host)
+  end
   self._tls_connection:once('secureConnection', function()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
