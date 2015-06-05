@@ -10,7 +10,7 @@ local consts = require('./util/constants')
 local loggingUtil = require('./util/logging')
 local misc = require('./util/misc')
 local fmt = require('string').format
---local request = require('request')
+local request = require('request')
 local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
@@ -137,21 +137,18 @@ end
 function Connection:_proxy()
   if self.proxy then
     self._log(logging.DEBUG, fmt('Using PROXY %s', self.proxy))
---    local upstream_host = fmt('%s:%s', self.host, self.port)
-    -- TODO reenable request proxy support
-    --request.proxy(self.proxy, upstream_host, function(err, proxysock)
-    --  if err then
-    --    self:_error(err)
-    --    return
-    --  end
-
-    --  self._log(logging.DEBUG, '... connected to proxy')
-    --  self._tls_options.socket = proxysock
-    --  self._tls_options.host = self.host
-
-    --  self._log(logging.DEBUG, '... upgrading socket to TLS')
-    --  self:_changeState(CXN_STATES.PROXIED)
-    --end)
+    local upstream_host = fmt('%s:%s', self.host, self.port)
+    request.proxy(self.proxy, upstream_host, function(err, proxysock)
+      if err then
+        self:_error(err)
+        return
+      end
+      self._log(logging.DEBUG, '... connected to proxy')
+      self._tls_options.socket = proxysock
+      self._tls_options.host = self.host
+      self._log(logging.DEBUG, '... upgrading socket to TLS')
+      self:_changeState(CXN_STATES.PROXIED)
+    end)
   else
     self:_changeState(CXN_STATES.PROXIED)
   end
@@ -159,10 +156,13 @@ end
 
 -- initiate TLS connection
 function Connection:_connect()
-  for _,k in pairs({'host', 'port'}) do
-    self._tls_options[k] = self[k]
+  self._tls_options.host = self.host
+  self._tls_options.port = self.port
+  self._tls_connection = tls.TLSSocket:new(self._tls_options.socket, self._tls_options)
+  if not self._tls_options.socket then
+    self._tls_connection:connect(self.port, self.host)
   end
-  self._tls_connection = tls.connect(self._tls_options, function()
+  self._tls_connection:once('secureConnection', function()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
   self._tls_connection:on('error', function(err)
