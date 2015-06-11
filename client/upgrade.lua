@@ -404,6 +404,8 @@ local function downloadUpgradeWin(codeCert, streams, version, callback)
   if not client then return end
   callback = callback or function() end
 
+  fs.mkdirpSync(unverified_binary_dir)
+
   local function download_iter(item, callback)
     local options, opts
     options = misc.merge({
