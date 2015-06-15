@@ -160,7 +160,7 @@ function Request:_write_stream(res)
     return self:_ensure_retries(stream, res)
   end
 
-  stream:on('end', function()
+  stream:on('finish', function()
     self:_ensure_retries(nil, res)
   end)
 
