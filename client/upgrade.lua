@@ -35,6 +35,7 @@ local timer = require('timer')
 local windowsConvertCmd = require('../utils').windowsConvertCmd
 local _, sigar = pcall(require, 'sigar')
 local uv = require('uv')
+local ffi = require('ffi')
 
 local trim = misc.trim
 
@@ -61,30 +62,34 @@ local function getVersionFromProcess(exe_path, callback)
   end)
 end
 
+local loadedWindowsFFI = false
+local function loadWindowsFFI()
+  ffi.cdef[[
+    typedef unsigned long MSIHANDLE;
+    typedef unsigned int UINT;
+    typedef char CHAR;
+    typedef CHAR *NPSTR, *LPSTR, *PSTR;
+    typedef const CHAR *LPCSTR, *PCSTR;
+
+    enum {
+    ERROR_SUCCESS = 0L,
+    ERROR_MORE_DATA = 234L
+    };
+
+    UINT MsiOpenPackageA(const char* szPackagePath, MSIHANDLE *hProduct);
+    UINT MsiGetProductPropertyA(MSIHANDLE hProduct,  LPCTSTR szProperty, LPTSTR lpValueBuf, DWORD *pcchValueBuf);
+    UINT MsiCloseHandle(MSIHANDLE hAny);
+    ]]
+  loadedWindowsFFI = true
+end
+
 -- Read the MSI to get the version string
 local function getVersionFromMSI(msi_path, callback)
   local version = nil
   local _, err = pcall(function()
-    local ffi = require('ffi')
-    ffi.cdef[[
-      typedef unsigned long MSIHANDLE;
-      typedef unsigned int UINT;
-      typedef char CHAR;
-      typedef CHAR *NPSTR, *LPSTR, *PSTR;
-      typedef const CHAR *LPCSTR, *PCSTR;
-
-      enum {
-        ERROR_SUCCESS = 0L,
-        ERROR_MORE_DATA = 234L
-      };
-
-      UINT MsiOpenPackageA(const char* szPackagePath, MSIHANDLE *hProduct);
-      UINT MsiGetProductPropertyA(MSIHANDLE hProduct,  LPCTSTR szProperty, LPTSTR lpValueBuf, DWORD *pcchValueBuf);
-      UINT MsiCloseHandle(MSIHANDLE hAny);
-    ]]
+    if not loadedWindowsFFI then loadWindowsFFI() end
 
     local msilib = ffi.load("Msi")
-
     local phProduct = ffi.new('MSIHANDLE[1]')
     local ret = msilib.MsiOpenPackageA(msi_path, phProduct);
     if ret ~= ffi.C.ERROR_SUCCESS then
