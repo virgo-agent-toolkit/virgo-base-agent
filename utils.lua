@@ -25,10 +25,11 @@ local winpaths = require('./util/win_paths')
 local delta = 0
 local delay
 
+-- Get ms since Jan. 1 1970 in GMT
 local function gmtNow()
   local t_secs = os.time() -- get seconds if t was in local time.
   local t_UTC = os.date("!*t", t_secs) -- find out what UTC t was converted to.
-  return os.time(t_UTC) -- find out the converted time in seconds.
+  return os.time(t_UTC) * 1000 -- find out the converted time in milliseconds.
 end
 
 local function trim(s)
