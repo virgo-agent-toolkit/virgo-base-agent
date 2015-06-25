@@ -18,7 +18,7 @@ return function(options, callback)
   assert(type(options) == "table", "options must be a table")
   assert(options.version, "version is missing")
   _G.virgo = {}
-  _G.virgo.virgo_version = options.version or require('./package').version
+  _G.virgo.virgo_version = require('./package').version
   _G.virgo.bundle_version = options.version or require('./package').version
   _G.virgo.pkg_name = options.pkg_name
   _G.virgo_paths = {}
