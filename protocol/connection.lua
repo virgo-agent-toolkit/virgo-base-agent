@@ -27,6 +27,7 @@ local msg = require ('../protocol/messages')
 
 -- Response timeouts in ms
 local HANDSHAKE_TIMEOUT = 30000
+local HEARTBEAT_TIMEOUT = 10000
 
 local STATES = {}
 STATES.INITIAL = 1
@@ -45,7 +46,7 @@ end
 
 requests['heartbeat.post'] = function(self, timestamp, callback)
   local m = msg.Heartbeat:new(timestamp)
-  self:_send(m, callback)
+  self:_send(m, callback, HEARTBEAT_TIMEOUT)
 end
 
 --[[ Reponse Functions ]]--
