@@ -55,7 +55,7 @@ local function xenAdapter(callback)
       if code == 0 and buffer:len() > 10 then
         callback(nil, utils.trim(buffer:sub(10)))
       else
-        callback(Error:new(fmt('Could not retrieve xenstore name, ret: %d, buffer: %s', code, buffer)))
+        callback(Error:new(fmt('Could not retrieve xenstore name, ret: %d, buffer: %s', _code, buffer)))
       end
     end
   end
