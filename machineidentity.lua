@@ -52,7 +52,7 @@ local function xenAdapter(callback)
     count = count - 1
     if count == 0 then
       buffer = table.concat(buffer)
-      if code == 0 and buffer:len() > 10 then
+      if _code == 0 and buffer:len() > 10 then
         callback(nil, utils.trim(buffer:sub(10)))
       else
         callback(Error:new(fmt('Could not retrieve xenstore name, ret: %d, buffer: %s', _code, buffer)))
