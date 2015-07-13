@@ -27,10 +27,10 @@ local table = require('table')
 local MachineIdentity = Object:extend()
 
 local function xenAdapter(callback)
-  local exePath, exeArgs, onExit, onStdout
+  local exePath, exeArgs
   local buffer, child
-  callback = fireOnce(callback)
 
+  callback = fireOnce(callback)
   buffer = {}
 
   if los.type() == 'win32' then
@@ -46,21 +46,36 @@ local function xenAdapter(callback)
     exeArgs = { 'name' }
   end
 
-  function onStdout(chunk)
+  local count = 2
+  local _code
+  local function done()
+    count = count - 1
+    if count == 0 then
+      buffer = table.concat(buffer)
+      if code == 0 and buffer:len() > 10 then
+        callback(nil, utils.trim(buffer:sub(10)))
+      else
+        callback(Error:new(fmt('Could not retrieve xenstore name, ret: %d, buffer: %s', code, buffer)))
+      end
+    end
+  end
+
+  local function onStdout(chunk)
     table.insert(buffer, chunk)
   end
 
-  function onExit(code)
-    buffer = table.concat(buffer)
-    if code == 0 and buffer:len() > 10 then
-      callback(nil, utils.trim(buffer:sub(10)))
-    else
-      callback(Error:new(fmt('Could not retrieve xenstore name, ret: %d, buffer: %s', code, buffer)))
-    end
+  local function onEnd()
+    done()
+  end
+
+  local function onExit(code)
+    _code = code
+    done()
   end
 
   child = childprocess.spawn(exePath, exeArgs)
   child.stdout:on('data', onStdout)
+  child.stdout:on('end', done)
   child:once('error', callback)
   child:once('exit', onExit)
 end
