@@ -82,26 +82,21 @@ end
 
 local function cloudInitAdapter(callback)
   -- TODO: Win32 cloud-init paths
-  local onData, instanceIdPath
 
-  instanceIdPath = '/var/lib/cloud/data/instance-id'
-
-  function onData(err, data)
-    if err then
-      return callback(err)
-    end
-
-    -- the fallback datasource is iid-datasource-none when it does not exist
-    -- http://cloudinit.readthedocs.org/en/latest/topics/datasources.html#fallback-none
-    data = utils.trim(data)
-    if data == 'iid-datasource-none' or data == 'nocloud' then
-      callback(Error:new('Invalid instance-id'))
-    else
-      callback(nil, data)
-   end
+  local instanceIdPath = '/var/lib/cloud/data/instance-id'
+  local data, err = fs.readFileSync(instanceIdPath)
+  if err then
+    return callback(err)
   end
 
-  fs.readFile(instanceIdPath, onData)
+  -- the fallback datasource is iid-datasource-none when it does not exist
+  -- http://cloudinit.readthedocs.org/en/latest/topics/datasources.html#fallback-none
+  data = utils.trim(data)
+  if data == 'iid-datasource-none' or data == 'nocloud' then
+    callback(Error:new('Invalid instance-id'))
+  else
+    callback(nil, data)
+  end
 end
 
 function MachineIdentity:initialize(config)
