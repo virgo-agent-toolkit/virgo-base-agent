@@ -320,10 +320,10 @@ exports.GetAssociatedExe = function(extension, verb)
   verb = verb or 'open'
   local exePathLen = ffi.new("DWORD[1]", ffi.C.MAX_PATH)
   local exePath = ffi.new("char[?]", ffi.C.MAX_PATH)
-  local extensionffi = ffi.new("char[?]", #extension)
-  local verbffi = ffi.new("char[?]", #verb)
-  ffi.copy(extensionffi, extension)
-  ffi.copy(verbffi, verb)
+  local extensionffi = ffi.new("char[?]", #extension + 1)
+  local verbffi = ffi.new("char[?]", #verb + 1)
+  ffi.copy(extensionffi, extension, #extension)
+  ffi.copy(verbffi, verb, #verb)
   local rv = Shlwapi.AssocQueryStringA(ffi.C.ASSOCF_INIT_IGNOREUNKNOWN,
     ffi.C.ASSOCSTR_EXECUTABLE, extensionffi, verbffi, exePath, exePathLen)
   if rv ~= 0 then return nil end
