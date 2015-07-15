@@ -81,8 +81,10 @@ local function xenAdapter(callback)
 end
 
 local function cloudInitAdapter(callback)
-  -- TODO: Win32 cloud-init paths
   local onData, instanceIdPath
+
+  -- Cloud Init is not supported on Windows
+  if los.type() == 'win32' then return callback(Error:new('not supported')) end
 
   instanceIdPath = '/var/lib/cloud/data/instance-id'
 
