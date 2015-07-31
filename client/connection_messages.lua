@@ -2,6 +2,7 @@ local bind = require('utils').bind
 local timer = require('timer')
 local Emitter = require('core').Emitter
 local os = require('os')
+local json = require('json')
 
 local logging = require('logging')
 local fmt = require('string').format
@@ -69,7 +70,7 @@ function ConnectionMessages:onMessage(client, msg)
     return
   end
 
-  client:log(logging.DEBUG, fmt('received %s', method))
+  client:log(logging.DEBUG, fmt('received %s %s', method, json.stringify(msg)))
 
   local callback = function(err, msg)
     if (err) then
