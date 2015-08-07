@@ -33,8 +33,6 @@ local fmt = require('string').format
 
 local AgentClient = Emitter:extend()
 
-local HEARTBEAT_INTERVAL = 5 * 60 * 1000 -- ms
-
 local DATACENTER_COUNT = {}
 
 function AgentClient:initialize(options, connectionStream, types)
@@ -99,7 +97,7 @@ function AgentClient:log(priority, ...)
 end
 
 function AgentClient:_socketTimeout()
-  return misc.calcJitter(HEARTBEAT_INTERVAL, consts:get('SOCKET_TIMEOUT'))
+  return self._heartbeat_interval * consts:get('SOCKET_TIMEOUT_MULTIPLIER')
 end
 
 function AgentClient:onUpgradeRequest()
@@ -150,9 +148,10 @@ function AgentClient:connect()
     self._connectionStream:setChannel(self._connection.handshake_msg.result.channel)
     self:emit('handshake_success', self._connection.handshake_msg.result)
 
-    self._log(logging.DEBUG, fmt('Using timeout %sms', self:_socketTimeout()))
+    local socket_timeout = self:_socketTimeout()
+    self._log(logging.DEBUG, fmt('Using timeout %sms', socket_timeout))
     -- hack: should be handled in Connection class
-    self._connection._tls_connection:setTimeout(self:_socketTimeout(), function()
+    self._connection._tls_connection:setTimeout(socket_timeout, function()
       self:emit('timeout')
     end)
     --  TODO: make this work: self._connection.readable:on('end', function()
