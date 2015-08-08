@@ -150,12 +150,10 @@ function AgentClient:connect()
 
     local socket_timeout = self:_socketTimeout()
     self._log(logging.DEBUG, fmt('Using timeout %sms', socket_timeout))
-    -- hack: should be handled in Connection class
-    self._connection._tls_connection:setTimeout(socket_timeout, function()
+    self._connection:setTimeout(socket_timeout, function()
       self:emit('timeout')
     end)
-    --  TODO: make this work: self._connection.readable:on('end', function()
-    self._connection._tls_connection:on('end', function()
+    self._connection:getSocket():on('end', function()
       self:emit('end')
     end)
   end

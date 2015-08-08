@@ -154,6 +154,15 @@ function Connection:_proxy()
   end
 end
 
+-- set the connection timeout
+function Connection:setTimeout(ms, callback)
+  self._tls_connection:setTimeout(ms, callback)
+end
+
+function Connection:getSocket()
+  return self._tls_connection
+end
+
 -- initiate TLS connection
 function Connection:_connect()
   self._tls_options.host = self.host
