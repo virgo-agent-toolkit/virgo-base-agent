@@ -57,6 +57,7 @@ globalCtx:set('DEFAULT_CHANNEL', 'stable')
 
 globalCtx:set('CONNECT_TIMEOUT', 6000)
 globalCtx:set('SOCKET_TIMEOUT', 10000)
+globalCtx:set('SOCKET_TIMEOUT_MULTIPLIER', 1.5)
 globalCtx:set('HEARTBEAT_INTERVAL_JITTER_MULTIPLIER', 7)
 
 globalCtx:set('UPGRADE_INTERVAL', 86400000) -- 24hrs
