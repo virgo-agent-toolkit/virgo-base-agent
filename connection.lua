@@ -136,9 +136,9 @@ end
 -- configured
 function Connection:_proxy()
   if self.proxy then
-    self._log(logging.DEBUG, fmt('Using PROXY %s', self.proxy))
+    self._log(logging.DEBUG, fmt('Using PROXY %s with timeout %s', self.proxy, self.timeout))
     local upstream_host = fmt('%s:%s', self.host, self.port)
-    request.proxy(self.proxy, upstream_host, function(err, proxysock)
+    request.proxy(self.proxy, upstream_host, self.timeout, function(err, proxysock)
       if err then
         self:_error(err)
         return
@@ -156,6 +156,7 @@ end
 
 -- set the connection timeout
 function Connection:setTimeout(ms, callback)
+  self.timeout = ms
   self._tls_connection:setTimeout(ms, callback)
 end
 
