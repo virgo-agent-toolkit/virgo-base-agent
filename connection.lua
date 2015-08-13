@@ -167,7 +167,8 @@ end
 
 -- initiate TLS connection
 function Connection:_connect()
-  local onDone = misc.fireOnce(function(err)
+  local err
+  local onDone = misc.fireOnce(function()
     self:_error(err)
   end)
   self._tls_options.host = self.host
@@ -179,8 +180,14 @@ function Connection:_connect()
   self._tls_connection:once('secureConnection', function()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
-  self._tls_connection:on('error', onDone)
-  self._tls_connection:on('close', onDone)
+  self._tls_connection:on('error', function(_err)
+    err = _err
+    onDone()
+  end)
+  self._tls_connection:on('close', function()
+    err = Error:new('Closed')
+    onDone()
+  end)
 end
 
 -- construct JSON parser/encoding on top of the TLS connection
