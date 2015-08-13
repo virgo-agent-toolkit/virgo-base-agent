@@ -147,6 +147,12 @@ function ConnectionStream:_createConnection(options)
     client:getMachine():react(client, 'connect')
   end)
 
+  client:on('close', function()
+    self:emit('client_end', client)
+    client:log(logging.DEBUG, 'Remote endpoint closed the connection')
+    client:destroy()
+  end)
+
   client:on('end', function()
     self:emit('client_end', client)
     client:log(logging.DEBUG, 'Remote endpoint closed the connection')

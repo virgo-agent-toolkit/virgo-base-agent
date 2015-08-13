@@ -167,10 +167,6 @@ end
 
 -- initiate TLS connection
 function Connection:_connect()
-  local err
-  local onDone = misc.fireOnce(function()
-    self:_error(err)
-  end)
   self._tls_options.host = self.host
   self._tls_options.port = self.port
   self._tls_connection = tls.TLSSocket:new(self._tls_options.socket, self._tls_options)
@@ -180,13 +176,11 @@ function Connection:_connect()
   self._tls_connection:once('secureConnection', function()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
-  self._tls_connection:on('error', function(_err)
-    err = _err
-    onDone()
+  self._tls_connection:on('error', function(err)
+    self:_error(err)
   end)
   self._tls_connection:on('close', function()
-    err = Error:new('Closed')
-    onDone()
+    self:emit('close')
   end)
 end
 
