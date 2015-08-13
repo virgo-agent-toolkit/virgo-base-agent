@@ -25,6 +25,7 @@ local misc = require('../util/misc')
 local timer = require('timer')
 local utils = require('utils')
 local vutils = require('../utils')
+local Error = require('core').Error
 
 local ConnectionStateMachine = require('./connection_statemachine').ConnectionStateMachine
 local Connection = require('../connection')
@@ -165,6 +166,9 @@ function AgentClient:connect()
   self._log(logging.DEBUG, 'Connecting...')
   self._connection = Connection:new({}, options)
   self._connection:connect(onSuccess, onError)
+  self._connection:on('close', function()
+    self:emit('error', Error:new('Connection close'))
+  end)
 end
 
 function AgentClient:_attachSocketHandlers()
