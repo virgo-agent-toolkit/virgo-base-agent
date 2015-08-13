@@ -14,6 +14,7 @@ local request = require('request')
 local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
+local Error = require('core').Error
 
 local CXN_STATES = {
   INITIAL = 'INITIAL',
@@ -166,6 +167,9 @@ end
 
 -- initiate TLS connection
 function Connection:_connect()
+  local onDone = misc.fireOnce(function(err)
+    self:_error(err)
+  end)
   self._tls_options.host = self.host
   self._tls_options.port = self.port
   self._tls_connection = tls.TLSSocket:new(self._tls_options.socket, self._tls_options)
@@ -175,9 +179,8 @@ function Connection:_connect()
   self._tls_connection:once('secureConnection', function()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
-  self._tls_connection:on('error', function(err)
-    self:_error(err)
-  end)
+  self._tls_connection:on('error', onDone)
+  self._tls_connection:on('close', onDone)
 end
 
 -- construct JSON parser/encoding on top of the TLS connection
