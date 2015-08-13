@@ -14,6 +14,7 @@ local request = require('request')
 local timer = require('timer')
 local tls = require('tls')
 local utils = require('utils')
+local Error = require('core').Error
 
 local CXN_STATES = {
   INITIAL = 'INITIAL',
@@ -177,6 +178,9 @@ function Connection:_connect()
   end)
   self._tls_connection:on('error', function(err)
     self:_error(err)
+  end)
+  self._tls_connection:on('close', function()
+    self:emit('close')
   end)
 end
 
