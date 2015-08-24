@@ -101,7 +101,7 @@ local function getVersionFromMSI(msi_path, callback)
     local prop = 'ProductVersion'
 
     ret = msilib.MsiGetProductPropertyA(phProduct[0], ffi.cast('char *', prop), pszVersion, pdwSizeVersion)
-    if not (ret == ffi.C.ERROR_MORE_DATA or (ret == ffi.C.ERROR_SUCCESS and dwSizeVersion[0] > 0)) then
+    if not (ret == ffi.C.ERROR_MORE_DATA or (ret == ffi.C.ERROR_SUCCESS and pdwSizeVersion[0] > 0)) then
       msilib.MsiCloseHandle(phProduct[0])
       error(Error:new("msi get product property size failed"))
     end
@@ -229,7 +229,7 @@ local function attempt(options, callback)
   else
     my_version = virgo.bundle_version
   end
-  
+
   if options.paths then
     paths = options.paths
   else

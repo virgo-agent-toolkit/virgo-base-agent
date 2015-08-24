@@ -84,10 +84,6 @@ local function xenAdapter(callback)
     table.insert(buffer, chunk)
   end
 
-  local function onEnd()
-    done()
-  end
-
   local function onExit(code)
     _code = code
     done()
