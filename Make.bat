@@ -1,5 +1,5 @@
 @ECHO off
-@SET LIT_VERSION=2.1.11
+@SET LIT_VERSION=2.2.9
 
 IF NOT "x%1" == "x" GOTO :%1
 
@@ -11,7 +11,8 @@ GOTO :end
 :test
 IF NOT EXIST lit.exe CALL Make.bat lit
 CALL lit.exe install
-CALL luvi.exe . -m tests\run.lua
+CALL lit.exe get-luvi -o luvi-sigar.exe
+CALL luvi-sigar.exe . -m tests\run.lua
 GOTO :end
 
 :clean
