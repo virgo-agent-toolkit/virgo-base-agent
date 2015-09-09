@@ -200,7 +200,7 @@ function Connection:_ready()
     end
 
     chunk.target = 'endpoint'
-    chunk.source = self.options.agent.id
+    chunk.source = self.options.agent.guid
 
     success, err = pcall(function()
       this:push(JSON.stringify(chunk) .. '\n') -- \n delimited JSON
