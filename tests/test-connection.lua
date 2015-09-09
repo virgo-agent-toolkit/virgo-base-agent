@@ -59,9 +59,10 @@ local test_hello_response_error_handling = function(fixture, checkErr)
     agent = {
       token = 'this_is_a_token',
       id = 'agentA',
+      guid = 'agentA'
     },
     tls_options = {
-      rejectUnauthorized = false 
+      rejectUnauthorized = false
     }
   })
 
@@ -139,6 +140,7 @@ require('tap')(function(test)
       agent = {
         token = 'this_is_a_token',
         id = 'agentA',
+        guid = 'agentA',
       },
       tls_options = {
         rejectUnauthorized = false,
@@ -177,6 +179,7 @@ require('tap')(function(test)
       agent = {
         token = 'this_is_a_token',
         id = 'agentA',
+        guid = 'agentA',
       },
       tls_options = {
         rejectUnauthorized = false,
@@ -198,7 +201,7 @@ require('tap')(function(test)
 
     function onListen()
       local onSuccess, onError
-      
+
       function onSuccess()
         connection:pipe(sink)
       end
@@ -227,6 +230,7 @@ require('tap')(function(test)
       agent = {
         token = 'this_is_a_token',
         id = 'agentA',
+        guid = 'agentA',
       },
       tls_options = {
         rejectUnauthorized = false,
