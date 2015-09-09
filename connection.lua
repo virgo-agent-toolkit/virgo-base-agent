@@ -29,7 +29,7 @@ local CXN_STATES = {
 
 --[[
 -- Connection is a class that initiates TLS connection to other parties,
--- manages protocol states (handshake, etc.) and handles JSON (un)marshalling. 
+-- manages protocol states (handshake, etc.) and handles JSON (un)marshalling.
 --
 -- Although for now it is implemented to be Agent specific, Connection is
 -- intended to be a general class that works for both agents and agent
@@ -200,7 +200,6 @@ function Connection:_ready()
     end
 
     chunk.target = 'endpoint'
-    chunk.source = self.options.agent.guid
 
     success, err = pcall(function()
       this:push(JSON.stringify(chunk) .. '\n') -- \n delimited JSON
@@ -212,7 +211,7 @@ function Connection:_ready()
   end
 
   local dejsonify = Split:new({
-    objectMode = true, 
+    objectMode = true,
     -- \n is the default separator
     mapper = function(chunk)
       local obj = nil
