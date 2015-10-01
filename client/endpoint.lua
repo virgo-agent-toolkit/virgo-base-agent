@@ -49,7 +49,7 @@ function Endpoint:getHostInfo(callback)
     function (callback)
       if self.srv_query then
         dns.resolveSrv(self.srv_query, function(err, results)
-          if err then
+          if err or #results == 0 then
             logging.errorf('Could not lookup SRV record for %s', self.srv_query)
             callback(err)
             return
