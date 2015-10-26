@@ -260,6 +260,7 @@ function Connection:_handshake()
   table.insert(self.timers, timer.setTimeout(self._handshake_timeout, function()
     if self._state ~= CXN_STATES.AUTHENTICATED then
       self:_error(string.format("Handshake timeout, haven't received response in %d ms", self._handshake_timeout))
+      self.readable:removeListener('data', onDataClient)
     end
   end))
   self.writable:write(msg)
