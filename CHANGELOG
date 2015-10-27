@@ -1,3 +1,7 @@
+## virgo-base-agent 2.0.8
+
+ * Remove data listener on error
+
 ## virgo-base-agent 2.0.7
 
  * Handle error if SRV records are not returned
