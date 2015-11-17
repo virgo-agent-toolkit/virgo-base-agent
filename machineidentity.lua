@@ -73,7 +73,7 @@ local function xenAdapter(callback)
     done()
   end
 
-  child = childprocess.spawn(exePath, exeArgs)
+  child = childprocess.spawn(exePath, exeArgs, { env = process.env })
   child.stdin:destroy()
   child.stdout:on('data', onStdout)
   child.stdout:on('end', done)
