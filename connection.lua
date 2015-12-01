@@ -249,8 +249,6 @@ function Connection:_handshake()
       self.readable:removeListener('data', onDataClient)
       -- hack before Connection class fully takes over handshakes
       self.handshake_msg = data
-      self._log(logging.DEBUG, string.format('handshake successful (heartbeat_interval=%dms)', self.handshake_msg.result.heartbeat_interval))
-
       self:_changeState(CXN_STATES.AUTHENTICATED)
     end
   end
