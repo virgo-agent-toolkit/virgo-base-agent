@@ -1,3 +1,7 @@
+## virgo-base-agent 2.0.12
+
+ * more debugging for invalid response
+
 ## virgo-base-agent 2.0.10
 
  * pass env to machineidentity spawn
