@@ -144,10 +144,20 @@ function AgentClient:connect()
     end)
 
     -- hack: should not have to access _connection.handshake_msg
-    self._heartbeat_interval = self._connection.handshake_msg.result.heartbeat_interval
-    self._entity_id = self._connection.handshake_msg.result.entity_id
-    self._connectionStream:setChannel(self._connection.handshake_msg.result.channel)
-    self:emit('handshake_success', self._connection.handshake_msg.result)
+    local _, err = pcall(function()
+      self._heartbeat_interval = self._connection.handshake_msg.result.heartbeat_interval
+      self._entity_id = self._connection.handshake_msg.result.entity_id
+      self._connectionStream:setChannel(self._connection.handshake_msg.result.channel)
+    end)
+    if err then
+      if self._connection.handshake_msg then
+        self:emit('error', Error:new('invalid response from server: ' .. JSON.stringify(self._connection.handshake_msg)))
+      elseif not self._connection.handshake_msg then
+        self:emit('error', Error:new('invalid response from server: nil response'))
+      end
+    else
+      self:emit('handshake_success', self._connection.handshake_msg.result)
+    end
 
     local socket_timeout = self:_socketTimeout()
     self._log(logging.DEBUG, fmt('Using timeout %sms', socket_timeout))
