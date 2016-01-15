@@ -122,15 +122,20 @@ end
 
 -- resolve SRV record
 function Connection:_resolve()
-  dns.resolveSrv(self.endpoint, function(err, host)
-    if err then
-      self:_error(err)
-      return
-    end
-    self.host = host[0].name
-    self.port = host[0].port
-    self:_changeState(CXN_STATES.RESOLVED)
+  local success = pcall(function()
+    dns.resolveSrv(self.endpoint, function(err, host)
+      if err then
+        self:_error(err)
+        return
+      end
+      self.host = host[0].name
+      self.port = host[0].port
+      self:_changeState(CXN_STATES.RESOLVED)
+    end)
   end)
+  if not success then
+    self:_error(Error:new('DNS Error'))
+  end
 end
 
 -- get the proxy ready if configured, or pass to next state if no proxy is
