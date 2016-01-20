@@ -2,7 +2,7 @@ return {
   name = "virgo-agent-toolkit/virgo",
   version = "2.0.12",
   luvi = {
-    version = "2.3.2-sigar",
+    version = "2.5.1-sigar",
     flavor = "sigar",
     url = "https://github.com/virgo-agent-toolkit/luvi/releases/download/v%s-sigar/luvi-%s-%s"
   },
