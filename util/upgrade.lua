@@ -21,7 +21,7 @@ local errors = require('../errors')
 
 local function verify(path, sig_path, kpub_data, callback)
   local md = openssl.digest.get('sha256')
-  local vctx = md:verifyInit()
+  local vctx = md:new()
   local sig
   local series = {
     data = function(callback)
