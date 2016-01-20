@@ -122,7 +122,7 @@ end
 
 -- resolve SRV record
 function Connection:_resolve()
-  local success = pcall(function()
+  local success, err = pcall(function()
     dns.resolveSrv(self.endpoint, function(err, host)
       if err then
         self:_error(err)
@@ -134,7 +134,11 @@ function Connection:_resolve()
     end)
   end)
   if not success then
-    self:_error(Error:new('DNS Error'))
+    if err then
+      self:_error(Error:new('DNS Error: ' .. tostring(err)))
+    else
+      self:_error(Error:new('DNS Error: Unknown error'))
+    end
   end
 end
 
