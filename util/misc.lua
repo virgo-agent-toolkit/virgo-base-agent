@@ -23,6 +23,7 @@ local sigar = require('sigar')
 local LineEmitter = require('line-emitter').LineEmitter
 local Stream = require('stream').Duplex
 local Transform = require('stream').Transform
+local childProcess = require('childprocess')
 
 --[[
 Split an address.
