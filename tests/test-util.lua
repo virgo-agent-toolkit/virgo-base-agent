@@ -39,8 +39,8 @@ require('tap')(function(test)
     local function onEnd()
       local expected = 'Line1 Line2'
       local readString = table.concat(readData)
-      p(expected, readString)
       assert(expected == readString)
+      fs.unlinkSync(tmp_file)
     end
 
     local readStream = read(tmp_file)
