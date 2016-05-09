@@ -1,5 +1,5 @@
 APP_FILES=$(shell find . tests -type f)
-LIT_VERSION=2.3.1
+LIT_VERSION=3.3.3
 
 all: luvi-sigar $(APP_FILES)
 
