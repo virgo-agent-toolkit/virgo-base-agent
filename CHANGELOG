@@ -1,3 +1,7 @@
+## virgo-base-agent 2.1.1
+
+ * Fix error reporting
+
 ## virgo-base-agent 2.0.12
 
  * more debugging for invalid response

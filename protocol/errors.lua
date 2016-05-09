@@ -19,6 +19,7 @@ local Error = require('core').Error
 
 local ProtocolError = Error:extend()
 function ProtocolError:initialize(msg)
+  Error.initialize(self, self.message)
   self['original'] = msg
   self['code'] = msg['code'] or 'unknown'
   self['type'] = msg['type'] or 'unknown'
@@ -26,7 +27,6 @@ function ProtocolError:initialize(msg)
 
   self.message = fmt('%s error: code=%s, message=%s',
     self['type'], self['code'], self['msg'])
-  Error.initialize(self, self.message)
 end
 
 local VersionError = Error:extend()
