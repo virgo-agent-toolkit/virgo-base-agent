@@ -65,7 +65,7 @@ require('tap')(function(test)
     }
     local server = uv.new_tcp()
     uv.tcp_bind(server, "127.0.0.1", 0)
-    uv.listen(server, 128)
+    uv.listen(server, 128, function() end)
     local address = uv.tcp_getsockname(server)
     p(address)
 
