@@ -133,12 +133,17 @@ function ConnectionStream:_createConnection(options)
     client:destroy(err)
   end)
 
-  client:on('respawn', function()
+  client:once('respawn', function()
+    if self._shutdown then return end
+    client:getMachine():react(client, 'connect')
     client:log(logging.DEBUG, 'Respawning client')
-    self:_restart(client, options)
+    timer.setImmediate(function()
+      self:_restart(client, options)
+    end)
   end)
 
   client:on('timeout', function()
+    self:emit('timeout')
     client:log(logging.DEBUG, 'Client Timeout')
     client:destroy()
   end)
@@ -208,7 +213,7 @@ function ConnectionStream:reconnect(options)
   logging.infof('%s -> Retrying connection in %dms',
                 datacenter, delay)
 
-  function onTimer()
+  local function onTimer()
     local onCreate
 
     function onCreate(err)

@@ -5,6 +5,7 @@ local constants = require('../util/constants_ctx').ConstantsCtx:new()
 local ConnectionStream = require('../client/connection_stream').ConnectionStream
 local Endpoint = require('../client/endpoint').Endpoint
 local Server = require('server').Server
+local uv = require('uv')
 
 constants:setGlobal("DEFAULT_HANDSHAKE_TIMEOUT", 10000)
 constants:setGlobal("DATACENTER_FIRST_RECONNECT_DELAY", 500)
@@ -41,8 +42,7 @@ require('tap')(function(test)
     async.series({
       function(callback)
         AEP = TimeoutServer:new({includeTimeouts = false})
-        AEP:listen(4444, '127.0.0.1')
-        timer.setTimeout(1000, callback)
+        AEP:listen(4444, '127.0.0.1', callback)
       end,
       function(callback)
         client = ConnectionStream:new('id', 'token', 'guid', false, options)
@@ -56,6 +56,53 @@ require('tap')(function(test)
       AEP:close()
     end)
   end)
+
+  test('test_hanging_connect', function()
+    local options = {
+      datacenter = 'test',
+      timeout = 5000,
+      tls = { rejectUnauthorized = false }
+    }
+    local server = uv.new_tcp()
+    uv.tcp_bind(server, "127.0.0.1", 0)
+    local address = uv.tcp_getsockname(server)
+    p(address)
+
+    local endpoints = { Endpoint:new(address.ip .. ':' .. address.port) }
+    local stream = ConnectionStream:new('id', 'token', 'guid', false, options)
+    stream:createConnections(endpoints)
+    stream:once('timeout', function()
+      stream:shutdown()
+      if not uv.is_closing(server) then uv.close(server) end
+    end)
+  end)
+
+  --test('test_hanging_connect_memory_test', function()
+  --  local options = {
+  --    datacenter = 'test',
+  --    timeout = 5000,
+  --    tls = { rejectUnauthorized = false }
+  --  }
+  --  local server = uv.new_tcp()
+  --  uv.tcp_bind(server, "127.0.0.1", 0)
+
+  --  local address = uv.tcp_getsockname(server)
+  --  p(address)
+
+  --  local t = uv.new_timer()
+  --  function r()
+  --    local endpoints = { Endpoint:new(address.ip .. ':' .. address.port) }
+  --    local stream = ConnectionStream:new('id', 'token', 'guid', false, options)
+  --    stream:createConnections(endpoints)
+  --    stream:once('timeout', function()
+  --      stream:shutdown()
+  --      collectgarbage()
+  --      collectgarbage()
+  --      --if not uv.is_closing(server) then uv.close(server) end
+  --    end)
+  --  end
+  --  uv.timer_start(t, 20, 20, r)
+  --end)
 
   test('test_reconnects', function()
     local servers, options, client, clientEnd, reconnect
@@ -90,6 +137,12 @@ require('tap')(function(test)
         AEP:listen(50041, '127.0.0.1')
         client:once('handshake_success', function() callback() end)
       end,
+      function(callback)
+        AEP:close()
+        AEP = Server:new()
+        AEP:listen(50041, '127.0.0.1')
+        client:once('reconnect', function() callback() end)
+      end
     }, function()
       client:shutdown()
       AEP:close()
