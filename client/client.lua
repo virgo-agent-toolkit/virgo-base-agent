@@ -52,7 +52,7 @@ function AgentClient:initialize(options, connectionStream, types)
   self._host = options.host
   self._proxy = options.proxy
   self._features = options.features
-  self._timeout = options.timeout or 5000
+  self._timeout = options.timeout or 20000
   self._machine = ConnectionStateMachine:new(connectionStream)
   self._machine:on('respawn', utils.bind(self._onRespawn, self))
   self:_incrementDatacenterCount()
@@ -174,23 +174,14 @@ function AgentClient:connect()
   end
 
   self._log(logging.DEBUG, 'Connecting...')
+  self._log(logging.DEBUG, fmt('  Using timeout %sms', self._timeout))
   self._connection = Connection:new({}, options)
   self._connection:connect(onSuccess, onError)
-  self._connection:on('close', function()
-    self:emit('error', Error:new('Connection close'))
-  end)
-end
-
-function AgentClient:_attachSocketHandlers()
-  self._sock.socket:setTimeout(self:_socketTimeout(), function()
+  self._connection:setTimeout(self._timeout, function()
     self:emit('timeout')
   end)
-  self._sock:on('error', function(err)
-    self._log(logging.ERROR, fmt('Failed to connect: %s', JSON.stringify(err)))
-    self:emit('error', err)
-  end)
-  self._sock:on('end', function()
-    self:emit('end')
+  self._connection:on('close', function()
+    self:emit('error', Error:new('Connection close'))
   end)
 end
 

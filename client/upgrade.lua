@@ -72,7 +72,6 @@ local function loadWindowsFFI()
     typedef const CHAR *LPCSTR, *PCSTR;
 
     enum {
-    ERROR_SUCCESS = 0L,
     ERROR_MORE_DATA = 234L
     };
 

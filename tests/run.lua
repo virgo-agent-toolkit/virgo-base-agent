@@ -14,7 +14,7 @@ local function run()
       -- run the tests!
       tap(true)
     end
-    local match = string.match(ent.name, "^test%-(.*).lua$")
+    local match = string.match(ent, "^test%-(.*).lua$")
     if match then
       local path = "./test-" .. match
       tap(match)

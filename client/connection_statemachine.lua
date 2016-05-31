@@ -32,6 +32,7 @@ local ConnectionStateMachine = hsm.StateMachine:extend()
 function ConnectionStateMachine:initialize(connectionStream)
   self._connectionStream = connectionStream
   self._emittedRespawn = false
+  self_shutdown = false
   self:defineStates({
     Default = {},
     Handshake = {},
@@ -51,7 +52,15 @@ function ConnectionStateMachine:_autoTransition(client, state, msg)
   end)
 end
 
+function ConnectionStateMachine:shutdown()
+  self._shutdown = true
+end
+
 function ConnectionStateMachine:_reactDefault(client, state, msg)
+  if self._shutdown then
+    self:_autoTransition(client, state, msg)
+    return self.states.Done
+  end
   client:log(logging.DEBUG, fmt('machine: state=Default (%s)', state or 'none'))
   if state and state =='connect' then
     return self.states.Handshake
@@ -64,6 +73,10 @@ function ConnectionStateMachine:_reactDefault(client, state, msg)
 end
 
 function ConnectionStateMachine:_reactHandshake(client, state, msg)
+  if self._shutdown then
+    self:_autoTransition(client, state, msg)
+    return self.states.Done
+  end
   client:log(logging.DEBUG, fmt('machine: state=Handshake (%s)', state or 'none'))
   if state and state == 'done' then
     self:_autoTransition(client, state, msg)
@@ -76,6 +89,10 @@ function ConnectionStateMachine:_reactHandshake(client, state, msg)
 end
 
 function ConnectionStateMachine:_reactTimeSync(client, state, msg)
+  if self._shutdown then
+    self:_autoTransition(client, state, msg)
+    return self.states.Done
+  end
   client:log(logging.DEBUG, fmt('machine: state=TimeSync (%s)', state or 'none'))
   if state and state == 'done' then
     self:_autoTransition(client, state, msg)
@@ -88,6 +105,10 @@ function ConnectionStateMachine:_reactTimeSync(client, state, msg)
 end
 
 function ConnectionStateMachine:_reactRunning(client, state, msg)
+  if self._shutdown then
+    self:_autoTransition(client, state, msg)
+    return self.states.Done
+  end
   client:log(logging.DEBUG, fmt('machine: state=Running (%s)', state or 'none'))
   if state == 'done' then
     self:_autoTransition(client, state, msg)
@@ -97,6 +118,10 @@ function ConnectionStateMachine:_reactRunning(client, state, msg)
 end
 
 function ConnectionStateMachine:_reactDeactivate(client, state, msg)
+  if self._shutdown then
+    self:_autoTransition(client, state, msg)
+    return self.states.Done
+  end
   client:log(logging.DEBUG, fmt('machine: state=Deactivate (%s)', state or 'none'))
   if state == 'done' then
     self:_autoTransition(client, state, msg)
@@ -108,6 +133,10 @@ function ConnectionStateMachine:_reactDeactivate(client, state, msg)
 end
 
 function ConnectionStateMachine:_reactTimeSyncDeactivate(client, state, msg)
+  if self._shutdown then
+    self:_autoTransition(client, state, msg)
+    return self.states.Done
+  end
   client:log(logging.DEBUG, fmt('machine: state=TimeSyncDeactivate (%s)', state or 'none'))
   if state == 'done' then
     self:_autoTransition(client, state, msg)
@@ -122,6 +151,10 @@ function ConnectionStateMachine:_reactTimeSyncDeactivate(client, state, msg)
 end
 
 function ConnectionStateMachine:_reactRespawn(client, state, msg)
+  if self._shutdown then
+    self:_autoTransition(client, state, msg)
+    return self.states.Done
+  end
   client:log(logging.DEBUG, 'machine: state=Respawn')
   self:emit('respawn')
   return self.states.Done
