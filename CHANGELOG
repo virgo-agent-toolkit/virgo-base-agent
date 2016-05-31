@@ -1,3 +1,7 @@
+## virgo-base-agent 2.1.2
+
+ * Fix for connection socket timeout
+
 ## virgo-base-agent 2.1.1
 
  * Fix error reporting
