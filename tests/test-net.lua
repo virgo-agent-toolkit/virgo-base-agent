@@ -58,6 +58,8 @@ require('tap')(function(test)
   end)
 
   test('test_hanging_connect', function()
+    -- Note: This test will timeout if anything goes wrong with the socket
+    -- timeout
     local options = {
       datacenter = 'test',
       timeout = 5000,
