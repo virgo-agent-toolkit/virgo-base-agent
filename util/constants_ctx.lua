@@ -69,7 +69,7 @@ globalCtx:set('RATE_LIMIT_RETURN_CODE', 2)
 globalCtx:set('DATACENTER_FIRST_RECONNECT_DELAY', 41 * 1000) -- initial datacenter delay
 globalCtx:set('DATACENTER_FIRST_RECONNECT_DELAY_JITTER', 37 * 1000) -- initial datacenter jitter
 
-globalCtx:set('DATACENTER_RECONNECT_DELAY', 5 * 60 * 1000) -- max connection delay
+globalCtx:set('DATACENTER_RECONNECT_DELAY', 2 * 60 * 1000) -- max connection delay
 globalCtx:set('DATACENTER_RECONNECT_DELAY_JITTER', 17 * 1000)
 
 globalCtx:set('SRV_RECORD_FAILURE_DELAY', 13 * 1000)
