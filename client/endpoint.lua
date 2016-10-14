@@ -33,8 +33,6 @@ function Endpoint:initialize(host, port, srv_query)
   self.host = host
   self.port = port
   self.srv_query = srv_query
-  self.ips = nil
-  self.ips_index = 1
 end
 
 
@@ -72,9 +70,7 @@ function Endpoint:getHostInfo(callback)
         if err then
           return callback(err)
         end
-        self.ips = ipa
-        self.ips_index = ((self.ips_index + 1) % #self.ips) + 1
-        ip = self.ips[self.ips_index].addr
+        ip = ipa[1].addr
         callback()
       end)
     end
