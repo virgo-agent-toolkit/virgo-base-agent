@@ -80,6 +80,51 @@ require('tap')(function(test)
     end)
   end)
 
+  local function has_value(tab, val)
+    for index, value in ipairs (tab) do
+      if value == val then
+        return true
+      end
+    end
+    return false
+  end
+
+  test('test_endpoint_resolver', function()
+    local endpoint = Endpoint:new('agent-endpoint-dfw.monitoring.api.rackspacecloud.com:443')
+    local ips = {}
+    async.series({
+      function(callback)
+        endpoint:getHostInfo(function(err, _, ip1)
+          assert(not err)
+          assert(#ip1 > 0)
+          table.insert(ips, ip1)
+          p(ip1)
+          callback()
+        end)
+      end,
+      function(callback)
+        endpoint:getHostInfo(function(err, _, ip2)
+          assert(not err)
+          assert(#ip2 > 0)
+          assert(not has_value(ips, ip2))
+          table.insert(ips, ip2)
+          p(ip2)
+          callback()
+        end)
+      end,
+      function(callback)
+        endpoint:getHostInfo(function(err, _, ip3)
+          assert(not err)
+          assert(#ip3 > 0)
+          assert(not has_value(ips, ip3))
+          table.insert(ips, ip3)
+          p(ip3)
+          callback()
+        end)
+      end
+    })
+  end)
+
   --test('test_hanging_connect_memory_test', function()
   --  local options = {
   --    datacenter = 'test',
