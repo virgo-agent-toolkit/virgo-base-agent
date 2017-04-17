@@ -328,6 +328,152 @@ tableToString = function(tbl, delim)
   return table.concat(result, delim)
 end
 
+--[[ A reliable childprocess spawn and retrieve data utility function ]]--
+local function execFileToBuffers(command, args, options, callback)
+  local child, stdout, stderr, exitCode
+
+  stdout = {}
+  stderr = {}
+
+  child = childProcess.spawn(command, args, options)
+  child.stdout:on('data', function (chunk)
+    table.insert(stdout, chunk)
+  end)
+  child.stderr:on('data', function (chunk)
+    table.insert(stderr, chunk)
+  end)
+
+  async.parallel({
+    function(callback)
+      child.stdout:on('end', callback)
+    end,
+    function(callback)
+      child.stderr:on('end', callback)
+    end,
+    function(callback)
+      local onExit
+      function onExit(code)
+        exitCode = code
+        callback()
+      end
+
+      child:on('exit', onExit)
+    end
+  }, function(err)
+    callback(err, exitCode, table.concat(stdout, ""), table.concat(stderr, ""))
+  end)
+end
+
+--[[
+-- readCast - A utility function to make it easier to read a file and cast values from it into a table
+--  @param {string} filePath The file we want to read
+--  @param {table} errTable A table to dump errors we encounter into
+--  @param {table} outTable A table to dump objects generated from the casterfunc into
+--  @param {function} casterFunc A function to call per line of our file, params are
+ --   {iterator} iter An iterator that when called will retrieve the first word then the next space seperated value
+ --   {table} obj An empty object into which you can insert worthwhile things, will be added into outTable at the end
+ --   {string} line The line we are working with in its entirety
+--  @param {function} callback Final callback function fired at end
+--]]
+local function readCast(filePath, errTable, outTable, casterFunc, callback)
+  -- Sanity checks
+  if (type(filePath) ~= 'string') then filePath = '' end
+  if (type(errTable) ~= 'table') then errTable = {} end
+  if (type(outTable) ~= 'table') then outTable = {} end
+  if (type(casterFunc) ~= 'function') then function casterFunc(iter, obj, line) end end
+  if (type(callback) ~= 'function') then function callback() end end
+
+  local obj = {}
+  fs.exists(filePath, function(err, file)
+    if err then
+      table.insert(errTable, string.format('File not found : { fs.exists erred: %s }', err))
+      return callback()
+    end
+    if file then
+      fs.readFile(filePath, function(err, data)
+
+        if err then
+          table.insert(errTable, string.format('File couldnt be read : { fs.readline erred: %s }', err))
+          return callback()
+        end
+
+        for line in data:gmatch("[^\r\n]+") do
+          local iscomment = string.match(line, '^#')
+          local isblank = string.len(line:gsub("%s+", "")) <= 0
+
+          if not iscomment and not isblank then
+            -- split the line and assign key vals
+            local iter = line:gmatch("%S+")
+            casterFunc(iter, obj, line)
+          end
+        end
+
+        -- Flatten single entry objects
+        if #obj == 1 then obj = obj[1] end
+        -- Dont insert empty objects into the outTable
+        if next(obj) then table.insert(outTable, obj) end
+
+        return callback()
+      end)
+    else
+      table.insert(errTable, 'file not found')
+      return callback()
+    end
+
+  end)
+end
+
+--[[
+-- asyncSpawn - Utility function to easily spawn a lot of procs
+--  @param {table} dataArr The list to iterate over
+--  @param {function} spawnFunc A user defined function to call to get what command to spawn. Expects you to do 'return a, b'
+--    @param {?string} datum The array element the asyncspawn utility is currently at
+--    @return {string} cmd The shell command to run
+--    @return {table} args A table of arguments to supply the shell cmd spawns
+--  @param {function} successFunc A function to call if the spawn is succesful
+--    @param {string} data The stdout data from the sub proc
+--    @param {table} obj A (initially) empty table for you to push things into
+--    @param {?string} datum The array element the asyncspawn utility is currently at
+--    @param {number} exitcode The exitcode of the sub proc, 0 if alls good
+--  @param {function} finaCb The final callback to return
+--    @param {table} obj The table you've been entering data into via the successfunc
+--    @param {table} errTable A table of any error information retrieved
+--]]
+local function asyncSpawn(dataArr, spawnFunc, successFunc, finalCb)
+  -- Sanity checks
+  if type(dataArr) ~= 'table' then
+    if dataArr ~= nil then
+      local obj = {}
+      table.insert(obj, dataArr)
+      dataArr = obj
+      return
+    end
+    dataArr = {}
+  end
+  if type(spawnFunc) ~= 'function' then function spawnFunc(datum) return '', {} end end
+  if type(successFunc) ~= 'function' then function successFunc(data, emptyObj, datum) end end
+  if type(finalCb) ~= 'function' then function finalCb(obj, errdata) end end
+
+  -- Asynchronous spawn cps & gather data
+  local obj = {}
+  local errTable = {}
+  async.forEachLimit(dataArr, 5, function(datum, cb)
+    local cmd, args = spawnFunc(datum)
+    local function _successFunc(err, exitcode, data, stderr)
+      if exitcode ~= 0 or err or stderr then errTable[cmd..args] = {} end
+      if exitcode ~= 0 then table.insert(errTable[cmd..args], {exitcode = exitcode}) end
+      if err then table.insert(errTable[cmd..args], {err = err}) end
+      if stderr then table.insert(errTable[cmd..args], {stderr = stderr}) end
+
+      successFunc(data, obj, datum, exitcode)
+      return cb()
+    end
+    return execFileToBuffers(cmd, args, opts, _successFunc)
+  end, function()
+    return finalCb(obj, errTable)
+  end)
+end
+
 --[[ Exports ]]--
 exports.copyFile = copyFile
 exports.calcJitter = calcJitter
@@ -347,3 +493,6 @@ exports.nCallbacks = nCallbacks
 exports.propagateEvents = propagateEvents
 exports.parseCSVLine = parseCSVLine
 exports.randstr = randstr
+exports.execFileToBuffers = execFileToBuffers
+exports.readCast = readCast
+exports.asyncSpawn = asyncSpawn
