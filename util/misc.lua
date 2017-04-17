@@ -149,6 +149,13 @@ local function trim(s)
   return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
 
+local function trimAll(s)
+  if not s then return end
+  s = s:gsub('\n', '')
+  s = s:gsub('\t', '')
+  return trim(s)
+end
+
 -- Return start index of last occurance of a pattern in a string
 local function lastIndexOf(str, pat)
   local startIndex, _
@@ -341,6 +348,7 @@ exports.split = split
 exports.toString = toString
 exports.tableContains = tableContains
 exports.trim = trim
+exports.trimAll = trimAll
 exports.lastIndexOf = lastIndexOf
 exports.fireOnce = fireOnce
 exports.nCallbacks = nCallbacks
