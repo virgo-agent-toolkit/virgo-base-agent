@@ -158,7 +158,9 @@ end
 -- set the connection timeout
 function Connection:setTimeout(ms, callback)
   self.timeout = ms
-  self._tls_connection:setTimeout(ms, callback)
+  if self._tls_connection then
+    self._tls_connection:setTimeout(ms, callback)
+  end
 end
 
 function Connection:getSocket()

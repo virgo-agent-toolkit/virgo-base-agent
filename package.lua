@@ -1,6 +1,6 @@
 return {
   name = "virgo-agent-toolkit/virgo",
-  version = "2.1.5",
+  version = "2.1.6",
   luvi = {
     version = "2.7.2-sigar",
     flavor = "sigar",
