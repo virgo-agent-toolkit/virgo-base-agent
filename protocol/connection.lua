@@ -205,7 +205,6 @@ function AgentProtocolConnection:_send(msg, callback, timeout)
           if err.code == 400 then
             self._log(logging.ERROR, fmt('Non-fatal error: %s', err.message))
           else
-            self._log(logging.ERROR, fmt('Fatal error: %s: %s', err.type, err.message))
             self:emit('error', err)
           end
         end
