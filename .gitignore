@@ -1,4 +1,8 @@
 deps
 virgo
 luvi
+luvit
+luvi-sigar
 lit*
+/.idea/
+/*.iml

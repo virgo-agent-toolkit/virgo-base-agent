@@ -148,6 +148,12 @@ function AgentClient:connect()
       self._heartbeat_interval = self._connection.handshake_msg.result.heartbeat_interval
       self._entity_id = self._connection.handshake_msg.result.entity_id
       self._connectionStream:setChannel(self._connection.handshake_msg.result.channel)
+
+      local socket_timeout = self:_socketTimeout()
+      self._log(logging.DEBUG, fmt('Using timeout %sms', socket_timeout))
+      self._connection:setTimeout(socket_timeout, function()
+        self:emit('timeout')
+      end)
     end)
     if err then
       if self._connection.handshake_msg then
@@ -159,11 +165,6 @@ function AgentClient:connect()
       self:emit('handshake_success', self._connection.handshake_msg.result)
     end
 
-    local socket_timeout = self:_socketTimeout()
-    self._log(logging.DEBUG, fmt('Using timeout %sms', socket_timeout))
-    self._connection:setTimeout(socket_timeout, function()
-      self:emit('timeout')
-    end)
     self._connection:getSocket():on('end', function()
       self:emit('end')
     end)
