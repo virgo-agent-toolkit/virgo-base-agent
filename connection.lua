@@ -116,7 +116,7 @@ function Connection:_changeState(to, data)
 end
 
 function Connection:_error(err)
-  self._log(logging.ERROR, tostring(err))
+  self._log(logging.WARNING, tostring(err))
   self:_changeState(CXN_STATES.ERROR, err)
 end
 
