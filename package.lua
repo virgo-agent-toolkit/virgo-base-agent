@@ -8,7 +8,7 @@ return {
   },
   dependencies = {
     "luvit/luvit@2",
-    "luvit/tap@0.1",
+    "luvit/tap@0.1.1",
     "rphillips/hsm@1",
     "rphillips/logging@1.0",
     "creationix/semver@1.0",
