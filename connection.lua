@@ -116,6 +116,11 @@ function Connection:_changeState(to, data)
 end
 
 function Connection:_error(err)
+  self._log(logging.ERROR, tostring(err))
+  self:_changeState(CXN_STATES.ERROR, err)
+end
+
+function Connection:_warning(err)
   self._log(logging.WARNING, tostring(err))
   self:_changeState(CXN_STATES.ERROR, err)
 end
@@ -179,7 +184,7 @@ function Connection:_connect()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
   self._tls_connection:on('error', function(err)
-    self:_error(err)
+    self:_warning(err)
   end)
   self._tls_connection:on('close', function()
     self:emit('close')
