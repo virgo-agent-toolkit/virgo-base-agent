@@ -146,6 +146,7 @@ function ConnectionStream:_createConnection(options)
     self:emit('timeout')
     client:log(logging.DEBUG, 'Client Timeout')
     client:destroy()
+    self:_handleClientClosure()
   end)
 
   client:on('connect', function()
@@ -156,12 +157,14 @@ function ConnectionStream:_createConnection(options)
     self:emit('client_end', client)
     client:log(logging.DEBUG, 'Remote endpoint closed the connection')
     client:destroy()
+    self:_handleClientClosure()
   end)
 
   client:on('end', function()
     self:emit('client_end', client)
     client:log(logging.DEBUG, 'Remote endpoint closed the connection')
     client:destroy()
+    self:_handleClientClosure()
   end)
 
   client:on('handshake_success', function(data)
@@ -179,6 +182,19 @@ function ConnectionStream:_createConnection(options)
   self._unauthedClients[client:getDatacenter()] = client
 
   return client
+end
+
+function ConnectionStream:_handleClientClosure()
+  local connectionCount = 0
+  for k, v in pairs(self._clients) do
+    if not self._clients[k]:isDestroyed() then
+      connectionCount = connectionCount + 1
+    end
+  end
+
+  if (connectionCount == 0) then
+    logging.critical('All connections have failed')
+  end
 end
 
 function ConnectionStream:_setDelay(datacenter)

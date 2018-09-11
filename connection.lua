@@ -120,6 +120,11 @@ function Connection:_error(err)
   self:_changeState(CXN_STATES.ERROR, err)
 end
 
+function Connection:_warning(err)
+  self._log(logging.WARNING, tostring(err))
+  self:_changeState(CXN_STATES.ERROR, err)
+end
+
 -- resolve SRV record
 function Connection:_resolve()
   dns.resolveSrv(self.endpoint, function(err, host)
@@ -179,7 +184,7 @@ function Connection:_connect()
     self:_changeState(CXN_STATES.CONNECTED)
   end)
   self._tls_connection:on('error', function(err)
-    self:_error(err)
+    self:_warning(err)
   end)
   self._tls_connection:on('close', function()
     self:emit('close')
