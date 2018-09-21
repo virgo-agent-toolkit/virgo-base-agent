@@ -1,3 +1,7 @@
+## virgo-base-agent 2.1.9
+
+ * Upgrade luvit to 2.15.0 for connection handling improvements
+
 ## virgo-base-agent 2.1.8
 
  * Add critical log when all endpoint connections are lost and change existing connection errors to warning
