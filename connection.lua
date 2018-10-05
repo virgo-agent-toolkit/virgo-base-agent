@@ -51,6 +51,9 @@ function Connection:initialize(manifest, options)
   self.proxy = self.options.proxy
   self.features = options.features or {}
   self._handshake_timeout = consts:get("DEFAULT_HANDSHAKE_TIMEOUT", 30000)
+  self._proxy_timeout = misc.calcJitter(consts:get("PROXY_TIMEOUT"),
+                                        consts:get("PROXY_TIMEOUT_JITTER"))
+
 
   self.timers = {}
 
@@ -142,9 +145,10 @@ end
 -- configured
 function Connection:_proxy()
   if self.proxy then
-    self._log(logging.DEBUG, fmt('Using PROXY %s with timeout %s', self.proxy, self.timeout))
+    self._log(logging.DEBUG, fmt('Using PROXY %s with timeout %s', self.proxy, self._proxy_timeout))
+    -- an error will be logged whenever a proxy timeout occurs, whether it was expected or not
     local upstream_host = fmt('%s:%s', self.host, self.port)
-    request.proxy(self.proxy, upstream_host, self.timeout, function(err, proxysock)
+    request.proxy(self.proxy, upstream_host, self._proxy_timeout, function(err, proxysock)
       if err then
         self:_error(err)
         return
