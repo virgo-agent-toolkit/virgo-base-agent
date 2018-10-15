@@ -72,6 +72,9 @@ globalCtx:set('DATACENTER_FIRST_RECONNECT_DELAY_JITTER', 37 * 1000) -- initial d
 globalCtx:set('DATACENTER_RECONNECT_DELAY', 2 * 60 * 1000) -- max connection delay
 globalCtx:set('DATACENTER_RECONNECT_DELAY_JITTER', 17 * 1000)
 
+globalCtx:set('PROXY_TIMEOUT', 2 * 24 * 60 * 60 * 1000) -- 2 days
+globalCtx:set('PROXY_TIMEOUT_JITTER', 1 * 24 * 60 * 60 * 1000) -- 1 day
+
 globalCtx:set('SRV_RECORD_FAILURE_DELAY', 13 * 1000)
 globalCtx:set('SRV_RECORD_FAILURE_DELAY_JITTER', 37 * 1000)
 
